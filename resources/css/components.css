@@ -1,0 +1,65 @@
+/* ==========================================================================
+   REUSABLE COMPONENTS
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   CUSTOM SELECT COMPONENT
+   -------------------------------------------------------------------------- */
+.custom-select-hidden-native {
+    position: absolute !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: -1px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    border: 0 !important;
+}
+
+.custom-select-container {
+    width: 100%;
+    position: relative;
+    z-index: 15;
+}
+
+.custom-select-container:focus-within,
+.custom-select-container:has(.custom-select-menu:not(.hidden)) {
+    z-index: 60;
+}
+
+.custom-select-menu {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+}
+
+/* --------------------------------------------------------------------------
+   CUSTOM DATE PICKER COMPONENT
+   -------------------------------------------------------------------------- */
+.custom-date-hidden-native {
+    position: absolute !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: -1px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    border: 0 !important;
+}
+
+.custom-date-container {
+    width: 100%;
+    position: relative;
+    z-index: 10;
+}
+
+.custom-date-container:focus-within,
+.custom-date-container:has(.custom-date-panel:not(.hidden)) {
+    z-index: 60;
+}
+
+.custom-date-panel {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.06);
+}

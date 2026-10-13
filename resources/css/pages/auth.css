@@ -1,0 +1,9 @@
+/* ==========================================================================
+   AUTH PAGES STYLES (Login & Register)
+   ========================================================================== */
+
+/* Auth container subtle image backdrop */
+.auth-panel-overlay {
+    mix-blend-mode: luminosity;
+    opacity: 0.2;
+}

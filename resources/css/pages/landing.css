@@ -1,0 +1,13 @@
+/* ==========================================================================
+   LANDING PAGE STYLES
+   ========================================================================== */
+
+/* Hero & Section Specific Transitions */
+.landing-hero {
+    scroll-margin-top: 5rem;
+}
+
+/* Section anchor smooth scroll target */
+.landing-section {
+    scroll-margin-top: 6rem;
+}

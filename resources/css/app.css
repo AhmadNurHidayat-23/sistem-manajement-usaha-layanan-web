@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+
+@theme {
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --color-primary-navy: #062072;
+    --color-dark-navy: #04184F;
+    --color-blue-accent: #0B3A9E;
+    --color-soft-blue: #DCE8FF;
+    --color-bg-light: #F5F8FC;
+    --color-card-white: #FFFFFF;
+    --color-border-subtle: #E4E7EC;
+    --color-text-main: #101828;
+    --color-text-secondary: #667085;
+}
+
+@import './base.css';
+@import './components.css';
+@import './pages/landing.css';
+@import './pages/auth.css';
+@import './pages/customer.css';
+@import './pages/internal.css';

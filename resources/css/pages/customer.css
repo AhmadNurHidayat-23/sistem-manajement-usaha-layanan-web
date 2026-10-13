@@ -1,0 +1,13 @@
+/* ==========================================================================
+   CUSTOMER AREA STYLES (Promo, Pesanan, Member, Booking, Pembayaran)
+   ========================================================================== */
+
+/* Customer booking slot item transition */
+.booking-slot-pill {
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+/* Voucher coupon border dash */
+.voucher-coupon-border {
+    border-style: dashed;
+}

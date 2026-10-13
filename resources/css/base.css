@@ -1,0 +1,143 @@
+/* ==========================================================================
+   BASE & GLOBAL STYLES
+   ========================================================================== */
+
+:root {
+    --primary-navy: #062072;
+    --dark-navy: #04184F;
+    --blue-accent: #0B3A9E;
+    --soft-blue: #DCE8FF;
+    --bg-light: #F5F8FC;
+    --card-white: #FFFFFF;
+    --border-subtle: #E4E7EC;
+    --text-main: #101828;
+    --text-secondary: #667085;
+}
+
+/* ==========================================================================
+   GLOBAL BODY & TYPOGRAPHY
+   ========================================================================== */
+body {
+    background-color: var(--bg-light);
+    color: var(--text-main);
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ==========================================================================
+   TABLE BASE STYLES
+   ========================================================================== */
+table {
+    font-size: 13px;
+}
+
+table thead th {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+table tbody td {
+    font-size: 12px;
+    vertical-align: middle;
+}
+
+/* ==========================================================================
+   SCROLLBAR
+   ========================================================================== */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8;
+}
+
+/* ==========================================================================
+   BUTTON & FORM DEFAULTS
+   ========================================================================== */
+button, a.btn, [type="submit"], [type="button"] {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+input, select, textarea {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-size: 13px;
+}
+
+/* Baseline style untuk select di seluruh aplikasi (sebelum/jika JS belum terpasang) */
+select:not(.custom-select-hidden-native) {
+    height: 44px;
+    background-color: #FFFFFF;
+    border: 1px solid #D0D5DD;
+    border-radius: 0.5rem;
+    font-size: 13px;
+    color: #101828;
+    padding-left: 0.875rem;
+    padding-right: 2.25rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23667085'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem 1rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+select:not(.custom-select-hidden-native):focus {
+    outline: none;
+    border-color: #062072;
+    box-shadow: 0 0 0 1px #062072;
+}
+
+/* Baseline native date input fallback */
+input[type="date"]:not(.custom-date-hidden-native) {
+    height: 44px;
+    background-color: #FFFFFF;
+    border: 1px solid #D0D5DD;
+    border-radius: 0.5rem;
+    font-size: 13px;
+    color: #101828;
+    padding-left: 0.875rem;
+    padding-right: 0.875rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="date"]:not(.custom-date-hidden-native):focus {
+    outline: none;
+    border-color: #062072;
+    box-shadow: 0 0 0 1px #062072;
+}
+
+/* ==========================================================================
+   GLOBAL PRINT UTILITIES
+   ========================================================================== */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    .page-break {
+        page-break-after: always;
+    }
+}

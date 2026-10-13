@@ -1,0 +1,201 @@
+/* ==========================================================================
+   INTERNAL DASHBOARD STYLES (Owner, Manager, Kasir, Karyawan)
+   ========================================================================== */
+
+:root {
+    --sidebar-width: 250px;
+    --sidebar-collapsed-width: 68px;
+}
+
+/* --------------------------------------------------------------------------
+   SIDEBAR & MAIN AREA COLLAPSE BEHAVIOUR (Desktop >= 1024px)
+   -------------------------------------------------------------------------- */
+@media (min-width: 1024px) {
+    .sidebar-nav {
+        width: var(--sidebar-width);
+        transform: translateX(0) !important;
+    }
+
+    .sidebar-nav.collapsed {
+        width: var(--sidebar-collapsed-width);
+    }
+
+    .sidebar-nav.sidebar-animate {
+        transition: width 0.25s ease;
+    }
+
+    .main-area {
+        margin-left: var(--sidebar-width);
+    }
+
+    .main-area.sidebar-collapsed {
+        margin-left: var(--sidebar-collapsed-width);
+    }
+
+    .main-area.sidebar-animate {
+        transition: margin-left 0.25s ease;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   SIDEBAR OFF-CANVAS DRAWER BEHAVIOUR (Mobile & Tablet < 1024px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 1023px) {
+    .sidebar-nav {
+        width: var(--sidebar-width) !important;
+        transform: translateX(-100%);
+        transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.35), 0 10px 10px -5px rgba(0, 0, 0, 0.25);
+    }
+
+    .sidebar-nav.mobile-open {
+        transform: translateX(0) !important;
+    }
+
+    .main-area {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+}
+
+/* Backdrop Overlay for Mobile Drawer */
+#sidebar-backdrop {
+    transition: opacity 0.25s ease;
+}
+
+#sidebar-backdrop.active {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* Logo display switching */
+.sidebar-brand-mini {
+    display: none !important;
+}
+
+.sidebar-nav.collapsed .sidebar-brand-full {
+    display: none !important;
+}
+
+.sidebar-nav.collapsed .sidebar-brand-mini {
+    display: block !important;
+}
+
+.sidebar-nav.collapsed .sidebar-header {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+}
+
+/* Sembunyikan teks menu & section header saat sidebar collapse */
+.sidebar-nav.collapsed .sidebar-label {
+    display: none !important;
+}
+
+.sidebar-nav.collapsed .sidebar-brand-text {
+    display: none !important;
+}
+
+.sidebar-nav.collapsed .sidebar-section-header {
+    display: none !important;
+}
+
+/* Logo icon lebih besar saat collapse */
+.sidebar-nav.collapsed .sidebar-brand-icon {
+    width: 36px;
+    height: 36px;
+}
+
+/* Pusatkan link menu saat collapse */
+.sidebar-nav.collapsed .sidebar-link {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.sidebar-nav.collapsed .sidebar-link svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Toggle button */
+.sidebar-toggle-btn {
+    transition: transform 0.25s ease;
+}
+
+.sidebar-nav.collapsed .sidebar-toggle-btn {
+    transform: rotate(180deg);
+}
+
+/* Tooltip saat sidebar ditutup */
+.sidebar-nav.collapsed .sidebar-link {
+    position: relative;
+}
+
+.sidebar-tooltip {
+    display: none;
+}
+
+.sidebar-nav.collapsed .sidebar-link:hover .sidebar-tooltip {
+    display: block;
+}
+
+/* Footer user di sidebar saat collapse */
+.sidebar-nav.collapsed .sidebar-user-info {
+    display: none;
+}
+
+.sidebar-nav.collapsed .sidebar-logout-label {
+    display: none;
+}
+
+.sidebar-nav.collapsed .sidebar-footer-section {
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-nav.collapsed .sidebar-logout-btn {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* --------------------------------------------------------------------------
+   PRINT & RECEIPT CUSTOM STYLES (Thermal 80mm / 58mm & Standard)
+   -------------------------------------------------------------------------- */
+@media print {
+    @page {
+        margin: 0;
+        size: auto;
+    }
+
+    body.receipt-print-body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    body.report-print-body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 11px !important;
+    }
+
+    .receipt-box {
+        box-shadow: none !important;
+        border: none !important;
+        width: 100% !important;
+        max-width: 300px !important;
+        margin: 0 auto !important;
+        padding: 8px 12px !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    .receipt-box * {
+        color: #000000 !important;
+    }
+}
+
