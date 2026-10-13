@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserRole;
 use App\Traits\HasPublicUuid;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -72,5 +73,22 @@ class User extends Authenticatable
         }
 
         return null;
+    }
+
+    /**
+     * Dapatkan URL dashboard spesifik sesuai peran (role) pengguna.
+     */
+    public function getDashboardUrl(): string
+    {
+        $roleName = $this->role?->name;
+        $role = $roleName ? UserRole::tryFrom($roleName) : null;
+
+        return match ($role) {
+            UserRole::Owner => route('owner.dashboard'),
+            UserRole::Manager => route('manager.dashboard'),
+            UserRole::Cashier => route('cashier.dashboard'),
+            UserRole::Employee => route('employee.dashboard'),
+            UserRole::Customer, null => route('customer.dashboard'),
+        };
     }
 }

@@ -22,6 +22,7 @@ import { initUserModalListeners } from './modules/users/user-modal.js';
 import { initEmployeeModalListeners } from './modules/karyawan/employee-modal.js';
 import { initInventoryModalListeners } from './modules/inventori/inventory-modal.js';
 import { initServiceModalListeners } from './modules/katalog/service-modal.js';
+import { initReceiptWaHandlers } from './modules/kasir-pos/receipt.js';
 import './landing/carousel.js';
 
 // Expose fungsi ke window untuk aksesibilitas global dan inline handler
@@ -36,6 +37,7 @@ window.initPaymentPolling = initPaymentPolling;
 window.initHeaderClock = initHeaderClock;
 window.initDashboardTable = initDashboardTable;
 window.initReportFilter = initReportFilter;
+window.initReceiptWaHandlers = initReceiptWaHandlers;
 
 export function initApp(root = document) {
     initCustomSelects(root);
@@ -60,6 +62,7 @@ export function initApp(root = document) {
     initEmployeeModalListeners(root);
     initInventoryModalListeners(root);
     initServiceModalListeners(root);
+    initReceiptWaHandlers(root);
 }
 
 window.initAllPickers = initApp;

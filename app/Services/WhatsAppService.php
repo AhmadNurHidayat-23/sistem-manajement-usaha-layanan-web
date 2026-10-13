@@ -240,32 +240,56 @@ class WhatsAppService
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
-     * Normalisasi nomor telepon ke 62xxx.
-     * Returns null if phone is empty.
+     * Normalisasi nomor telepon ke format internasional Indonesia (628xxx).
+     * Mendukung format 08..., 62..., +62..., atau 8...
      */
-    private function normalisePhone(string $phone): ?string
+    public static function normalizeIndonesianPhone(?string $phone): ?string
     {
-        $phone = preg_replace('/\D/', '', $phone);
-
-        if (! $phone) {
+        if ($phone === null) {
             return null;
         }
 
-        // Already 62xxx
-        if (str_starts_with($phone, '62')) {
-            return $phone;
+        $digits = preg_replace('/\D/', '', $phone);
+
+        if (! $digits) {
+            return null;
         }
 
-        // Local 08xxx → 628xxx
-        if (str_starts_with($phone, '0')) {
-            return '62'.substr($phone, 1);
+        if (str_starts_with($digits, '62')) {
+            return $digits;
         }
 
-        // Assume starts with 8 (8xxx → 628xxx)
-        if (str_starts_with($phone, '8')) {
-            return '62'.$phone;
+        if (str_starts_with($digits, '0')) {
+            return '62'.substr($digits, 1);
         }
 
-        return $phone;
+        if (str_starts_with($digits, '8')) {
+            return '62'.$digits;
+        }
+
+        return $digits;
+    }
+
+    /**
+     * Periksa apakah nomor telepon merupakan nomor seluler Indonesia yang valid (format 628xxx dengan 10-15 digit).
+     */
+    public static function isValidIndonesianPhone(?string $phone): bool
+    {
+        $normalized = self::normalizeIndonesianPhone($phone);
+
+        if (! $normalized) {
+            return false;
+        }
+
+        return (bool) preg_match('/^628[0-9]{7,12}$/', $normalized);
+    }
+
+    /**
+     * Normalisasi nomor telepon ke 62xxx.
+     * Returns null if phone is empty or invalid.
+     */
+    private function normalisePhone(string $phone): ?string
+    {
+        return self::normalizeIndonesianPhone($phone);
     }
 }

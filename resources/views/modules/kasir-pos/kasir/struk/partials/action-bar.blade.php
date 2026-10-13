@@ -32,16 +32,35 @@
 
         {{-- Kirim Struk WhatsApp: Khusus transaksi yang sudah lunas --}}
         @if ($transaction->status === \App\Enums\StatusTransaksi::Paid)
-            <form method="POST" action="{{ route('pos.transactions.send-receipt', $transaction) }}" class="inline m-0">
-                @csrf
-                <button type="submit" id="btn-send-wa"
-                    class="inline-flex items-center justify-center gap-2 h-10 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors cursor-pointer whitespace-nowrap">
+            @php
+                $hasValidPhone = $transaction->hasValidCustomerPhone();
+            @endphp
+
+            @if ($hasValidPhone)
+                {{-- Pelanggan terdaftar dengan nomor valid: gunakan nomor tercatat langsung --}}
+                <form method="POST" action="{{ route('pos.transactions.send-receipt', $transaction) }}" class="inline m-0 form-send-wa-direct" data-prevent-duplicate>
+                    @csrf
+                    <button type="submit" id="btn-send-wa"
+                        class="btn-send-wa-submit inline-flex items-center justify-center gap-2 h-10 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-all cursor-pointer whitespace-nowrap">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                        <span class="btn-text">Kirim Struk WA</span>
+                    </button>
+                </form>
+            @else
+                {{-- Nomor tidak tersedia atau tidak valid: tampilkan modal input nomor WhatsApp --}}
+                <button type="button" id="btn-send-wa" data-modal-open="modal-wa-receipt"
+                    class="inline-flex items-center justify-center gap-2 h-10 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-all cursor-pointer whitespace-nowrap">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                     </svg>
                     <span>Kirim Struk WA</span>
                 </button>
-            </form>
+            @endif
+
+            {{-- Modal Input WA Pelanggan --}}
+            @include('modules.kasir-pos.kasir.struk.partials.modal-wa')
         @endif
 
         {{-- Cetak Struk: Aksi Utama --}}

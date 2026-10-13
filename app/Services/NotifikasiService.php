@@ -25,14 +25,19 @@ class NotifikasiService
     /**
      * Kirim struk transaksi via WhatsApp.
      */
-    public function kirimStrukTransaksi(Transaction $transaction): ?NotificationLog
+    public function kirimStrukTransaksi(Transaction $transaction, ?string $overridePhone = null): ?NotificationLog
     {
         $transaction->loadMissing(['branch', 'details.service', 'payments', 'booking.user', 'order.user']);
 
         $user = $transaction->booking?->user ?? $transaction->order?->user;
-        $phone = $user?->phone;
+        $rawPhone = $overridePhone ?: ($user?->phone ?? $transaction->customer_phone);
 
-        if (! $phone) {
+        if (! $rawPhone) {
+            return null;
+        }
+
+        $phone = WhatsAppService::normalizeIndonesianPhone($rawPhone);
+        if (! $phone || ! WhatsAppService::isValidIndonesianPhone($phone)) {
             return null;
         }
 
@@ -42,9 +47,9 @@ class NotifikasiService
             return "• {$d->service->name} (x{$qty}) : Rp ".number_format($d->subtotal, 0, ',', '.');
         })->implode("\n");
 
-        $payment = $transaction->payments->first();
+        $payment = $transaction->successfulPayment() ?? $transaction->payments->sortByDesc('id')->first();
         $paymentInfo = $payment
-            ? strtoupper(str_replace('_', ' ', $payment->payment_method)).' ('.$payment->status->label().')'
+            ? strtoupper(str_replace('_', ' ', $payment->payment_method)).' ('.($payment->status?->label() ?? 'Sukses').')'
             : '—';
 
         $tanggal = Carbon::parse($transaction->transaction_date)->format('d M Y H:i');
@@ -52,8 +57,11 @@ class NotifikasiService
             ? 'Diskon        : -Rp '.number_format($transaction->discount, 0, ',', '.')."\n"
             : '';
 
+        $recipientName = $user?->name ?? $transaction->customer_name ?? 'Pelanggan';
+        $greetingName = ($recipientName === 'Pelanggan Umum') ? 'Pelanggan' : $recipientName;
+
         $message = "*STRUK TRANSAKSI*\n\n"
-            ."Halo {$user->name},\n\n"
+            ."Halo {$greetingName},\n\n"
             ."Berikut adalah rincian transaksi pembayaran Anda.\n\n"
             ."No. Transaksi : {$transaction->transaction_code}\n"
             ."Tanggal       : {$tanggal}\n"

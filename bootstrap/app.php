@@ -15,6 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->redirectTo(
+            guests: '/login',
+            users: fn (Request $request) => $request->user()?->getDashboardUrl() ?? route('customer.dashboard'),
+        );
+
         $middleware->alias([
             'role' => RoleMiddleware::class,
             'mobile.auth' => MobileAuthenticate::class,

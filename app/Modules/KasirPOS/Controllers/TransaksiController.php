@@ -10,6 +10,7 @@ use App\Modules\KasirPOS\Services\KasirService;
 use App\Modules\KasirPOS\Services\TransaksiService;
 use App\Services\AktivitasService;
 use App\Services\NotifikasiService;
+use App\Services\WhatsAppService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -135,7 +136,15 @@ class TransaksiController extends Controller
             return back()->with('error', 'Struk hanya dapat dikirim untuk transaksi yang sudah lunas.');
         }
 
-        $log = $this->notifikasiService->kirimStrukTransaksi($transaction);
+        $inputPhone = $request->input('phone');
+        if ($inputPhone !== null) {
+            $inputPhone = trim((string) $inputPhone);
+            if ($inputPhone === '' || ! WhatsAppService::isValidIndonesianPhone($inputPhone)) {
+                return back()->with('error', 'Nomor telepon pelanggan belum tercatat atau tidak valid.');
+            }
+        }
+
+        $log = $this->notifikasiService->kirimStrukTransaksi($transaction, $inputPhone);
 
         if (! $log) {
             return back()->with('error', 'Nomor telepon pelanggan belum tercatat atau tidak valid.');

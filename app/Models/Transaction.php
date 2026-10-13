@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\StatusPembayaran;
 use App\Enums\StatusTransaksi;
+use App\Services\WhatsAppService;
 use App\Traits\HasPublicUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -161,8 +162,18 @@ class Transaction extends Model
      */
     public function getCustomerPhoneAttribute(): ?string
     {
-        return $this->booking?->user?->phone_number
+        return $this->booking?->user?->phone
+            ?? $this->booking?->user?->phone_number
+            ?? $this->order?->user?->phone
             ?? $this->order?->user?->phone_number
             ?? null;
+    }
+
+    /**
+     * Periksa apakah transaksi memiliki nomor telepon pelanggan yang valid.
+     */
+    public function hasValidCustomerPhone(): bool
+    {
+        return WhatsAppService::isValidIndonesianPhone($this->customer_phone);
     }
 }
