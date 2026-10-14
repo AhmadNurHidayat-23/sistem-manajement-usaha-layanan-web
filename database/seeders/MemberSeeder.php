@@ -19,7 +19,7 @@ class MemberSeeder extends Seeder
      */
     public function run(): void
     {
-        $customer = User::where('email', 'customer@example.com')->firstOrFail();
+        $customer = User::whereIn('email', ['pelanggan@simaul.com', 'customer@example.com'])->firstOrFail();
         $transaction1 = Transaction::where('transaction_code', 'TRX-DEMO-001')->firstOrFail();
 
         // 1. Data Member

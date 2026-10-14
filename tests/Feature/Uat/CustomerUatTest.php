@@ -32,7 +32,7 @@ class CustomerUatTest extends TestCase
         parent::setUp();
         $this->seed(DemoSeeder::class);
 
-        $this->customer = User::where('email', 'customer@example.com')->firstOrFail();
+        $this->customer = User::whereIn('email', ['pelanggan@simaul.com', 'customer@example.com'])->firstOrFail();
         $this->employee = User::whereIn('email', ['karyawan@simaul.com', 'employee@example.com'])->firstOrFail();
         $this->branch1 = Branch::where('name', 'like', '%Pusat%')->firstOrFail();
         $this->service1 = Service::where('branch_id', $this->branch1->id)->firstOrFail();
@@ -41,7 +41,7 @@ class CustomerUatTest extends TestCase
     public function test_uat_customer_login_and_logout(): void
     {
         $response = $this->post('/login', [
-            'email' => 'customer@example.com',
+            'email' => 'pelanggan@simaul.com',
             'password' => 'password123',
         ]);
         $response->assertRedirect(route('customer.dashboard'));

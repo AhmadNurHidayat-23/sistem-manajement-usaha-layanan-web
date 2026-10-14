@@ -36,9 +36,9 @@ class TransaksiDemoService
         $branchB = Branch::where('name', 'like', '%Selatan%')->firstOrFail();
         $branchC = Branch::where('name', 'like', '%Barat%')->firstOrFail();
 
-        $cashierA = User::where('email', 'cashier@example.com')->firstOrFail();
-        $cashierB = User::where('email', 'cashier.selatan@example.com')->firstOrFail();
-        $cashierC = User::where('email', 'cashier.barat@example.com')->firstOrFail();
+        $cashierA = User::whereIn('email', ['kasir.andi@simaul.com', 'kasir@simaul.com', 'cashier@example.com'])->firstOrFail();
+        $cashierB = User::whereIn('email', ['kasir.dewi@simaul.com', 'kasir.laundry@simaul.com', 'cashier.selatan@example.com'])->firstOrFail();
+        $cashierC = User::whereIn('email', ['kasir.bagus@simaul.com', 'kasir.autocare@simaul.com', 'cashier.barat@example.com'])->firstOrFail();
 
         $promos = [
             'global' => Promotion::where('code', 'SIMAUL10')->first() ?: Promotion::where('code', 'DISKON10')->first(),

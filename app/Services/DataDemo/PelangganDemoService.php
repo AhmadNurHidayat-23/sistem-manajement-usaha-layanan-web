@@ -28,7 +28,7 @@ class PelangganDemoService
 
         $branches = Branch::all();
         $branchIds = $branches->pluck('id')->toArray();
-        $owner = User::where('email', 'owner@example.com')->firstOrFail();
+        $owner = User::whereIn('email', ['owner@simaul.com', 'owner@example.com'])->firstOrFail();
 
         $customersData = [
             ['name' => 'Andi Pratama', 'email' => 'andi.p@customer.local', 'phone' => '081211112201', 'is_member' => true],
@@ -75,7 +75,7 @@ class PelangganDemoService
         }
 
         // Customer demo awal
-        $defaultCustomer = User::where('email', 'customer@example.com')->first();
+        $defaultCustomer = User::whereIn('email', ['pelanggan@simaul.com', 'customer@example.com'])->first();
         if ($defaultCustomer) {
             $customers['Rian Saputra'] = $defaultCustomer;
             if (! $defaultCustomer->membership) {

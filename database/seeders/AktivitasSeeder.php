@@ -14,9 +14,9 @@ class AktivitasSeeder extends Seeder
      */
     public function run(): void
     {
-        $owner = User::where('email', 'owner@example.com')->firstOrFail();
-        $manager = User::where('email', 'manager@example.com')->firstOrFail();
-        $cashier = User::where('email', 'cashier@example.com')->firstOrFail();
+        $owner = User::whereIn('email', ['owner@simaul.com', 'owner@example.com'])->firstOrFail();
+        $manager = User::whereIn('email', ['manajer@simaul.com', 'manager@example.com'])->firstOrFail();
+        $cashier = User::whereIn('email', ['kasir@simaul.com', 'kasir.andi@simaul.com', 'cashier@example.com'])->firstOrFail();
 
         // 1. Aktivitas Owner (Tambah Cabang)
         Aktivitas::firstOrCreate(

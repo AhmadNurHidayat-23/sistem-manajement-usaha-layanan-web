@@ -25,21 +25,26 @@ class OwnerDashboardService
         $today = Carbon::today();
         $endOfDay = $today->copy()->endOfDay();
 
-        // Ringkasan metrik
+        // Ringkasan metrik (1 agregasi gabungan)
         $totalActiveBranches = Branch::where('is_active', true)->count();
-        $totalOmzet = (float) Transaction::where('status', StatusTransaksi::Paid)->sum('total');
-        $totalTransactions = Transaction::where('status', StatusTransaksi::Paid)->count();
+        $trxSummary = Transaction::where('status', StatusTransaksi::Paid)
+            ->selectRaw('COALESCE(SUM(total), 0) as total_omzet, COUNT(*) as total_count')
+            ->first();
+        $totalOmzet = (float) ($trxSummary?->total_omzet ?? 0);
+        $totalTransactions = (int) ($trxSummary?->total_count ?? 0);
         $totalBookings = Booking::count();
 
-        // Tren 14 hari
+        // Tren 14 hari (dikelompokkan langsung di SQL)
         $trendStartDate = $today->copy()->subDays(13)->startOfDay();
-        $trendTransactions = Transaction::query()
+        $trendMetrics = Transaction::query()
             ->where('status', StatusTransaksi::Paid)
             ->whereBetween('transaction_date', [$trendStartDate, $endOfDay])
-            ->select(['id', 'total', 'transaction_date'])
-            ->get();
+            ->selectRaw('DATE(transaction_date) as date_key, COALESCE(SUM(total), 0) as day_omzet, COUNT(*) as day_count')
+            ->groupByRaw('DATE(transaction_date)')
+            ->get()
+            ->keyBy('date_key');
 
-        $omzetTrend = $this->buildDailyTrend($trendTransactions, $trendStartDate, $today);
+        $omzetTrend = $this->buildDailyTrend($trendMetrics, $trendStartDate, $today);
 
         // Performa per cabang
         $branches = Branch::orderBy('name')->get();
@@ -115,25 +120,21 @@ class OwnerDashboardService
     /**
      * Data tren omzet harian.
      *
-     * @param  Collection<int, Transaction>  $transactions
+     * @param  Collection<string, mixed>  $trendMetrics
      * @return array{data: array<int, array<string, mixed>>, max_omzet: float}
      */
-    protected function buildDailyTrend(Collection $transactions, Carbon $startDate, Carbon $endDate): array
+    protected function buildDailyTrend(Collection $trendMetrics, Carbon $startDate, Carbon $endDate): array
     {
-        $grouped = $transactions->groupBy(function ($trx) {
-            return Carbon::parse($trx->transaction_date)->format('Y-m-d');
-        });
-
         $period = CarbonPeriod::create($startDate, $endDate);
         $data = [];
         $maxOmzet = 0.0;
 
         foreach ($period as $date) {
             $key = $date->format('Y-m-d');
-            $dayTrxs = $grouped->get($key, collect());
+            $metric = $trendMetrics->get($key);
 
-            $dayOmzet = (float) $dayTrxs->sum('total');
-            $dayCount = $dayTrxs->count();
+            $dayOmzet = $metric ? (float) $metric->day_omzet : 0.0;
+            $dayCount = $metric ? (int) $metric->day_count : 0;
 
             if ($dayOmzet > $maxOmzet) {
                 $maxOmzet = $dayOmzet;
@@ -193,38 +194,39 @@ class OwnerDashboardService
     }
 
     /**
-     * Karyawan dengan omzet tertinggi.
+     * Karyawan dengan omzet tertinggi (agregasi terindeks).
      *
      * @return array<int, array<string, mixed>>
      */
     protected function getTopEmployees(int $limit = 5): array
     {
-        $transactions = Transaction::with(['booking.employee.branch'])
-            ->where('status', StatusTransaksi::Paid)
-            ->whereNotNull('booking_id')
+        $transactions = Transaction::query()
+            ->join('bookings', 'transactions.booking_id', '=', 'bookings.id')
+            ->join('employees', 'bookings.employee_id', '=', 'employees.id')
+            ->leftJoin('branches', 'employees.branch_id', '=', 'branches.id')
+            ->where('transactions.status', StatusTransaksi::Paid)
+            ->selectRaw('
+                employees.id as employee_id,
+                employees.name as name,
+                branches.name as branch_name,
+                COUNT(transactions.id) as transaction_count,
+                COALESCE(SUM(transactions.total), 0) as total_revenue
+            ')
+            ->groupBy('employees.id', 'employees.name', 'branches.name')
+            ->orderByDesc('total_revenue')
+            ->limit($limit)
             ->get();
 
         $employeeStats = [];
 
-        foreach ($transactions as $trx) {
-            $emp = $trx->booking?->employee;
-            if (! $emp) {
-                continue;
-            }
-
-            $empId = $emp->id;
-            if (! isset($employeeStats[$empId])) {
-                $employeeStats[$empId] = [
-                    'employee_id' => $empId,
-                    'name' => $emp->name,
-                    'branch_name' => $emp->branch?->display_name ?? 'Usaha',
-                    'transaction_count' => 0,
-                    'total_revenue' => 0.0,
-                ];
-            }
-
-            $employeeStats[$empId]['transaction_count']++;
-            $employeeStats[$empId]['total_revenue'] += (float) $trx->total;
+        foreach ($transactions as $stat) {
+            $employeeStats[$stat->employee_id] = [
+                'employee_id' => $stat->employee_id,
+                'name' => $stat->name,
+                'branch_name' => Branch::cleanBusinessName($stat->branch_name) ?: 'Usaha',
+                'transaction_count' => (int) $stat->transaction_count,
+                'total_revenue' => (float) $stat->total_revenue,
+            ];
         }
 
         if (count($employeeStats) < $limit) {
@@ -249,7 +251,7 @@ class OwnerDashboardService
     }
 
     /**
-     * Efektivitas penggunaan promo.
+     * Efektivitas penggunaan promo (agregasi SQL langsung).
      *
      * @return array{total_usages: int, total_discount_given: float, top_promotions: array<int, array<string, mixed>>}
      */
@@ -258,30 +260,33 @@ class OwnerDashboardService
         $totalUsages = PromotionUsage::count();
         $totalDiscountGiven = (float) Transaction::where('status', StatusTransaksi::Paid)->sum('discount');
 
-        $usages = PromotionUsage::with(['promotion', 'transaction'])->get();
-        $grouped = $usages->groupBy('promotion_id');
-        $topPromos = [];
-
-        foreach ($grouped as $promoId => $promoUsages) {
-            $promo = $promoUsages->first()?->promotion;
-            $count = $promoUsages->count();
-            $discount = (float) $promoUsages->sum(fn ($u) => (float) ($u->transaction?->discount ?? 0));
-
-            $topPromos[] = [
-                'promotion_id' => $promoId,
-                'code' => $promo?->code ?? 'VOUCHER',
-                'name' => $promo?->name ?? 'Promo Diskon',
-                'usage_count' => $count,
-                'total_discount' => $discount,
-            ];
-        }
-
-        usort($topPromos, fn ($a, $b) => $b['usage_count'] <=> $a['usage_count']);
+        $topPromotions = PromotionUsage::query()
+            ->join('promotions', 'promotion_usages.promotion_id', '=', 'promotions.id')
+            ->leftJoin('transactions', 'promotion_usages.transaction_id', '=', 'transactions.id')
+            ->selectRaw('
+                promotion_usages.promotion_id,
+                promotions.code,
+                promotions.name,
+                COUNT(promotion_usages.id) as usage_count,
+                COALESCE(SUM(transactions.discount), 0) as total_discount
+            ')
+            ->groupBy('promotion_usages.promotion_id', 'promotions.code', 'promotions.name')
+            ->orderByDesc('usage_count')
+            ->limit(5)
+            ->get()
+            ->map(fn ($p) => [
+                'promotion_id' => $p->promotion_id,
+                'code' => $p->code ?? 'VOUCHER',
+                'name' => $p->name ?? 'Promo Diskon',
+                'usage_count' => (int) $p->usage_count,
+                'total_discount' => (float) $p->total_discount,
+            ])
+            ->toArray();
 
         return [
             'total_usages' => $totalUsages,
             'total_discount_given' => $totalDiscountGiven,
-            'top_promotions' => array_slice($topPromos, 0, 5),
+            'top_promotions' => $topPromotions,
         ];
     }
 }

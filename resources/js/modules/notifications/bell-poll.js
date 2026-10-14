@@ -12,25 +12,48 @@ export function initNotificationBell() {
 
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
+    let closeTimeout = null;
+    let lastPollTime = Date.now();
+    let hasLoadedFeed = false;
+
+    function openDropdown() {
+        if (closeTimeout) {
+            clearTimeout(closeTimeout);
+            closeTimeout = null;
+        }
+        dropdown.classList.remove('hidden');
+        requestAnimationFrame(() => {
+            dropdown.classList.add('is-open');
+        });
+        btn.setAttribute('aria-expanded', 'true');
+        loadFeed();
+    }
+
+    function closeDropdown() {
+        dropdown.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+        closeTimeout = setTimeout(() => {
+            if (!dropdown.classList.contains('is-open')) {
+                dropdown.classList.add('hidden');
+            }
+        }, 160);
+    }
+
     // Toggle dropdown
     btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const isHidden = dropdown.classList.contains('hidden');
-        if (isHidden) {
-            dropdown.classList.remove('hidden');
-            btn.setAttribute('aria-expanded', 'true');
-            loadFeed();
+        const isOpen = dropdown.classList.contains('is-open');
+        if (isOpen) {
+            closeDropdown();
         } else {
-            dropdown.classList.add('hidden');
-            btn.setAttribute('aria-expanded', 'false');
+            openDropdown();
         }
     });
 
     // Close on click outside
     document.addEventListener('click', (e) => {
-        if (!wrapper.contains(e.target)) {
-            dropdown.classList.add('hidden');
-            btn.setAttribute('aria-expanded', 'false');
+        if (!wrapper.contains(e.target) && dropdown.classList.contains('is-open')) {
+            closeDropdown();
         }
     });
 
@@ -142,9 +165,9 @@ export function initNotificationBell() {
             list.appendChild(itemDiv);
         });
 
-        // Event listener for action buttons: mark as read then follow link
+        // Event listener for action buttons
         list.querySelectorAll('.notif-action-btn').forEach(link => {
-            link.addEventListener('click', (e) => {
+            link.addEventListener('click', () => {
                 const id = link.getAttribute('data-id');
                 if (id) markSingleAsRead(id);
             });
@@ -189,6 +212,7 @@ export function initNotificationBell() {
     }
 
     function loadFeed() {
+        lastPollTime = Date.now();
         fetch('/notifications/feed', {
             headers: { 'Accept': 'application/json' },
         })
@@ -197,15 +221,25 @@ export function initNotificationBell() {
             return res.json();
         })
         .then(data => {
+            hasLoadedFeed = true;
             updateBadge(data.unread_count || 0);
-            renderNotifications(data.notifications || []);
+            if (dropdown.classList.contains('is-open')) {
+                renderNotifications(data.notifications || []);
+            }
         })
         .catch(() => {});
     }
 
-    // Initial load
-    loadFeed();
+    // Polling cerdas (35 detik, berhenti jika tab tidak aktif)
+    setInterval(() => {
+        if (document.hidden || document.visibilityState === 'hidden') return;
+        loadFeed();
+    }, 35000);
 
-    // Polling interval: 20 seconds
-    setInterval(loadFeed, 20000);
+    // Saat tab kembali aktif, refresh jika sudah lewat 30 detik
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && Date.now() - lastPollTime > 30000) {
+            loadFeed();
+        }
+    });
 }

@@ -19,37 +19,47 @@ class KinerjaKaryawanService
      */
     public function getEmployeePerformanceSummary(Employee $employee): array
     {
-        // Statistik booking
-        $totalBookingsAssigned = $employee->bookings()->count();
-        $completedBookings = $employee->bookings()
-            ->where('status', BookingStatus::Completed->value)
-            ->count();
-        $inProgressBookings = $employee->bookings()
-            ->whereIn('status', [BookingStatus::Confirmed->value, BookingStatus::InProgress->value])
-            ->count();
+        // Statistik booking (1 query agregasi)
+        $bookingCounts = $employee->bookings()
+            ->selectRaw('
+                COUNT(*) as total,
+                SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as completed,
+                SUM(CASE WHEN status IN (?, ?) THEN 1 ELSE 0 END) as in_progress
+            ', [BookingStatus::Completed->value, BookingStatus::Confirmed->value, BookingStatus::InProgress->value])
+            ->first();
 
-        // Statistik shift
-        $totalShifts = $employee->shifts()->count();
-        $presentShifts = $employee->shifts()->where('status', StatusShiftKaryawan::Present->value)->count();
-        $lateShifts = $employee->shifts()->where('status', StatusShiftKaryawan::Late->value)->count();
-        $absentShifts = $employee->shifts()->where('status', StatusShiftKaryawan::Absent->value)->count();
-        $offShifts = $employee->shifts()->where('status', StatusShiftKaryawan::Off->value)->count();
-        $scheduledShifts = $employee->shifts()->where('status', StatusShiftKaryawan::Scheduled->value)->count();
+        $totalBookingsAssigned = (int) ($bookingCounts?->total ?? 0);
+        $completedBookings = (int) ($bookingCounts?->completed ?? 0);
+        $inProgressBookings = (int) ($bookingCounts?->in_progress ?? 0);
+
+        // Statistik shift (1 query terkelompok)
+        $shiftCounts = $employee->shifts()
+            ->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        $presentShifts = (int) ($shiftCounts[StatusShiftKaryawan::Present->value] ?? 0);
+        $lateShifts = (int) ($shiftCounts[StatusShiftKaryawan::Late->value] ?? 0);
+        $absentShifts = (int) ($shiftCounts[StatusShiftKaryawan::Absent->value] ?? 0);
+        $offShifts = (int) ($shiftCounts[StatusShiftKaryawan::Off->value] ?? 0);
+        $scheduledShifts = (int) ($shiftCounts[StatusShiftKaryawan::Scheduled->value] ?? 0);
+        $totalShifts = array_sum($shiftCounts);
 
         $workedShifts = $presentShifts + $lateShifts;
         $evaluableShifts = $workedShifts + $absentShifts;
         $attendanceRate = $evaluableShifts > 0 ? round(($workedShifts / $evaluableShifts) * 100, 1) : 100;
 
-        // Statistik komisi
-        $pendingCommission = (float) $employee->commissions()
-            ->where('status', CommissionStatus::Pending->value)
-            ->sum('commission_amount');
-        $approvedCommission = (float) $employee->commissions()
-            ->where('status', CommissionStatus::Approved->value)
-            ->sum('commission_amount');
-        $paidCommission = (float) $employee->commissions()
-            ->where('status', CommissionStatus::Paid->value)
-            ->sum('commission_amount');
+        // Statistik komisi (1 query terkelompok)
+        $commissionSums = $employee->commissions()
+            ->selectRaw('status, SUM(commission_amount) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
+
+        $pendingCommission = (float) ($commissionSums[CommissionStatus::Pending->value] ?? 0);
+        $approvedCommission = (float) ($commissionSums[CommissionStatus::Approved->value] ?? 0);
+        $paidCommission = (float) ($commissionSums[CommissionStatus::Paid->value] ?? 0);
         $totalCommissionEarned = $pendingCommission + $approvedCommission + $paidCommission;
 
         // Aktivitas terbaru

@@ -27,8 +27,8 @@ class BookingDemoService
         $branchA = Branch::where('name', 'like', '%Pusat%')->firstOrFail();
         $branchC = Branch::where('name', 'like', '%Barat%')->firstOrFail();
 
-        $managerA = User::where('email', 'manager@example.com')->firstOrFail();
-        $managerC = User::where('email', 'manager.barat@example.com')->firstOrFail();
+        $managerA = User::whereIn('email', ['manajer@simaul.com', 'manager@example.com'])->firstOrFail();
+        $managerC = User::whereIn('email', ['manajer.autocare@simaul.com', 'manager.barat@example.com'])->firstOrFail();
 
         $employeeA = Employee::where('branch_id', $branchA->id)->first();
         $employeeC = Employee::where('branch_id', $branchC->id)->first();

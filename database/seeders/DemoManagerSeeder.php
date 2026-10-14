@@ -29,13 +29,13 @@ class DemoManagerSeeder extends Seeder
 
         // 1. Pastikan penugasan akun Manajer per usaha tepat di tabel user_branches
         $managerAssignments = [
-            1 => 'manager@example.com',          // Barbershop & Studio
-            2 => 'manager.selatan@example.com',  // Laundry & Shoe Care
-            3 => 'manager.barat@example.com',    // Auto Care & Detailing
+            1 => ['manajer@simaul.com', 'manager@example.com'],          // Barbershop & Studio
+            2 => ['manajer.laundry@simaul.com', 'manager.selatan@example.com'],  // Laundry & Shoe Care
+            3 => ['manajer.autocare@simaul.com', 'manager.barat@example.com'],    // Auto Care & Detailing
         ];
 
-        foreach ($managerAssignments as $branchId => $email) {
-            $user = User::where('email', $email)->first();
+        foreach ($managerAssignments as $branchId => $emails) {
+            $user = User::whereIn('email', (array) $emails)->first();
             if ($user) {
                 DB::table('user_branches')->updateOrInsert(
                     ['user_id' => $user->id, 'branch_id' => $branchId],

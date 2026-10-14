@@ -4,12 +4,18 @@
  */
 
 const triggerMap = new Map();
+const closeTimerMap = new Map();
 let isKeydownBound = false;
 let isBackdropClickBound = false;
 
 export function openModal(id, trigger = null) {
     const el = typeof id === 'string' ? document.getElementById(id) : id;
     if (!el) return;
+
+    if (closeTimerMap.has(el)) {
+        clearTimeout(closeTimerMap.get(el));
+        closeTimerMap.delete(el);
+    }
 
     // Simpan elemen pemicu untuk dikembalikan fokusnya saat tutup
     const sourceTrigger = trigger || (document.activeElement && document.activeElement !== document.body ? document.activeElement : null);
@@ -19,6 +25,15 @@ export function openModal(id, trigger = null) {
 
     el.classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
+
+    const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+        el.classList.add('is-open');
+    } else {
+        requestAnimationFrame(() => {
+            el.classList.add('is-open');
+        });
+    }
 
     // Inisialisasi custom select & date picker jika belum terpasang di modal ini
     if (typeof window.initCustomSelects === 'function') {
@@ -43,20 +58,36 @@ export function closeModal(id) {
     const el = typeof id === 'string' ? document.getElementById(id) : id;
     if (!el || el.classList.contains('hidden')) return;
 
-    el.classList.add('hidden');
+    const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Kembalikan overflow body jika tidak ada modal lain yang terbuka
-    const remainingOpen = document.querySelectorAll('[id^="modal-"]:not(.hidden), [role="dialog"]:not(.hidden)');
-    if (remainingOpen.length === 0) {
-        document.body.classList.remove('overflow-hidden');
-    }
+    el.classList.remove('is-open');
 
-    // Kembalikan fokus ke elemen pemicu
-    const trigger = triggerMap.get(el);
-    if (trigger && typeof trigger.focus === 'function' && document.body.contains(trigger)) {
-        trigger.focus();
+    const finalizeClose = () => {
+        if (!el.classList.contains('is-open')) {
+            el.classList.add('hidden');
+        }
+        closeTimerMap.delete(el);
+
+        // Kembalikan overflow body jika tidak ada modal lain yang terbuka
+        const remainingOpen = document.querySelectorAll('[id^="modal-"]:not(.hidden), [role="dialog"]:not(.hidden)');
+        if (remainingOpen.length === 0) {
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        // Kembalikan fokus ke elemen pemicu
+        const trigger = triggerMap.get(el);
+        if (trigger && typeof trigger.focus === 'function' && document.body.contains(trigger)) {
+            trigger.focus();
+        }
+        triggerMap.delete(el);
+    };
+
+    if (prefersReducedMotion) {
+        finalizeClose();
+    } else {
+        const timer = setTimeout(finalizeClose, 180);
+        closeTimerMap.set(el, timer);
     }
-    triggerMap.delete(el);
 }
 
 function handleGlobalKeydown(e) {

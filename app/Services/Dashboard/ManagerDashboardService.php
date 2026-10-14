@@ -59,37 +59,43 @@ class ManagerDashboardService
             ];
         }
 
-        // 1. KPI Omzet Cabang (Hari Ini & Bulan Ini)
+        // 1. KPI Omzet Cabang (Hari Ini & Bulan Ini - agregasi langsung di database)
         $todayTrxs = Transaction::query()
             ->where('branch_id', $branch->id)
             ->where('status', StatusTransaksi::Paid)
             ->whereBetween('transaction_date', [$startOfDay, $endOfDay])
-            ->get();
+            ->selectRaw('COALESCE(SUM(total), 0) as total_sum, COUNT(*) as total_count')
+            ->first();
 
-        $monthTrxsQuery = Transaction::query()
+        $todayOmzet = (float) ($todayTrxs?->total_sum ?? 0);
+        $todayTransactionsCount = (int) ($todayTrxs?->total_count ?? 0);
+
+        $monthMetrics = Transaction::query()
             ->where('branch_id', $branch->id)
             ->where('status', StatusTransaksi::Paid)
-            ->whereBetween('transaction_date', [$startOfMonth, $endOfDay]);
+            ->whereBetween('transaction_date', [$startOfMonth, $endOfDay])
+            ->selectRaw('COALESCE(SUM(total), 0) as total_sum, COUNT(*) as total_count')
+            ->first();
 
-        $monthOmzet = (float) (clone $monthTrxsQuery)->sum('total');
-        $monthTransactionsCount = (clone $monthTrxsQuery)->count();
-
-        $todayOmzet = (float) $todayTrxs->sum('total');
-        $todayTransactionsCount = $todayTrxs->count();
+        $monthOmzet = (float) ($monthMetrics?->total_sum ?? 0);
+        $monthTransactionsCount = (int) ($monthMetrics?->total_count ?? 0);
 
         // 2. KPI Tingkat Kehadiran Booking (SRS Patokan Wajib)
         // Khusus Laundry (drop_off only): state informatif "Tidak berlaku"
         $supportsAppointment = in_array($branch->service_mode, ['appointment', 'both'], true);
 
         if ($supportsAppointment) {
-            // Dihitung dari booking yang sudah memiliki bukti lifecycle kedatangan/selesai vs batal
-            $attendedCount = Booking::where('branch_id', $branch->id)
-                ->whereIn('status', [BookingStatus::InProgress, BookingStatus::Completed])
-                ->count();
+            // Dihitung dalam 1 query gabungan
+            $attendanceCounts = Booking::where('branch_id', $branch->id)
+                ->whereIn('status', [BookingStatus::InProgress, BookingStatus::Completed, BookingStatus::Cancelled])
+                ->selectRaw('
+                    SUM(CASE WHEN status IN (?, ?) THEN 1 ELSE 0 END) as attended_count,
+                    SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as cancelled_count
+                ', [BookingStatus::InProgress->value, BookingStatus::Completed->value, BookingStatus::Cancelled->value])
+                ->first();
 
-            $cancelledCount = Booking::where('branch_id', $branch->id)
-                ->where('status', BookingStatus::Cancelled)
-                ->count();
+            $attendedCount = (int) ($attendanceCounts?->attended_count ?? 0);
+            $cancelledCount = (int) ($attendanceCounts?->cancelled_count ?? 0);
 
             $evaluableTotal = $attendedCount + $cancelledCount;
             $rate = $evaluableTotal > 0 ? round(($attendedCount / $evaluableTotal) * 100, 1) : null;
@@ -182,10 +188,18 @@ class ManagerDashboardService
             ->limit(6)
             ->get();
 
-        // 7. Ringkasan stok inventori cabang
-        $lowStockCount = InventoryItem::where('branch_id', $branch->id)->lowStock()->count();
-        $outOfStockCount = InventoryItem::where('branch_id', $branch->id)->outOfStock()->count();
-        $totalInventoryItems = InventoryItem::where('branch_id', $branch->id)->count();
+        // 7. Ringkasan stok inventori cabang (1 query gabungan)
+        $inventoryStats = InventoryItem::where('branch_id', $branch->id)
+            ->selectRaw('
+                COUNT(*) as total_items,
+                SUM(CASE WHEN current_stock = 0 THEN 1 ELSE 0 END) as out_of_stock_count,
+                SUM(CASE WHEN current_stock > 0 AND current_stock <= minimum_stock THEN 1 ELSE 0 END) as low_stock_count
+            ')
+            ->first();
+
+        $totalInventoryItems = (int) ($inventoryStats?->total_items ?? 0);
+        $lowStockCount = (int) ($inventoryStats?->low_stock_count ?? 0);
+        $outOfStockCount = (int) ($inventoryStats?->out_of_stock_count ?? 0);
 
         $criticalInventoryItems = InventoryItem::where('branch_id', $branch->id)
             ->where(function ($q) {

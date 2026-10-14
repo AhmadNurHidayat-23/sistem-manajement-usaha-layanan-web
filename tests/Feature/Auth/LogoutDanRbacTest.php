@@ -72,6 +72,12 @@ class LogoutDanRbacTest extends TestCase
         $this->seed(DemoSeeder::class);
 
         $matrix = [
+            'owner@simaul.com' => route('owner.dashboard'),
+            'manajer@simaul.com' => route('manager.dashboard'),
+            'kasir@simaul.com' => route('cashier.dashboard'),
+            'kasir.andi@simaul.com' => route('cashier.dashboard'),
+            'karyawan@simaul.com' => route('employee.dashboard'),
+            'pelanggan@simaul.com' => route('customer.dashboard'),
             'cashier@example.com' => route('cashier.dashboard'),
             'owner@example.com' => route('owner.dashboard'),
             'manager@example.com' => route('manager.dashboard'),

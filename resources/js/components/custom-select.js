@@ -77,12 +77,20 @@ function enhanceSelect(select) {
         trigger.focus();
     }
 
+    let selectCloseTimer = null;
+
     function openMenu() {
         if (select.disabled) return;
+
+        if (selectCloseTimer) {
+            clearTimeout(selectCloseTimer);
+            selectCloseTimer = null;
+        }
 
         // Tutup menu dropdown lain
         document.querySelectorAll('.custom-select-menu:not(.hidden)').forEach(m => {
             if (m !== menu) {
+                m.classList.remove('is-open');
                 m.classList.add('hidden');
                 m.closest('.custom-select-container')?.querySelector('.custom-select-chevron')?.classList.remove('rotate-180');
             }
@@ -97,6 +105,9 @@ function enhanceSelect(select) {
         menu.style.marginBottom = isUp ? '4px' : '0';
 
         menu.classList.remove('hidden');
+        requestAnimationFrame(() => {
+            menu.classList.add('is-open');
+        });
         trigger.setAttribute('aria-expanded', 'true');
         chevronSvg.classList.add('rotate-180');
 
@@ -107,14 +118,24 @@ function enhanceSelect(select) {
     }
 
     function closeMenu() {
-        menu.classList.add('hidden');
+        menu.classList.remove('is-open');
         trigger.setAttribute('aria-expanded', 'false');
         chevronSvg.classList.remove('rotate-180');
         highlightedIndex = -1;
+        const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (prefersReduced) {
+            menu.classList.add('hidden');
+        } else {
+            selectCloseTimer = setTimeout(() => {
+                if (!menu.classList.contains('is-open')) {
+                    menu.classList.add('hidden');
+                }
+            }, 160);
+        }
     }
 
     function toggleMenu() {
-        menu.classList.contains('hidden') ? openMenu() : closeMenu();
+        menu.classList.contains('is-open') ? closeMenu() : openMenu();
     }
 
     function updateHighlight() {

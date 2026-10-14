@@ -97,11 +97,15 @@ if (typeof window !== 'undefined') {
         }
     });
 
-    // Reset drawer state jika layar di-resize kembali ke desktop (>= 1024px)
+    // Reset drawer state jika layar di-resize kembali ke desktop (>= 1024px) dengan debounce
+    let resizeTimer = null;
     window.addEventListener('resize', () => {
-        if (window.innerWidth >= 1024) {
-            closeMobileSidebar();
-        }
-    });
+        if (resizeTimer) clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            if (window.innerWidth >= 1024) {
+                closeMobileSidebar();
+            }
+        }, 100);
+    }, { passive: true });
 }
 

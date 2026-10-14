@@ -173,12 +173,22 @@ function enhanceDatePicker(nativeInput) {
         displayInput.focus();
     }
 
+    let dateCloseTimer = null;
+
     function openPanel() {
         if (nativeInput.disabled) return;
 
+        if (dateCloseTimer) {
+            clearTimeout(dateCloseTimer);
+            dateCloseTimer = null;
+        }
+
         // Tutup kalender lain
         document.querySelectorAll('.custom-date-panel:not(.hidden)').forEach(p => {
-            if (p !== panel) p.classList.add('hidden');
+            if (p !== panel) {
+                p.classList.remove('is-open');
+                p.classList.add('hidden');
+            }
         });
 
         // Penyesuaian posisi overlay (auto-flip jika ruang bawah sempit)
@@ -195,14 +205,27 @@ function enhanceDatePicker(nativeInput) {
 
         renderCalendar();
         panel.classList.remove('hidden');
+        requestAnimationFrame(() => {
+            panel.classList.add('is-open');
+        });
     }
 
     function closePanel() {
-        panel.classList.add('hidden');
+        panel.classList.remove('is-open');
+        const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (prefersReduced) {
+            panel.classList.add('hidden');
+        } else {
+            dateCloseTimer = setTimeout(() => {
+                if (!panel.classList.contains('is-open')) {
+                    panel.classList.add('hidden');
+                }
+            }, 160);
+        }
     }
 
     function togglePanel() {
-        panel.classList.contains('hidden') ? openPanel() : closePanel();
+        panel.classList.contains('is-open') ? closePanel() : openPanel();
     }
 
     displayInput.addEventListener('click', (e) => {

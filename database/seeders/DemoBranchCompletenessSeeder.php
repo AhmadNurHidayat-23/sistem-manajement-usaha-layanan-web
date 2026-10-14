@@ -42,8 +42,8 @@ class DemoBranchCompletenessSeeder extends Seeder
         $dayAfterStr = $today->copy()->addDays(2)->toDateString();
 
         $customers = User::whereHas('role', fn ($q) => $q->where('name', 'customer'))->orderBy('id')->get();
-        $cashier = User::where('email', 'cashier@example.com')->first() ?? User::whereHas('role', fn ($q) => $q->where('name', 'cashier'))->first();
-        $owner = User::where('email', 'owner@example.com')->first() ?? User::first();
+        $cashier = User::whereIn('email', ['kasir@simaul.com', 'kasir.andi@simaul.com', 'cashier@example.com'])->first() ?? User::whereHas('role', fn ($q) => $q->where('name', 'cashier'))->first();
+        $owner = User::whereIn('email', ['owner@simaul.com', 'owner@example.com'])->first() ?? User::first();
 
         // ---------------------------------------------------------------------
         // 1. DATA USAHA A: BARBERSHOP & STUDIO (Cabang ID: 1, Appointment)

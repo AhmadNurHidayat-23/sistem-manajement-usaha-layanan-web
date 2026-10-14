@@ -20,7 +20,7 @@ class InventoriSeeder extends Seeder
         $branchB = Branch::where('name', 'like', '%Selatan%')->firstOrFail();
         $branchC = Branch::where('name', 'like', '%Barat%')->firstOrFail();
 
-        $managerA = User::where('email', 'manager@example.com')->firstOrFail();
+        $managerA = User::whereIn('email', ['manajer@simaul.com', 'manager@example.com'])->firstOrFail();
         $employeeA = User::whereIn('email', ['karyawan@simaul.com', 'employee@example.com'])->firstOrFail();
 
         // 1. Bahan Cabang A (Pusat - Barbershop)

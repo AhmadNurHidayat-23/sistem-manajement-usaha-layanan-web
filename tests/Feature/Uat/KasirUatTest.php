@@ -31,7 +31,7 @@ class KasirUatTest extends TestCase
         parent::setUp();
         $this->seed(DemoSeeder::class);
 
-        $this->cashier = User::where('email', 'cashier@example.com')->firstOrFail();
+        $this->cashier = User::whereIn('email', ['kasir@simaul.com', 'kasir.andi@simaul.com', 'cashier@example.com'])->firstOrFail();
         $this->branch1 = Branch::where('name', 'like', '%Pusat%')->firstOrFail();
         $this->service1 = Service::where('branch_id', $this->branch1->id)->firstOrFail();
     }
@@ -39,7 +39,7 @@ class KasirUatTest extends TestCase
     public function test_uat_kasir_login_shift_transactions_and_payment(): void
     {
         $response = $this->post('/login', [
-            'email' => 'cashier@example.com',
+            'email' => $this->cashier->email,
             'password' => 'password123',
         ]);
         $response->assertRedirect(route('cashier.dashboard'));

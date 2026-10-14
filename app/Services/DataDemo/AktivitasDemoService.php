@@ -19,11 +19,11 @@ class AktivitasDemoService
      */
     public function jalankan(?callable $logger = null): void
     {
-        $owner = User::where('email', 'owner@example.com')->first();
-        $managerA = User::where('email', 'manager@example.com')->first();
-        $managerB = User::where('email', 'manager.selatan@example.com')->first();
-        $managerC = User::where('email', 'manager.barat@example.com')->first();
-        $cashierA = User::where('email', 'cashier@example.com')->first();
+        $owner = User::whereIn('email', ['owner@simaul.com', 'owner@example.com'])->first();
+        $managerA = User::whereIn('email', ['manajer@simaul.com', 'manager@example.com'])->first();
+        $managerB = User::whereIn('email', ['manajer.laundry@simaul.com', 'manager.selatan@example.com'])->first();
+        $managerC = User::whereIn('email', ['manajer.autocare@simaul.com', 'manager.barat@example.com'])->first();
+        $cashierA = User::whereIn('email', ['kasir@simaul.com', 'kasir.andi@simaul.com', 'cashier@example.com'])->first();
 
         $activityDefs = [
             ['user' => $owner, 'act' => 'Owner meninjau laporan konsolidasi seluruh cabang', 'mod' => 'LaporanKeuangan', 'ket' => 'Melihat grafik omzet dan performa cabang'],

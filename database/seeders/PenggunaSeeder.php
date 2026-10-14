@@ -29,87 +29,122 @@ class PenggunaSeeder extends Seeder
         $branchC = Branch::where('name', 'like', '%Barat%')->firstOrFail();
 
         // 1. Akun Owner (Akses penuh ke seluruh 3 cabang)
-        $owner = User::updateOrCreate(
-            ['email' => 'owner@example.com'],
-            [
-                'name' => 'Budi Hartono',
-                'phone' => '08110000001',
-                'password' => $demoPassword,
-                'role_id' => $ownerRole->id,
-            ]
-        );
+        $owner = User::where('email', 'owner@example.com')->first();
+        if ($owner) {
+            $owner->update(['email' => 'owner@simaul.com']);
+        } else {
+            $owner = User::updateOrCreate(
+                ['email' => 'owner@simaul.com'],
+                [
+                    'name' => 'Budi Hartono',
+                    'phone' => '08110000001',
+                    'password' => $demoPassword,
+                    'role_id' => $ownerRole->id,
+                ]
+            );
+        }
         $owner->branches()->syncWithoutDetaching([$branchA->id, $branchB->id, $branchC->id]);
 
         // 2. Akun Manager Cabang A (Pusat - Barbershop & Studio)
-        $managerA = User::updateOrCreate(
-            ['email' => 'manager@example.com'],
-            [
-                'name' => 'Siti Rahma',
-                'phone' => '08110000002',
-                'password' => $demoPassword,
-                'role_id' => $managerRole->id,
-            ]
-        );
+        $managerA = User::where('email', 'manager@example.com')->first();
+        if ($managerA) {
+            $managerA->update(['email' => 'manajer@simaul.com']);
+        } else {
+            $managerA = User::updateOrCreate(
+                ['email' => 'manajer@simaul.com'],
+                [
+                    'name' => 'Siti Rahma',
+                    'phone' => '08110000002',
+                    'password' => $demoPassword,
+                    'role_id' => $managerRole->id,
+                ]
+            );
+        }
         $managerA->branches()->sync([$branchA->id]);
 
         // 3. Akun Manager Cabang B (Selatan - Laundry & Shoes)
-        $managerB = User::updateOrCreate(
-            ['email' => 'manager.selatan@example.com'],
-            [
-                'name' => 'Hendro Wijaya',
-                'phone' => '08110000012',
-                'password' => $demoPassword,
-                'role_id' => $managerRole->id,
-            ]
-        );
+        $managerB = User::where('email', 'manager.selatan@example.com')->first();
+        if ($managerB) {
+            $managerB->update(['email' => 'manajer.laundry@simaul.com']);
+        } else {
+            $managerB = User::updateOrCreate(
+                ['email' => 'manajer.laundry@simaul.com'],
+                [
+                    'name' => 'Hendro Wijaya',
+                    'phone' => '08110000012',
+                    'password' => $demoPassword,
+                    'role_id' => $managerRole->id,
+                ]
+            );
+        }
         $managerB->branches()->sync([$branchB->id]);
 
         // 4. Akun Manager Cabang C (Barat - Auto Care & Detailing)
-        $managerC = User::updateOrCreate(
-            ['email' => 'manager.barat@example.com'],
-            [
-                'name' => 'Ratna Kusuma',
-                'phone' => '08110000013',
-                'password' => $demoPassword,
-                'role_id' => $managerRole->id,
-            ]
-        );
+        $managerC = User::where('email', 'manager.barat@example.com')->first();
+        if ($managerC) {
+            $managerC->update(['email' => 'manajer.autocare@simaul.com']);
+        } else {
+            $managerC = User::updateOrCreate(
+                ['email' => 'manajer.autocare@simaul.com'],
+                [
+                    'name' => 'Ratna Kusuma',
+                    'phone' => '08110000013',
+                    'password' => $demoPassword,
+                    'role_id' => $managerRole->id,
+                ]
+            );
+        }
         $managerC->branches()->sync([$branchC->id]);
 
-        // 5. Akun Kasir Cabang A (Pusat)
-        $cashierA = User::updateOrCreate(
-            ['email' => 'cashier@example.com'],
-            [
-                'name' => 'Andi Pratama',
-                'phone' => '08110000003',
-                'password' => $demoPassword,
-                'role_id' => $cashierRole->id,
-            ]
-        );
+        // 5. Akun Kasir Personal Cabang A (Pusat - Andi Pratama)
+        $cashierA = User::where('email', 'cashier@example.com')->first();
+        if ($cashierA) {
+            $cashierA->update(['email' => 'kasir.andi@simaul.com']);
+        } else {
+            $cashierA = User::updateOrCreate(
+                ['email' => 'kasir.andi@simaul.com'],
+                [
+                    'name' => 'Andi Pratama',
+                    'phone' => '08110000003',
+                    'password' => $demoPassword,
+                    'role_id' => $cashierRole->id,
+                ]
+            );
+        }
         $cashierA->branches()->sync([$branchA->id]);
 
-        // Kasir Cabang B (Selatan)
-        $cashierB = User::updateOrCreate(
-            ['email' => 'cashier.selatan@example.com'],
-            [
-                'name' => 'Dewi Sartika',
-                'phone' => '08110000014',
-                'password' => $demoPassword,
-                'role_id' => $cashierRole->id,
-            ]
-        );
+        // Kasir Personal Cabang B (Selatan - Dewi Sartika)
+        $cashierB = User::where('email', 'cashier.selatan@example.com')->first();
+        if ($cashierB) {
+            $cashierB->update(['email' => 'kasir.dewi@simaul.com']);
+        } else {
+            $cashierB = User::updateOrCreate(
+                ['email' => 'kasir.dewi@simaul.com'],
+                [
+                    'name' => 'Dewi Sartika',
+                    'phone' => '08110000014',
+                    'password' => $demoPassword,
+                    'role_id' => $cashierRole->id,
+                ]
+            );
+        }
         $cashierB->branches()->sync([$branchB->id]);
 
-        // Kasir Cabang C (Barat)
-        $cashierC = User::updateOrCreate(
-            ['email' => 'cashier.barat@example.com'],
-            [
-                'name' => 'Bagus Wicaksono',
-                'phone' => '08110000015',
-                'password' => $demoPassword,
-                'role_id' => $cashierRole->id,
-            ]
-        );
+        // Kasir Personal Cabang C (Barat - Bagus Wicaksono)
+        $cashierC = User::where('email', 'cashier.barat@example.com')->first();
+        if ($cashierC) {
+            $cashierC->update(['email' => 'kasir.bagus@simaul.com']);
+        } else {
+            $cashierC = User::updateOrCreate(
+                ['email' => 'kasir.bagus@simaul.com'],
+                [
+                    'name' => 'Bagus Wicaksono',
+                    'phone' => '08110000015',
+                    'password' => $demoPassword,
+                    'role_id' => $cashierRole->id,
+                ]
+            );
+        }
         $cashierC->branches()->sync([$branchC->id]);
 
         // 6. Akun Karyawan Cabang A (Barbershop - Stylist)
@@ -164,15 +199,20 @@ class PenggunaSeeder extends Seeder
         $employeeCUser->branches()->sync([$branchC->id]);
 
         // 7. Akun Pelanggan Demo Awal
-        $customer = User::updateOrCreate(
-            ['email' => 'customer@example.com'],
-            [
-                'name' => 'Rian Saputra',
-                'phone' => '081234567890',
-                'password' => $demoPassword,
-                'role_id' => $customerRole->id,
-            ]
-        );
+        $customer = User::where('email', 'customer@example.com')->first();
+        if ($customer) {
+            $customer->update(['email' => 'pelanggan@simaul.com']);
+        } else {
+            $customer = User::updateOrCreate(
+                ['email' => 'pelanggan@simaul.com'],
+                [
+                    'name' => 'Rian Saputra',
+                    'phone' => '081234567890',
+                    'password' => $demoPassword,
+                    'role_id' => $customerRole->id,
+                ]
+            );
+        }
         $customer->branches()->syncWithoutDetaching([$branchA->id, $branchB->id, $branchC->id]);
     }
 }

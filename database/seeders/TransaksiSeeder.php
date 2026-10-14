@@ -28,8 +28,8 @@ class TransaksiSeeder extends Seeder
     public function run(): void
     {
         $branchA = Branch::where('name', 'like', '%Pusat%')->firstOrFail();
-        $cashier = User::where('email', 'cashier@example.com')->firstOrFail();
-        $customer = User::where('email', 'customer@example.com')->firstOrFail();
+        $cashier = User::whereIn('email', ['kasir@simaul.com', 'kasir.andi@simaul.com', 'cashier@example.com'])->firstOrFail();
+        $customer = User::whereIn('email', ['pelanggan@simaul.com', 'customer@example.com'])->firstOrFail();
         $employeeA = Employee::where('branch_id', $branchA->id)->firstOrFail();
 
         $serviceA = Service::where('name', 'Potong Rambut Pria')->where('branch_id', $branchA->id)->firstOrFail();

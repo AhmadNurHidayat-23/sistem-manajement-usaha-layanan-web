@@ -26,8 +26,8 @@ class PesananDemoService
         $branchB = Branch::where('name', 'like', '%Selatan%')->firstOrFail();
         $branchC = Branch::where('name', 'like', '%Barat%')->firstOrFail();
 
-        $managerB = User::where('email', 'manager.selatan@example.com')->firstOrFail();
-        $managerC = User::where('email', 'manager.barat@example.com')->firstOrFail();
+        $managerB = User::whereIn('email', ['manajer.laundry@simaul.com', 'manager.selatan@example.com'])->firstOrFail();
+        $managerC = User::whereIn('email', ['manajer.autocare@simaul.com', 'manager.barat@example.com'])->firstOrFail();
 
         $defaultCustomer = $customers['Rian Saputra'] ?? reset($customers);
 

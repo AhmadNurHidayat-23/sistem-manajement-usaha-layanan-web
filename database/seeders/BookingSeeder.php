@@ -26,7 +26,7 @@ class BookingSeeder extends Seeder
         $branchB = Branch::where('name', 'like', '%Selatan%')->firstOrFail();
         $branchC = Branch::where('name', 'like', '%Barat%')->firstOrFail();
 
-        $customer = User::where('email', 'customer@example.com')->firstOrFail();
+        $customer = User::whereIn('email', ['pelanggan@simaul.com', 'customer@example.com'])->firstOrFail();
         $employeeA = Employee::where('branch_id', $branchA->id)->firstOrFail();
         $employeeC = Employee::where('branch_id', $branchC->id)->firstOrFail();
 

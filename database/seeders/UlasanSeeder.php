@@ -24,12 +24,12 @@ class UlasanSeeder extends Seeder
     {
         $branchA = Branch::where('name', 'like', '%Pusat%')->first() ?? Branch::firstOrFail();
         $branchB = Branch::where('name', 'like', '%Selatan%')->first() ?? Branch::firstOrFail();
-        $cashier = User::where('email', 'cashier@example.com')->first();
+        $cashier = User::whereIn('email', ['kasir@simaul.com', 'kasir.andi@simaul.com', 'cashier@example.com'])->first();
         $customerRole = Role::where('name', UserRole::Customer->value)->first();
         $employeeA = Employee::where('branch_id', $branchA->id)->first();
 
         // Customer 1 (Existing)
-        $customer1 = User::where('email', 'customer@example.com')->firstOrFail();
+        $customer1 = User::whereIn('email', ['pelanggan@simaul.com', 'customer@example.com'])->firstOrFail();
         $service1 = Service::where('name', 'Potong Rambut Pria')->first() ?? Service::firstOrFail();
         $transaction1 = Transaction::where('transaction_code', 'TRX-DEMO-001')->firstOrFail();
 
@@ -46,15 +46,20 @@ class UlasanSeeder extends Seeder
         );
 
         // Customer 2
-        $customer2 = User::firstOrCreate(
-            ['email' => 'annisa@example.com'],
-            [
-                'name' => 'Annisa Larasati',
-                'phone' => '081298765432',
-                'password' => Hash::make('password123'),
-                'role_id' => $customerRole?->id,
-            ]
-        );
+        $customer2 = User::where('email', 'annisa@example.com')->first();
+        if ($customer2) {
+            $customer2->update(['email' => 'pelanggan.annisa@simaul.com']);
+        } else {
+            $customer2 = User::firstOrCreate(
+                ['email' => 'pelanggan.annisa@simaul.com'],
+                [
+                    'name' => 'Annisa Larasati',
+                    'phone' => '081298765432',
+                    'password' => Hash::make('password123'),
+                    'role_id' => $customerRole?->id,
+                ]
+            );
+        }
         $service2 = Service::where('name', 'like', '%Jas%')->orWhere('name', 'like', '%Sepatu%')->first()
             ?? Service::where('id', '!=', $service1->id)->first()
             ?? $service1;

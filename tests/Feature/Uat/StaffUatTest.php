@@ -25,8 +25,8 @@ class StaffUatTest extends TestCase
         parent::setUp();
         $this->seed(DemoSeeder::class);
 
-        $this->owner = User::where('email', 'owner@example.com')->firstOrFail();
-        $this->manager = User::where('email', 'manager@example.com')->firstOrFail();
+        $this->owner = User::whereIn('email', ['owner@simaul.com', 'owner@example.com'])->firstOrFail();
+        $this->manager = User::whereIn('email', ['manajer@simaul.com', 'manager@example.com'])->firstOrFail();
         $this->branch1 = Branch::where('name', 'like', '%Pusat%')->firstOrFail();
         $this->branch2 = Branch::where('name', 'like', '%Selatan%')->firstOrFail();
     }
@@ -34,7 +34,7 @@ class StaffUatTest extends TestCase
     public function test_uat_manager_branch_scoped_operations(): void
     {
         $response = $this->post('/login', [
-            'email' => 'manager@example.com',
+            'email' => 'manajer@simaul.com',
             'password' => 'password123',
         ]);
         $response->assertRedirect(route('manager.dashboard'));
@@ -74,7 +74,7 @@ class StaffUatTest extends TestCase
     public function test_uat_owner_full_operations(): void
     {
         $response = $this->post('/login', [
-            'email' => 'owner@example.com',
+            'email' => 'owner@simaul.com',
             'password' => 'password123',
         ]);
         $response->assertRedirect(route('owner.dashboard'));

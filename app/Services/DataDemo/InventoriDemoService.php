@@ -20,9 +20,9 @@ class InventoriDemoService
      */
     public function jalankan(?callable $logger = null): void
     {
-        $managerA = User::where('email', 'manager@example.com')->firstOrFail();
-        $managerB = User::where('email', 'manager.selatan@example.com')->firstOrFail();
-        $managerC = User::where('email', 'manager.barat@example.com')->firstOrFail();
+        $managerA = User::whereIn('email', ['manajer@simaul.com', 'manager@example.com'])->firstOrFail();
+        $managerB = User::whereIn('email', ['manajer.laundry@simaul.com', 'manager.selatan@example.com'])->firstOrFail();
+        $managerC = User::whereIn('email', ['manajer.autocare@simaul.com', 'manager.barat@example.com'])->firstOrFail();
 
         $inventoryItems = InventoryItem::all();
 

@@ -12,7 +12,7 @@
         default => 'px-3.5 py-1.5 text-xs sm:text-[13px] h-[34px] rounded-lg gap-2',
     };
 
-    $baseClasses = 'inline-flex items-center justify-center font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 border border-transparent shadow-2xs cursor-pointer whitespace-nowrap ' . $sizeClasses;
+    $baseClasses = 'inline-flex items-center justify-center font-semibold transition-all duration-150 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-1 border border-transparent shadow-2xs cursor-pointer whitespace-nowrap ' . $sizeClasses;
 
     $variants = [
         'primary' => 'bg-[#062072] hover:bg-[#04184F] text-white focus:ring-[#062072]',

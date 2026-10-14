@@ -31,6 +31,15 @@
 
 .custom-select-menu {
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+    transition: opacity 160ms cubic-bezier(0.16, 1, 0.3, 1), transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+}
+
+.custom-select-menu.is-open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
 }
 
 /* --------------------------------------------------------------------------
@@ -62,4 +71,63 @@
 
 .custom-date-panel {
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.06);
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+    transition: opacity 160ms cubic-bezier(0.16, 1, 0.3, 1), transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+}
+
+.custom-date-panel.is-open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* --------------------------------------------------------------------------
+   MODAL COMPONENT (Smooth Opacity & Transform Transitions)
+   -------------------------------------------------------------------------- */
+[role="dialog"], [id^="modal-"], [id^="branch-modal-"] {
+    opacity: 0;
+    transition: opacity 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity;
+}
+
+[role="dialog"].is-open, [id^="modal-"].is-open, [id^="branch-modal-"].is-open {
+    opacity: 1;
+}
+
+[role="dialog"] > div, [id^="modal-"] > div, [id^="branch-modal-"] > div {
+    transform: scale(0.96) translateY(6px);
+    transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+}
+
+[role="dialog"].is-open > div, [id^="modal-"].is-open > div, [id^="branch-modal-"].is-open > div {
+    transform: scale(1) translateY(0);
+}
+
+/* --------------------------------------------------------------------------
+   NOTIFICATION BELL DROPDOWN TRANSITION
+   -------------------------------------------------------------------------- */
+#notification-bell-dropdown {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+    transition: opacity 160ms cubic-bezier(0.16, 1, 0.3, 1), transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+}
+
+#notification-bell-dropdown.is-open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* --------------------------------------------------------------------------
+   PREFERS-REDUCED-MOTION SUPPORT
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+    [role="dialog"], [id^="modal-"], [id^="branch-modal-"],
+    [role="dialog"] > div, [id^="modal-"] > div, [id^="branch-modal-"] > div,
+    .custom-select-menu, .custom-date-panel, #notification-bell-dropdown {
+        transition: none !important;
+        transform: none !important;
+    }
 }
