@@ -98,22 +98,31 @@ class BookingService
      */
     public function createBooking(User $user, array $data): Booking
     {
-        $branch = Branch::find($data['branch_id']);
-        if ($branch && ! in_array($branch->service_mode, ['appointment', 'both'], true)) {
-            throw new \RuntimeException('Cabang ini tidak mendukung layanan booking janji temu.');
-        }
-
-        $this->validateSlotAvailability(
-            (int) $data['branch_id'],
-            $data['booking_date'],
-            $data['booking_time'],
-            null,
-            ! empty($data['employee_id']) ? (int) $data['employee_id'] : null,
-            ! empty($data['service_id']) ? (int) $data['service_id'] : null,
-            ! empty($data['extra_service_ids']) ? (array) $data['extra_service_ids'] : [],
-        );
-
         return DB::transaction(function () use ($user, $data) {
+            $branch = Branch::where('id', $data['branch_id'])->lockForUpdate()->first();
+            if (! $branch) {
+                throw new \RuntimeException('Cabang tidak ditemukan.');
+            }
+            if (! in_array($branch->service_mode, ['appointment', 'both'], true)) {
+                throw new \RuntimeException('Cabang ini tidak mendukung layanan booking janji temu.');
+            }
+
+            // Kunci baris booking cabang & tanggal ini agar validasi kapasitas bebas dari bentrok bersamaan
+            Booking::where('branch_id', $data['branch_id'])
+                ->whereDate('booking_date', $data['booking_date'])
+                ->lockForUpdate()
+                ->get();
+
+            $this->validateSlotAvailability(
+                (int) $data['branch_id'],
+                $data['booking_date'],
+                $data['booking_time'],
+                null,
+                ! empty($data['employee_id']) ? (int) $data['employee_id'] : null,
+                ! empty($data['service_id']) ? (int) $data['service_id'] : null,
+                ! empty($data['extra_service_ids']) ? (array) $data['extra_service_ids'] : [],
+            );
+
             $booking = Booking::create([
                 'user_id' => $user->id,
                 'branch_id' => $data['branch_id'],
@@ -164,19 +173,26 @@ class BookingService
         $serviceChanged = $serviceId !== (int) $booking->service_id;
         $extrasChanged = array_key_exists('extra_service_ids', $data);
 
-        if ($dateChanged || $timeChanged || $empChanged || $branchChanged || $serviceChanged || $extrasChanged) {
-            $this->validateSlotAvailability(
-                $branchId,
-                $date,
-                $time,
-                $booking->id,
-                $employeeId,
-                $serviceId,
-                $extraServiceIds,
-            );
-        }
+        return DB::transaction(function () use ($booking, $data, $branchId, $date, $time, $employeeId, $serviceId, $extraServiceIds, $dateChanged, $timeChanged, $empChanged, $branchChanged, $serviceChanged, $extrasChanged) {
+            Branch::where('id', $branchId)->lockForUpdate()->first();
 
-        return DB::transaction(function () use ($booking, $data) {
+            Booking::where('branch_id', $branchId)
+                ->whereDate('booking_date', $date)
+                ->lockForUpdate()
+                ->get();
+
+            if ($dateChanged || $timeChanged || $empChanged || $branchChanged || $serviceChanged || $extrasChanged) {
+                $this->validateSlotAvailability(
+                    $branchId,
+                    $date,
+                    $time,
+                    $booking->id,
+                    $employeeId,
+                    $serviceId,
+                    $extraServiceIds,
+                );
+            }
+
             $booking->update([
                 'branch_id' => $data['branch_id'] ?? $booking->branch_id,
                 'service_id' => $data['service_id'] ?? $booking->service_id,
@@ -544,6 +560,178 @@ class BookingService
                     $slots[] = $candidateStart->format('H:i');
                 }
             }
+
+            $current->addMinutes(30);
+        }
+
+        return $slots;
+    }
+
+    /**
+     * Dapatkan daftar seluruh slot waktu dengan status lengkap:
+     * - 'available': Putih, dapat diklik
+     * - 'full': Merah lembut, tidak dapat diklik
+     * - 'past': Abu-abu, sudah lewat
+     * - 'outside_shift': Abu-abu, di luar jam buka/shift
+     *
+     * @param  array<int>  $extraServiceIds
+     * @return array<int, array<string, mixed>>
+     */
+    public function getSlotsWithStatus(
+        Branch $branch,
+        string $date,
+        ?int $excludeBookingId = null,
+        ?int $employeeId = null,
+        ?int $serviceId = null,
+        array $extraServiceIds = []
+    ): array {
+        $duration = $this->calculateDuration($serviceId, $extraServiceIds);
+        $branchOpen = Carbon::parse($date.' '.($branch->opening_time ?? '08:00'));
+        $branchClose = Carbon::parse($date.' '.($branch->closing_time ?? '17:00'));
+        $capacity = (int) ($branch->max_slot_capacity ?? 1);
+
+        $shift = null;
+        $shiftStart = null;
+        $shiftEnd = null;
+        $employeeHasNoShift = false;
+
+        $empBookings = collect();
+
+        if ($employeeId) {
+            $shift = EmployeeShift::where('employee_id', $employeeId)
+                ->where('branch_id', $branch->id)
+                ->whereDate('shift_date', $date)
+                ->whereIn('status', [StatusShiftKaryawan::Scheduled, StatusShiftKaryawan::Present, StatusShiftKaryawan::Late])
+                ->first();
+
+            if (! $shift) {
+                $employeeHasNoShift = true;
+            } else {
+                $shiftStart = Carbon::parse($date.' '.$shift->start_time);
+                $shiftEnd = Carbon::parse($date.' '.$shift->end_time);
+            }
+
+            $empBookings = Booking::with(['service', 'details'])
+                ->where('employee_id', $employeeId)
+                ->whereDate('booking_date', $date)
+                ->whereNotIn('status', [BookingStatus::Cancelled->value])
+                ->when($excludeBookingId, fn ($q) => $q->where('id', '!=', $excludeBookingId))
+                ->get();
+        }
+
+        $branchBookings = Booking::with(['service', 'details'])
+            ->where('branch_id', $branch->id)
+            ->whereDate('booking_date', $date)
+            ->whereNotIn('status', [BookingStatus::Cancelled->value])
+            ->when($excludeBookingId, fn ($q) => $q->where('id', '!=', $excludeBookingId))
+            ->get();
+
+        $slots = [];
+        $current = $branchOpen->copy();
+        $now = now();
+
+        while ($current->lt($branchClose)) {
+            $candidateStart = $current->copy();
+            $candidateEnd = $candidateStart->copy()->addMinutes($duration);
+            $timeString = $candidateStart->format('H:i');
+
+            // 1. Cek apakah waktu sudah lewat
+            $isPast = false;
+            if ($date < $now->toDateString()) {
+                $isPast = true;
+            } elseif ($date === $now->toDateString() && $candidateStart->lte($now)) {
+                $isPast = true;
+            }
+
+            // 2. Cek apakah di luar jadwal operasional / shift
+            $isOutsideShift = false;
+            $outsideReason = '';
+
+            if ($candidateEnd->gt($branchClose)) {
+                $isOutsideShift = true;
+                $outsideReason = 'Melebihi jam operasional cabang';
+            } elseif ($employeeId) {
+                if ($employeeHasNoShift) {
+                    $isOutsideShift = true;
+                    $outsideReason = 'Petugas libur / tidak bertugas';
+                } elseif ($candidateStart->lt($shiftStart) || $candidateEnd->gt($shiftEnd)) {
+                    $isOutsideShift = true;
+                    $outsideReason = 'Di luar jam shift petugas';
+                }
+            }
+
+            // 3. Cek bentrok petugas atau kapasitas penuh
+            $isFull = false;
+            $fullReason = '';
+
+            if (! $isPast && ! $isOutsideShift) {
+                if ($employeeId && $this->hasEmployeeConflict($empBookings, $date, $candidateStart, $candidateEnd)) {
+                    $isFull = true;
+                    $fullReason = 'Petugas sudah dibooking';
+                } else {
+                    $overCapacitySlot = $this->getFirstOverCapacitySlot(
+                        $branchBookings,
+                        $date,
+                        $candidateStart,
+                        $candidateEnd,
+                        $capacity
+                    );
+
+                    if ($overCapacitySlot !== null) {
+                        $isFull = true;
+                        $fullReason = 'Kapasitas slot penuh';
+                    }
+                }
+            }
+
+            // Hitung kapasitas tersisa pada rentang slot
+            $segment = $candidateStart->copy();
+            $maxActiveBookings = 0;
+            while ($segment->lt($candidateEnd)) {
+                $segFinish = $segment->copy()->addMinutes(30);
+                $activeCount = 0;
+                foreach ($branchBookings as $bb) {
+                    $bbStart = Carbon::parse($date.' '.$bb->booking_time);
+                    $bbDuration = $this->getBookingDuration($bb);
+                    $bbEnd = $bbStart->copy()->addMinutes($bbDuration);
+                    if ($segment->lt($bbEnd) && $segFinish->gt($bbStart)) {
+                        $activeCount++;
+                    }
+                }
+                if ($activeCount > $maxActiveBookings) {
+                    $maxActiveBookings = $activeCount;
+                }
+                $segment->addMinutes(30);
+            }
+            $remainingCapacity = max(0, $capacity - $maxActiveBookings);
+
+            // Tentukan status akhir
+            if ($isPast) {
+                $status = 'past';
+                $message = 'Waktu sudah lewat';
+            } elseif ($isOutsideShift) {
+                $status = 'outside_shift';
+                $message = $outsideReason ?: 'Di luar jadwal';
+            } elseif ($isFull) {
+                $status = 'full';
+                $message = $fullReason ?: 'Penuh';
+            } else {
+                $status = 'available';
+                $message = 'Tersedia';
+            }
+
+            $slots[] = [
+                'time' => $timeString,
+                'status' => $status,
+                'is_available' => $status === 'available',
+                'is_full' => $status === 'full',
+                'is_past' => $status === 'past',
+                'is_outside_shift' => $status === 'outside_shift',
+                'booked_count' => $maxActiveBookings,
+                'max_capacity' => $capacity,
+                'remaining_capacity' => $status === 'available' ? $remainingCapacity : 0,
+                'message' => $message,
+            ];
 
             $current->addMinutes(30);
         }

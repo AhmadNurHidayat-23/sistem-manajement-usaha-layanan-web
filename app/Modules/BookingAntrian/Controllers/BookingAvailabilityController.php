@@ -44,7 +44,19 @@ class BookingAvailabilityController extends Controller
             $extraServiceIds
         );
 
-        return response()->json(['slots' => $slots]);
+        $slotsDetailed = $this->bookingService->getSlotsWithStatus(
+            $branch,
+            $request->input('date'),
+            $excludeId,
+            $employeeId,
+            $serviceId,
+            $extraServiceIds
+        );
+
+        return response()->json([
+            'slots' => $slots,
+            'slots_detailed' => $slotsDetailed,
+        ]);
     }
 
     /**

@@ -30,6 +30,7 @@ Route::prefix('mobile')->group(function () {
         // Customer Only Routes
         Route::middleware('mobile.auth:customer')->prefix('customer')->group(function () {
             Route::get('/bookings', [CustomerMobileController::class, 'bookings']);
+            Route::get('/bookings/available-slots', [CustomerMobileController::class, 'availableSlots']);
             Route::post('/bookings', [CustomerMobileController::class, 'storeBooking']);
             Route::get('/bookings/{id}', [CustomerMobileController::class, 'showBooking']);
 

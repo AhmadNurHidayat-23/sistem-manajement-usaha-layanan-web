@@ -104,20 +104,42 @@ class PelangganBookingController extends Controller
         $employeeId = $request->query('employee_id');
 
         if (! $branchId || ! $date) {
-            return response()->json([]);
+            return response()->json([
+                'is_open' => false,
+                'slots' => [],
+            ]);
         }
 
         $branch = Branch::find($branchId);
         if (! $branch) {
-            return response()->json([]);
+            return response()->json([
+                'is_open' => false,
+                'slots' => [],
+            ]);
         }
 
         // Check operating days
         if (! $branch->isOpenOnDate($date)) {
-            return response()->json([]);
+            return response()->json([
+                'is_open' => false,
+                'message' => 'Cabang tidak beroperasi pada hari tersebut.',
+                'slots' => [],
+            ]);
         }
 
-        $slots = $this->bookingService->getAvailableSlots(
+        if ($request->query('format') === 'simple') {
+            $simpleSlots = $this->bookingService->getAvailableSlots(
+                $branch,
+                $date,
+                null,
+                $employeeId ? (int) $employeeId : null,
+                $serviceId ? (int) $serviceId : null,
+            );
+
+            return response()->json($simpleSlots);
+        }
+
+        $slots = $this->bookingService->getSlotsWithStatus(
             $branch,
             $date,
             null,
@@ -125,7 +147,10 @@ class PelangganBookingController extends Controller
             $serviceId ? (int) $serviceId : null,
         );
 
-        return response()->json($slots);
+        return response()->json([
+            'is_open' => true,
+            'slots' => $slots,
+        ]);
     }
 
     /**

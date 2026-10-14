@@ -72,6 +72,61 @@ class CustomerMobileController extends Controller
     }
 
     /**
+     * Slot ketersediaan booking untuk mobile.
+     */
+    public function availableSlots(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'branch_id' => ['required', 'integer', 'exists:branches,id'],
+            'date' => ['required', 'date'],
+            'employee_id' => ['nullable', 'integer', 'exists:employees,id'],
+            'service_id' => ['nullable', 'integer', 'exists:services,id'],
+            'extra_service_ids' => ['nullable', 'array'],
+            'extra_service_ids.*' => ['integer', 'exists:services,id'],
+        ]);
+
+        $branch = Branch::findOrFail($validated['branch_id']);
+        if (! $branch->isOpenOnDate($validated['date'])) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'is_open' => false,
+                    'message' => 'Cabang tutup pada tanggal ini.',
+                    'slots' => [],
+                    'slots_detailed' => [],
+                ],
+            ]);
+        }
+
+        $slots = $this->bookingService->getAvailableSlots(
+            $branch,
+            $validated['date'],
+            null,
+            $validated['employee_id'] ?? null,
+            $validated['service_id'] ?? null,
+            $validated['extra_service_ids'] ?? []
+        );
+
+        $slotsDetailed = $this->bookingService->getSlotsWithStatus(
+            $branch,
+            $validated['date'],
+            null,
+            $validated['employee_id'] ?? null,
+            $validated['service_id'] ?? null,
+            $validated['extra_service_ids'] ?? []
+        );
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'is_open' => true,
+                'slots' => $slots,
+                'slots_detailed' => $slotsDetailed,
+            ],
+        ]);
+    }
+
+    /**
      * Buat booking / janji temu baru.
      */
     public function storeBooking(Request $request): JsonResponse
