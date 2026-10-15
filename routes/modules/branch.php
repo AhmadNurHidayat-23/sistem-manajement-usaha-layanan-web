@@ -1,6 +1,6 @@
 <?php
 
-use App\Modules\Cabang\Controllers\CabangController;
+use App\Http\Controllers\Owner\CabangController;
 use Illuminate\Support\Facades\Route;
 
 /*

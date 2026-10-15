@@ -18,7 +18,7 @@ use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\Transaction;
 use App\Models\User;
-use App\Modules\KasirPOS\Services\TransaksiService;
+use App\Services\KasirPOS\TransaksiService;
 use Database\Seeders\PeranSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

@@ -1,9 +1,9 @@
 <?php
 
-use App\Modules\Karyawan\Controllers\DetailTugasController;
-use App\Modules\Karyawan\Controllers\KaryawanController;
-use App\Modules\Karyawan\Controllers\KomisiKaryawanController;
-use App\Modules\Karyawan\Controllers\ShiftKaryawanController;
+use App\Http\Controllers\Karyawan\DetailTugasController;
+use App\Http\Controllers\Manager\KaryawanController;
+use App\Http\Controllers\Manager\KomisiKaryawanController;
+use App\Http\Controllers\Manager\ShiftKaryawanController;
 use Illuminate\Support\Facades\Route;
 
 /*

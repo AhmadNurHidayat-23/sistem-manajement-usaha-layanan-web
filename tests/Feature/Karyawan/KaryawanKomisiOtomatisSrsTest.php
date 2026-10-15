@@ -17,7 +17,7 @@ use App\Models\ServiceCategory;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use App\Models\User;
-use App\Modules\Karyawan\Services\KomisiKaryawanService;
+use App\Services\Karyawan\KomisiKaryawanService;
 use Database\Seeders\PeranSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

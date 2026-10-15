@@ -1,9 +1,9 @@
 <?php
 
-use App\Modules\KasirPOS\Controllers\PembayaranController;
-use App\Modules\KasirPOS\Controllers\PosController;
-use App\Modules\KasirPOS\Controllers\ShiftController;
-use App\Modules\KasirPOS\Controllers\TransaksiController;
+use App\Http\Controllers\Kasir\PembayaranController;
+use App\Http\Controllers\Kasir\PosController;
+use App\Http\Controllers\Kasir\ShiftController;
+use App\Http\Controllers\Kasir\TransaksiController;
 use Illuminate\Support\Facades\Route;
 
 /*

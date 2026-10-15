@@ -1,10 +1,10 @@
 <?php
 
-use App\Modules\BookingAntrian\Controllers\AntrianController;
-use App\Modules\BookingAntrian\Controllers\BookingAvailabilityController;
-use App\Modules\BookingAntrian\Controllers\BookingController;
-use App\Modules\BookingAntrian\Controllers\BookingStatusController;
-use App\Modules\BookingAntrian\Controllers\ManagerPesananController;
+use App\Http\Controllers\Manager\BookingController;
+use App\Http\Controllers\Manager\BookingStatusController;
+use App\Http\Controllers\Manager\ManagerPesananController;
+use App\Http\Controllers\Shared\AntrianController;
+use App\Http\Controllers\Shared\BookingAvailabilityController;
 use Illuminate\Support\Facades\Route;
 
 /*

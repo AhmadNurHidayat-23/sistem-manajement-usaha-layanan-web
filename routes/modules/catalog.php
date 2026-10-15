@@ -1,7 +1,7 @@
 <?php
 
-use App\Modules\Katalog\Controllers\KategoriLayananController;
-use App\Modules\Katalog\Controllers\LayananController;
+use App\Http\Controllers\Owner\KategoriLayananController;
+use App\Http\Controllers\Owner\LayananController;
 use Illuminate\Support\Facades\Route;
 
 /*

@@ -4,7 +4,7 @@ namespace App\Observers;
 
 use App\Enums\StatusTransaksi;
 use App\Models\Transaction;
-use App\Modules\Karyawan\Services\KomisiKaryawanService;
+use App\Services\Karyawan\KomisiKaryawanService;
 use App\Services\OperationalNotificationService;
 use Illuminate\Support\Facades\Log;
 

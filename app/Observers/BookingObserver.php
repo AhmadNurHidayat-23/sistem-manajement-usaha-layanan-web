@@ -6,7 +6,7 @@ use App\Enums\BookingStatus;
 use App\Enums\StatusTransaksi;
 use App\Models\Booking;
 use App\Models\Employee;
-use App\Modules\Karyawan\Services\KomisiKaryawanService;
+use App\Services\Karyawan\KomisiKaryawanService;
 use App\Services\OperationalNotificationService;
 use Illuminate\Support\Facades\Log;
 

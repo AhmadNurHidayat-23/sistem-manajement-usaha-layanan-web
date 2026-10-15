@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\MembershipPromo;
 
-use App\Modules\MembershipPromo\Services\MemberService;
+use App\Services\MembershipPromo\MemberService;
 use Tests\TestCase;
 
 class MembershipUniversalBenefitsTest extends TestCase

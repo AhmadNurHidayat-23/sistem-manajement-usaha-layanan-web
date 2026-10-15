@@ -80,7 +80,7 @@ class AksesLaporanTest extends TestCase
     {
         $response = $this->actingAs($this->owner)->get(route('reports.index'));
         $response->assertOk();
-        $response->assertViewIs('modules.laporan-keuangan.index');
+        $response->assertViewIs('owner.laporan.index');
         $response->assertSee('Laporan Kinerja');
         $response->assertSee('Semua Cabang (Laporan Gabungan)');
     }

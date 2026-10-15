@@ -1,6 +1,6 @@
 <?php
 
-use App\Modules\MembershipPromo\Controllers\AdminMemberController;
+use App\Http\Controllers\Kasir\AdminMemberController;
 use Illuminate\Support\Facades\Route;
 
 /*

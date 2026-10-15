@@ -1,7 +1,7 @@
 <?php
 
-use App\Modules\MembershipPromo\Controllers\OwnerPromoController;
-use App\Modules\MembershipPromo\Controllers\PelangganPromoController;
+use App\Http\Controllers\Owner\OwnerPromoController;
+use App\Http\Controllers\Pelanggan\PelangganPromoController;
 use Illuminate\Support\Facades\Route;
 
 /*

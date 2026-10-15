@@ -1,16 +1,16 @@
 <?php
 
-use App\Http\Controllers\AktivitasController;
-use App\Http\Controllers\Dashboard\ManagerDashboardController;
-use App\Http\Controllers\Dashboard\OwnerDashboardController;
-use App\Http\Controllers\NotificationFeedController;
-use App\Http\Controllers\NotifikasiController;
+use App\Http\Controllers\Karyawan\KaryawanDashboardController;
+use App\Http\Controllers\Kasir\KasirDashboardController;
+use App\Http\Controllers\Kasir\PaymentGatewayController;
+use App\Http\Controllers\Kasir\TransaksiController;
+use App\Http\Controllers\Manager\ManagerDashboardController;
 use App\Http\Controllers\Owner\InternalUserController;
+use App\Http\Controllers\Owner\OwnerDashboardController;
 use App\Http\Controllers\Public\HomeController;
-use App\Modules\Karyawan\Controllers\DashboardController as KaryawanDashboardController;
-use App\Modules\KasirPOS\Controllers\DashboardController as KasirDashboardController;
-use App\Modules\KasirPOS\Controllers\PaymentGatewayController;
-use App\Modules\KasirPOS\Controllers\TransaksiController;
+use App\Http\Controllers\Shared\AktivitasController;
+use App\Http\Controllers\Shared\NotificationFeedController;
+use App\Http\Controllers\Shared\NotifikasiController;
 use Illuminate\Support\Facades\Route;
 
 // Halaman Customer / Public Landing Page

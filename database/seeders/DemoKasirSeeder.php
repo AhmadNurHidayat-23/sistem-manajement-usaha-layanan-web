@@ -18,7 +18,7 @@ use App\Models\Service;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use App\Models\User;
-use App\Modules\MembershipPromo\Services\MemberService;
+use App\Services\MembershipPromo\MemberService;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;

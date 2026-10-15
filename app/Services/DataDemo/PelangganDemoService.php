@@ -6,7 +6,7 @@ use App\Enums\UserRole;
 use App\Models\Branch;
 use App\Models\Role;
 use App\Models\User;
-use App\Modules\MembershipPromo\Services\MemberService;
+use App\Services\MembershipPromo\MemberService;
 use Illuminate\Support\Facades\Hash;
 
 class PelangganDemoService

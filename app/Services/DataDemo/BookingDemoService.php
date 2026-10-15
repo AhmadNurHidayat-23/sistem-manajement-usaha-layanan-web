@@ -7,7 +7,7 @@ use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\Service;
 use App\Models\User;
-use App\Modules\BookingAntrian\Services\BookingService;
+use App\Services\BookingAntrian\BookingService;
 
 class BookingDemoService
 {

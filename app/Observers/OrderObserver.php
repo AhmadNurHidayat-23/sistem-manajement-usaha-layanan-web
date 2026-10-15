@@ -6,7 +6,7 @@ use App\Enums\StatusPesanan;
 use App\Enums\StatusTransaksi;
 use App\Models\Employee;
 use App\Models\Order;
-use App\Modules\Karyawan\Services\KomisiKaryawanService;
+use App\Services\Karyawan\KomisiKaryawanService;
 use App\Services\OperationalNotificationService;
 use Illuminate\Support\Facades\Log;
 

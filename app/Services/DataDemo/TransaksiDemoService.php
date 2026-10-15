@@ -10,8 +10,8 @@ use App\Models\Order;
 use App\Models\Promotion;
 use App\Models\Service;
 use App\Models\User;
-use App\Modules\KasirPOS\Services\KasirService;
-use App\Modules\KasirPOS\Services\TransaksiService;
+use App\Services\KasirPOS\KasirService;
+use App\Services\KasirPOS\TransaksiService;
 use App\Services\NotifikasiService;
 use Carbon\Carbon;
 

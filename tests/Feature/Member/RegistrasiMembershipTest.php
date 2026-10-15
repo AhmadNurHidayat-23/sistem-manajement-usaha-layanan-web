@@ -9,7 +9,7 @@ use App\Models\LoyaltyPoint;
 use App\Models\Membership;
 use App\Models\Role;
 use App\Models\User;
-use App\Modules\MembershipPromo\Services\MemberService;
+use App\Services\MembershipPromo\MemberService;
 use Database\Seeders\PeranSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -66,7 +66,7 @@ class RegistrasiMembershipTest extends TestCase
     {
         $response = $this->actingAs($this->owner)->get(route('members.index'));
         $response->assertOk();
-        $response->assertViewIs('modules.membership-promo.admin.member.index');
+        $response->assertViewIs('kasir.member.index');
 
         $responseCashier = $this->actingAs($this->cashier)->get(route('members.index'));
         $responseCashier->assertOk();
@@ -115,7 +115,7 @@ class RegistrasiMembershipTest extends TestCase
 
         $response = $this->actingAs($this->customer)->get(route('members.my-membership'));
         $response->assertOk();
-        $response->assertViewIs('modules.membership-promo.customer.member.my-membership');
+        $response->assertViewIs('pelanggan.member.my-membership');
         $response->assertSee($member->member_code);
         $response->assertSee('Saldo Poin Saat Ini');
     }
@@ -124,7 +124,7 @@ class RegistrasiMembershipTest extends TestCase
     {
         $response = $this->actingAs($this->customer)->get(route('members.packages'));
         $response->assertOk();
-        $response->assertViewIs('modules.membership-promo.customer.member.packages');
+        $response->assertViewIs('pelanggan.member.packages');
         $response->assertSee('Tingkat Keanggotaan');
     }
 }

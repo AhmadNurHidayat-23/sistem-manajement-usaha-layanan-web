@@ -1,13 +1,13 @@
 <?php
 
-use App\Http\Controllers\Customer\CustomerDashboardController;
-use App\Modules\BookingAntrian\Controllers\PelangganBookingController;
-use App\Modules\BookingAntrian\Controllers\PelangganPesananController;
-use App\Modules\KasirPOS\Controllers\PelangganPembayaranController;
-use App\Modules\Katalog\Controllers\PelangganLayananController;
-use App\Modules\Katalog\Controllers\PelangganUlasanController;
-use App\Modules\MembershipPromo\Controllers\PelangganMemberController;
-use App\Modules\MembershipPromo\Controllers\PelangganPromoController;
+use App\Http\Controllers\Pelanggan\PelangganBookingController;
+use App\Http\Controllers\Pelanggan\PelangganDashboardController;
+use App\Http\Controllers\Pelanggan\PelangganLayananController;
+use App\Http\Controllers\Pelanggan\PelangganMemberController;
+use App\Http\Controllers\Pelanggan\PelangganPembayaranController;
+use App\Http\Controllers\Pelanggan\PelangganPesananController;
+use App\Http\Controllers\Pelanggan\PelangganPromoController;
+use App\Http\Controllers\Pelanggan\PelangganUlasanController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,7 +33,7 @@ Route::prefix('customer')->group(function () {
 // Authenticated customer routes (login required)
 Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer.')->group(function () {
     // Dashboard Pelanggan
-    Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [PelangganDashboardController::class, 'index'])->name('dashboard');
 
     // Booking (Appointment)
     Route::get('/booking', [PelangganBookingController::class, 'index'])->name('booking.index');

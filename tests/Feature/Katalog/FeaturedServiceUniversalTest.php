@@ -10,7 +10,7 @@ use App\Models\ServiceCategory;
 use App\Models\Transaction;
 use App\Models\Ulasan;
 use App\Models\User;
-use App\Modules\Katalog\Services\LayananService;
+use App\Services\Katalog\LayananService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

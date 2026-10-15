@@ -5,7 +5,7 @@ namespace App\Services\DataDemo;
 use App\Models\InventoryItem;
 use App\Models\InventoryMutation;
 use App\Models\User;
-use App\Modules\Inventori\Services\MutasiInventoriService;
+use App\Services\Inventori\MutasiInventoriService;
 
 class InventoriDemoService
 {

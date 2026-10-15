@@ -13,7 +13,7 @@ use App\Models\Role;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\User;
-use App\Modules\BookingAntrian\Services\StatusPekerjaanService;
+use App\Services\BookingAntrian\StatusPekerjaanService;
 use Database\Seeders\PeranSeeder;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;

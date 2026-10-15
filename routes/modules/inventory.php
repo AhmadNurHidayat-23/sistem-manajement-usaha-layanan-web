@@ -1,6 +1,6 @@
 <?php
 
-use App\Modules\Inventori\Controllers\InventoriController;
+use App\Http\Controllers\Manager\InventoriController;
 use Illuminate\Support\Facades\Route;
 
 /*

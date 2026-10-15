@@ -8,7 +8,7 @@ use App\Models\Role;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\User;
-use App\Modules\BookingAntrian\Services\BookingService;
+use App\Services\BookingAntrian\BookingService;
 use Database\Seeders\PeranSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

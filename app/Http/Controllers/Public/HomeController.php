@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
-use App\Modules\Katalog\Services\LayananService;
-use App\Modules\Katalog\Services\UlasanService;
-use App\Modules\MembershipPromo\Services\PromoService;
+use App\Services\Katalog\LayananService;
+use App\Services\Katalog\UlasanService;
+use App\Services\MembershipPromo\PromoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

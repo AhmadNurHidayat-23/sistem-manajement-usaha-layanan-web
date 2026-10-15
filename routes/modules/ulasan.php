@@ -1,6 +1,6 @@
 <?php
 
-use App\Modules\Katalog\Controllers\OwnerUlasanController;
+use App\Http\Controllers\Owner\OwnerUlasanController;
 use Illuminate\Support\Facades\Route;
 
 /*

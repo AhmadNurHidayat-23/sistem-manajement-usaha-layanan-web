@@ -4,7 +4,7 @@ namespace App\Services\DataDemo;
 
 use App\Enums\StatusTransaksi;
 use App\Models\Transaction;
-use App\Modules\Katalog\Services\UlasanService;
+use App\Services\Katalog\UlasanService;
 
 class UlasanDemoService
 {

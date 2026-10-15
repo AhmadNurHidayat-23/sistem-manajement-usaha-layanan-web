@@ -74,7 +74,7 @@ class KelolaPromotionTest extends TestCase
     {
         $response = $this->actingAs($this->owner)->get(route('promotions.index'));
         $response->assertOk();
-        $response->assertViewIs('modules.membership-promo.owner.promo.index');
+        $response->assertViewIs('owner.promo.index');
     }
 
     public function test_manager_can_view_promotions_index(): void
@@ -188,7 +188,7 @@ class KelolaPromotionTest extends TestCase
 
         $response = $this->actingAs($this->customer)->get(route('promotions.public'));
         $response->assertOk();
-        $response->assertViewIs('modules.membership-promo.customer.promo.public');
+        $response->assertViewIs('pelanggan.promo.public');
         $response->assertSee('PUBLIC10');
     }
 }

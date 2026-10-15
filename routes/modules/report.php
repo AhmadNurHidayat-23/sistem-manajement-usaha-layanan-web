@@ -1,6 +1,6 @@
 <?php
 
-use App\Modules\LaporanKeuangan\Controllers\LaporanController;
+use App\Http\Controllers\Owner\LaporanController;
 use Illuminate\Support\Facades\Route;
 
 /*

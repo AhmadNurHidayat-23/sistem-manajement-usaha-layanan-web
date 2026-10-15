@@ -1,11 +1,64 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SIMAUL - Sistem Manajemen Usaha Layanan
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Arsitektur Sistem
+
+SIMAUL menggunakan arsitektur **Role-Based Controller + Service Layer** untuk memisahkan pengelolaan permintaan pengguna, logika bisnis, dan tampilan sistem.
+
+Controller dikelompokkan berdasarkan role atau tanggung jawab, Service berdasarkan fungsi bisnis, sedangkan Views dikelompokkan berdasarkan role dan halaman yang digunakan bersama.
+
+### Ringkasan Struktur Folder
+
+```text
+app/
+├── Http/
+│   ├── Controllers/
+│   │   ├── Api/               # Endpoint REST API (Mobile Flutter)
+│   │   ├── Auth/              # Autentikasi (Login, Register, Password Reset)
+│   │   ├── Karyawan/          # Controller khusus role Karyawan
+│   │   ├── Kasir/             # Controller khusus role Kasir
+│   │   ├── Manager/           # Controller khusus role Manager
+│   │   ├── Owner/             # Controller khusus role Owner
+│   │   ├── Pelanggan/         # Controller khusus role Pelanggan
+│   │   ├── Public/            # Controller halaman publik (Landing Page / Home)
+│   │   ├── Shared/            # Controller fitur bersama lintas-role
+│   │   └── Controller.php     # Base Controller
+│   └── Requests/              # Form Request Validation per Fitur
+│       ├── BookingAntrian/
+│       ├── Cabang/
+│       ├── Inventori/
+│       ├── Karyawan/
+│       ├── KasirPOS/
+│       ├── Katalog/
+│       ├── LaporanKeuangan/
+│       └── MembershipPromo/
+├── Models/                    # Eloquent Models
+├── Policies/                  # Otorisasi & Policy (BookingPolicy, PesananPolicy, dll.)
+└── Services/                  # Service Layer (Domain Bisnis)
+    ├── BookingAntrian/        # Layanan booking, antrian harian, drop-off orders
+    ├── Cabang/                # Manajemen cabang dan unit usaha
+    ├── Dashboard/             # Agregasi data dashboard per role
+    ├── DataDemo/              # Generator & seeder data demonstrasi
+    ├── Inventori/             # Stok bahan, mutasi masuk/keluar
+    ├── Karyawan/              # Data karyawan, shift kerja, komisi
+    ├── KasirPOS/              # Transaksi POS, shift kasir, payment gateway
+    ├── Katalog/               # Layanan, kategori layanan, ulasan/rating
+    ├── LaporanKeuangan/       # Laporan transaksi, tren omzet, ekspor PDF/Excel
+    ├── MembershipPromo/       # Loyalitas pelanggan, tier membership, voucher promo
+    └── Notifications/         # Log notifikasi dan aktivitas sistem
+
+resources/
+└── views/
+    ├── auth/                  # Halaman login, register, forgot password
+    ├── components/            # Komponen Blade UI reusable (alerts, buttons, cards, modals, dll.)
+    ├── karyawan/              # Tampilan role Karyawan (dashboard, booking, tugas, profil)
+    ├── kasir/                 # Tampilan role Kasir (dashboard, pos, shift, antrian, profil)
+    ├── landing/               # Tampilan landing page dan katalog publik
+    ├── layouts/               # Master layout aplikasi dan sidebar navigasi
+    ├── manager/               # Tampilan role Manager (dashboard, cabang, inventori, karyawan, katalog, laporan, ulasan)
+    ├── owner/                 # Tampilan role Owner (dashboard, user management, cabang, laporan keuangan)
+    ├── pelanggan/             # Tampilan role Pelanggan (dashboard, booking, riwayat pesanan, profil)
+    └── shared/                # Tampilan bersama lintas-role (notifikasi, aktivitas, invoice)
+```
 
 ## About Laravel
 
