@@ -14,6 +14,7 @@ use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use App\Models\User;
 use App\Services\NotifikasiService;
+use App\Services\WhatsAppService;
 use Database\Seeders\PeranSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -101,7 +102,7 @@ class NotifikasiPembayaranTest extends TestCase
         $this->assertDatabaseHas('notification_logs', [
             'user_id' => $this->customer->id,
             'type' => 'transaction_receipt',
-            'recipient' => '081234567890',
+            'recipient' => WhatsAppService::normalizeIndonesianPhone($this->customer->phone),
         ]);
     }
 }

@@ -112,18 +112,22 @@ class SimaulLandingAndPosWaReceiptTest extends TestCase
 
     public function test_authenticated_users_are_redirected_to_their_respective_dashboards_when_visiting_root(): void
     {
-        $matrix = [
+        $internalStaffMatrix = [
             [$this->owner, route('owner.dashboard')],
             [$this->manager, route('manager.dashboard')],
             [$this->cashier, route('cashier.dashboard')],
             [$this->employee, route('employee.dashboard')],
-            [$this->customer, route('customer.dashboard')],
         ];
 
-        foreach ($matrix as [$user, $expectedUrl]) {
+        foreach ($internalStaffMatrix as [$user, $expectedUrl]) {
             $response = $this->actingAs($user)->get('/');
             $response->assertRedirect($expectedUrl);
         }
+
+        // Pelanggan tetap dapat mengakses landing page publik
+        $customerResponse = $this->actingAs($this->customer)->get('/');
+        $customerResponse->assertStatus(200);
+        $customerResponse->assertSee('id="header-logout-btn"', false);
     }
 
     public function test_refresh_and_tab_access_while_logged_in_redirects_to_dashboard(): void

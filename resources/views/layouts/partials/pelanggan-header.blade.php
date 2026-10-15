@@ -52,7 +52,7 @@
 
             {{-- Action Login --}}
             <div class="flex items-center gap-2.5">
-                @if (!$isHome && auth()->check())
+                @if (auth()->check())
                     @php
                         $cleanUserName = preg_replace('/\s*\(.*?\)\s*$/', '', auth()->user()->name);
                         $dashboardRoute = auth()->user()->getDashboardUrl();
@@ -63,7 +63,7 @@
                     @if ($dashboardRoute && !($isCustomer && $isCustomerArea))
                         <a href="{{ $dashboardRoute }}"
                             id="header-dashboard-btn"
-                            class="hidden sm:inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-[#062072] bg-[#062072]/10 hover:bg-[#062072]/15 transition-colors no-underline">
+                            class="hidden sm:inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium {{ $isHome ? 'text-white bg-white/15 hover:bg-white/25' : 'text-[#062072] bg-[#062072]/10 hover:bg-[#062072]/15' }} transition-colors no-underline">
                             Dashboard
                         </a>
                     @endif
@@ -72,7 +72,7 @@
                         @csrf
                         <button type="submit"
                             id="header-logout-btn"
-                            class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-[#667085] hover:text-[#101828] border border-[#E4E7EC] hover:bg-neutral-50 transition-colors cursor-pointer bg-transparent">
+                            class="px-3.5 py-1.5 rounded-lg text-xs font-medium {{ $isHome ? 'text-white/90 hover:text-white border border-white/20 hover:bg-white/10' : 'text-[#667085] hover:text-[#101828] border border-[#E4E7EC] hover:bg-neutral-50' }} transition-colors cursor-pointer bg-transparent">
                             Logout
                         </button>
                     </form>
@@ -98,7 +98,7 @@
 
         {{-- Mobile Dropdown --}}
         <div id="mobile-nav-panel" class="hidden lg:hidden mt-2 pt-3 rounded-2xl bg-white/95 backdrop-blur-md p-4 shadow-xl border border-[#E4E7EC] space-y-1">
-            @if (!$isHome && auth()->check())
+            @if (auth()->check())
                 <div class="py-2 px-3 mb-2 rounded-lg bg-[#F5F8FC] border border-[#E4E7EC]">
                     <p class="text-xs font-semibold text-[#101828] m-0">{{ $cleanUserName ?? 'Pelanggan' }}</p>
                     <p class="text-[11px] text-[#667085] m-0">{{ auth()->user()->email }}</p>
@@ -112,7 +112,7 @@
                 </a>
             @endforeach
 
-            @if (!$isHome && auth()->check())
+            @if (auth()->check())
                 @if ($dashboardRoute && !($isCustomer && $isCustomerArea))
                     <div class="pt-2 border-t border-[#E4E7EC]">
                         <a href="{{ $dashboardRoute }}" class="block px-3 py-2 rounded-lg text-sm font-medium text-[#101828] bg-neutral-100 no-underline">

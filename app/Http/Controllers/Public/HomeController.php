@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Public;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Services\Katalog\LayananService;
@@ -21,12 +22,13 @@ class HomeController extends Controller
     ) {}
 
     /**
-     * Landing page dan katalog layanan (khusus guest).
-     * Pengguna yang sudah login langsung dialihkan ke dashboard role masing-masing.
+     * Landing page dan katalog layanan.
+     * Pengguna staf internal langsung dialihkan ke dashboard role masing-masing,
+     * sedangkan customer dan guest dapat mengakses landing page dan katalog layanan.
      */
     public function home(Request $request): View|RedirectResponse
     {
-        if (Auth::check()) {
+        if (Auth::check() && $request->user()->role?->name !== UserRole::Customer->value) {
             return redirect()->to($request->user()->getDashboardUrl());
         }
 
