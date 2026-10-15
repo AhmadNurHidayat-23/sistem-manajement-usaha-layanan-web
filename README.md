@@ -1,111 +1,140 @@
-# SIMAUL - Sistem Manajemen Usaha Layanan
+# SIMAUL — Sistem Manajemen Usaha Layanan
+
+SIMAUL adalah platform manajemen operasional multi-cabang terpadu yang dirancang untuk mempermudah pengelolaan berbagai unit usaha layanan, meliputi:
+- **Barbershop & Studio**
+- **Laundry & Shoe Care**
+- **Auto Care & Detailing**
+
+Sistem ini membantu pemilik usaha dan staf operasional dalam mengelola alur kerja harian secara efisien, mulai dari pemesanan layanan, transaksi kasir, penugasan staf, hingga pelaporan performa bisnis secara terpusat.
+
+---
+
+## Fitur Utama
+
+- **Booking dan Antrean Layanan**: Penjadwalan janji temu daring, alokasi jam/slot layanan, dan pemantauan status antrean harian cabang.
+- **Pengelolaan Pesanan**: Alur penerimaan pesanan (*drop-off*), pembaruan tahapan pengerjaan layanan, hingga serah terima selesai.
+- **Kasir POS dan Pembayaran**: Transaksi kasir langsung, penghitungan diskon/pajak, pencatatan shift kasir, serta dukungan pembayaran tunai dan *payment gateway*.
+- **Manajemen Karyawan dan Shift**: Pengaturan jadwal kerja per cabang, pembagian penugasan teknisi/staf, dan kalkulasi komisi otomatis.
+- **Inventori dan Katalog Layanan**: Manajemen daftar layanan per kategori, pemantauan stok bahan habis pakai, dan pencatatan mutasi inventori.
+- **Membership dan Promo**: Program loyalitas pelanggan berbasis poin membership, benefit tier/paket, serta pengelolaan kupon dan voucher diskon.
+- **Laporan Keuangan**: Rekapitulasi transaksi penjualan, pendapatan harian/bulanan cabang, rincian komisi, serta ekspor dokumen laporan ke format PDF dan Excel.
+- **Notifikasi**: Pencatatan log aktivitas sistem dan pengiriman pemberitahuan pembaruan status pesanan kepada pengguna dan staf terkait.
+
+---
+
+## Hak Akses Pengguna
+
+Sistem berbasis Web menyediakan lima tingkatan hak akses (role):
+
+1. **Owner**: Pemilik usaha dengan wewenang penuh terhadap seluruh cabang, pengelolaan akun manajer, serta tinjauan laporan eksekutif dan keuangan menyeluruh.
+2. **Manajer**: Pengelola operasional cabang yang bertanggung jawab atas jadwal shift staf, pemantauan antrean, inventori bahan, dan kinerja operasional cabang.
+3. **Kasir**: Petugas loket/kasir yang menangani transaksi POS harian, shift kasir, pencetakan invoice/struk, dan konfirmasi penerimaan pembayaran.
+4. **Karyawan**: Staf teknis layanan yang memantau penanganan antrean pelanggan, daftar tugas harian, jadwal kerja, dan rekapan komisi pribadi.
+5. **Pelanggan**: Konsumen yang melakukan booking layanan, memantau riwayat pesanan, memberikan ulasan rating, serta mengelola poin membership.
+
+---
+
+## Teknologi
+
+- **Backend**: PHP 8.3+ / Laravel 13
+- **Frontend**: Blade Templating, Tailwind CSS v4, Vite
+- **Database**: MySQL / MariaDB (mendukung SQLite untuk pengujian)
+- **Ekspor Dokumen**: Barryvdh DomPDF (PDF) & PhpSpreadsheet (Excel)
+- **Pengujian & Perkakas**: PHPUnit, Composer, NPM
+
+---
 
 ## Arsitektur Sistem
 
-SIMAUL menggunakan arsitektur **Role-Based Controller + Service Layer** untuk memisahkan pengelolaan permintaan pengguna, logika bisnis, dan tampilan sistem.
+SIMAUL menggunakan arsitektur **Role-Based Controller + Service Layer** untuk memisahkan pengelolaan permintaan pengguna, logika bisnis, dan tampilan aplikasi.
 
-Controller dikelompokkan berdasarkan role atau tanggung jawab, Service berdasarkan fungsi bisnis, sedangkan Views dikelompokkan berdasarkan role dan halaman yang digunakan bersama.
-
-### Ringkasan Struktur Folder
+Controller dikelompokkan berdasarkan role, Service berdasarkan fungsi bisnis, sedangkan Views dikelompokkan berdasarkan role serta halaman yang digunakan bersama.
 
 ```text
-app/
-├── Http/
-│   ├── Controllers/
-│   │   ├── Api/               # Endpoint REST API (Mobile Flutter)
-│   │   ├── Auth/              # Autentikasi (Login, Register, Password Reset)
-│   │   ├── Karyawan/          # Controller khusus role Karyawan
-│   │   ├── Kasir/             # Controller khusus role Kasir
-│   │   ├── Manager/           # Controller khusus role Manager
-│   │   ├── Owner/             # Controller khusus role Owner
-│   │   ├── Pelanggan/         # Controller khusus role Pelanggan
-│   │   ├── Public/            # Controller halaman publik (Landing Page / Home)
-│   │   ├── Shared/            # Controller fitur bersama lintas-role
-│   │   └── Controller.php     # Base Controller
-│   └── Requests/              # Form Request Validation per Fitur
-│       ├── BookingAntrian/
-│       ├── Cabang/
-│       ├── Inventori/
-│       ├── Karyawan/
-│       ├── KasirPOS/
-│       ├── Katalog/
-│       ├── LaporanKeuangan/
-│       └── MembershipPromo/
-├── Models/                    # Eloquent Models
-├── Policies/                  # Otorisasi & Policy (BookingPolicy, PesananPolicy, dll.)
-└── Services/                  # Service Layer (Domain Bisnis)
-    ├── BookingAntrian/        # Layanan booking, antrian harian, drop-off orders
-    ├── Cabang/                # Manajemen cabang dan unit usaha
-    ├── Dashboard/             # Agregasi data dashboard per role
-    ├── DataDemo/              # Generator & seeder data demonstrasi
-    ├── Inventori/             # Stok bahan, mutasi masuk/keluar
-    ├── Karyawan/              # Data karyawan, shift kerja, komisi
-    ├── KasirPOS/              # Transaksi POS, shift kasir, payment gateway
-    ├── Katalog/               # Layanan, kategori layanan, ulasan/rating
-    ├── LaporanKeuangan/       # Laporan transaksi, tren omzet, ekspor PDF/Excel
-    ├── MembershipPromo/       # Loyalitas pelanggan, tier membership, voucher promo
-    └── Notifications/         # Log notifikasi dan aktivitas sistem
-
-resources/
-└── views/
-    ├── auth/                  # Halaman login, register, forgot password
-    ├── components/            # Komponen Blade UI reusable (alerts, buttons, cards, modals, dll.)
-    ├── karyawan/              # Tampilan role Karyawan (dashboard, booking, tugas, profil)
-    ├── kasir/                 # Tampilan role Kasir (dashboard, pos, shift, antrian, profil)
-    ├── landing/               # Tampilan landing page dan katalog publik
-    ├── layouts/               # Master layout aplikasi dan sidebar navigasi
-    ├── manager/               # Tampilan role Manager (dashboard, cabang, inventori, karyawan, katalog, laporan, ulasan)
-    ├── owner/                 # Tampilan role Owner (dashboard, user management, cabang, laporan keuangan)
-    ├── pelanggan/             # Tampilan role Pelanggan (dashboard, booking, riwayat pesanan, profil)
-    └── shared/                # Tampilan bersama lintas-role (notifikasi, aktivitas, invoice)
+app/Http/Controllers/ — Controller aplikasi.
+app/Services/        — Logika bisnis.
+app/Models/          — Model database.
+resources/views/     — Tampilan berdasarkan role dan shared.
+routes/              — Routing Web dan API.
 ```
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Instalasi dan Menjalankan Proyek
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Panduan ini disusun untuk lingkungan pengembangan lokal (termasuk Windows dengan Laragon / XAMPP).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Prasyarat
+- PHP >= 8.3 dengan ekstensi aktif: `pdo_mysql`, `mbstring`, `openssl`, `fileinfo`, `gd` / `imagick`
+- Composer
+- Node.js & NPM
+- Database MySQL / MariaDB
 
-## Learning Laravel
+### Langkah Instalasi
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+1. **Clone Repository**
+   ```bash
+   git clone https://github.com/AhmadNurHidayat-23/sistem-manajement-usaha-layanan-web.git
+   cd sistem-manajement-usaha-layanan-web
+   ```
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+2. **Instal Dependensi Backend dan Frontend**
+   ```bash
+   composer install
+   npm install
+   ```
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+3. **Konfigurasi Environment**
+   Salin berkas template lingkungan:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+   Buka berkas `.env`, lalu sesuaikan konfigurasi koneksi database:
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=service_management
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+   *(Pastikan database `service_management` telah dibuat terlebih dahulu melalui phpMyAdmin / Laragon).*
 
-## Agentic Development
+4. **Migrasi Database (Instalasi Baru)**
+   Jalankan perintah migrasi berikut untuk inisialisasi tabel:
+   ```bash
+   php artisan migrate
+   ```
+   > **Perhatian:** Hanya jalankan migrasi ini untuk database baru. Jangan gunakan perintah `migrate:fresh` atau `migrate:refresh` pada database yang sudah berjalan agar data transaksi tidak terhapus.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+5. **Jalankan Aplikasi**
+   Buka terminal untuk menjalankan server aplikasi dan kompilasi aset:
+   ```bash
+   # Terminal 1: Web Server
+   php artisan serve
 
-```bash
-composer require laravel/boost --dev
+   # Terminal 2: Asset Bundler
+   npm run dev
+   ```
+   Aplikasi dapat diakses melalui peramban pada `http://localhost:8000` (atau `http://service-management.test` jika menggunakan virtual host Laragon).
 
-php artisan boost:install
-```
+---
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Konfigurasi Layanan Tambahan (Opsional)
 
-## Contributing
+SIMAUL Web mendukung integrasi layanan eksternal yang dapat diaktifkan melalui berkas `.env` sesuai kebutuhan:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- **Payment Gateway (Midtrans)**:
+  Secara bawaan menggunakan driver `sandbox`. Jika ingin mengaktifkan Midtrans, atur `PAYMENT_GATEWAY_DRIVER=midtrans` serta lengkapi variabel `MIDTRANS_SERVER_KEY` dan `MIDTRANS_CLIENT_KEY` yang diperoleh dari dashboard Midtrans Anda.
+- **WhatsApp Gateway**:
+  Secara bawaan menggunakan driver `log` (pesan dicatat pada log aplikasi untuk keamanan dan pengujian). Jika menggunakan gateway WhatsApp eksternal, atur `WHATSAPP_DRIVER` (`fonnte`, `wablas`, `baileys`, atau `custom`) beserta token autentikasi penyedia terkait.
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Integrasi SIMAUL Mobile
 
-## Security Vulnerabilities
+SIMAUL Web menyediakan REST API yang digunakan oleh aplikasi mobile berbasis Flutter untuk kebutuhan interaksi role **Pelanggan** dan **Karyawan**.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Repository aplikasi mobile dapat diakses melalui tautan berikut:
+- [SIMAUL Mobile Repository](https://github.com/AhmadNurHidayat-23/sistem-manajement-usaha-layanan-mobile)
