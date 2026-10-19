@@ -1,7 +1,3 @@
-@php
-    $user = auth()->user();
-    $cleanName = preg_replace('/\s*\(.*?\)\s*$/', '', $user?->name ?? 'Manajer');
-@endphp
 
 <aside id="sidebar-nav" class="sidebar-nav fixed top-0 left-0 bg-white text-[#101828] flex flex-col h-screen z-30 select-none border-r border-[#E4E7EC] {{ ($isCollapsed ?? false) ? 'collapsed' : '' }}">
     {{-- Header Sidebar (h-[72px] seragam dengan Topbar) --}}
@@ -90,8 +86,8 @@
         </div>
     </nav>
 
-    <!-- Tombol Keluar + Identitas Manajer di Bawah -->
-    <div class="sidebar-footer-section px-3 pb-3 pt-2.5 border-t border-[#E4E7EC] bg-white shrink-0 flex flex-col gap-2">
+    <!-- Tombol Keluar di Bawah -->
+    <div class="sidebar-footer-section px-3 pb-3 pt-2.5 border-t border-[#E4E7EC] bg-white shrink-0">
         <form method="POST" action="{{ route('logout') }}" class="m-0">
             @csrf
             <button type="submit" class="sidebar-link sidebar-logout-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#344054] hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-rose-500" title="Keluar dari Akun">
@@ -100,19 +96,5 @@
                 <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-[#101828] text-white text-xs rounded-md whitespace-nowrap z-50 shadow-lg border border-white/10 pointer-events-none">Keluar</span>
             </button>
         </form>
-
-        <div class="flex items-center gap-2.5 px-1 py-1">
-            @if(auth()->user()?->avatar_url)
-                <img src="{{ auth()->user()->avatar_url }}" alt="{{ $cleanName }}" class="w-8 h-8 rounded-full object-cover shrink-0 shadow-xs border border-[#E4E7EC]">
-            @else
-                <div class="w-8 h-8 rounded-full bg-[#062072] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
-                    {{ strtoupper(substr($cleanName, 0, 2)) }}
-                </div>
-            @endif
-            <div class="sidebar-user-info flex-1 min-w-0">
-                <p class="text-xs font-semibold text-[#101828] truncate m-0 leading-tight">{{ $cleanName }}</p>
-                <p class="text-[11px] text-[#667085] truncate m-0 font-medium leading-none mt-1">Manajer Cabang</p>
-            </div>
-        </div>
     </div>
 </aside>

@@ -23,6 +23,13 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasPublicUuid, Notifiable;
 
+    /**
+     * Relasi yang selalu di-eager load untuk mencegah N+1 query role di layout & middleware.
+     *
+     * @var array<int, string>
+     */
+    protected $with = ['role'];
+
     protected function casts(): array
     {
         return [

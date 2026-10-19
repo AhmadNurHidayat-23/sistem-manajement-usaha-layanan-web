@@ -89,7 +89,7 @@ class KasirHalamanShiftDanNavigasiTest extends TestCase
         $response->assertSee('images/brand/logo-header.png');
         $response->assertDontSee('images/brand/logo-sidebar.png');
         $response->assertSee('header-realtime-clock');
-        $response->assertSee('KASIR');
+        $response->assertSee('Kasir');
     }
 
     public function test_buka_dan_tutup_shift_dari_halaman_shift_dapat_redirect_kembali_ke_shift(): void

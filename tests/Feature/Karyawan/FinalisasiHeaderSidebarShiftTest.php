@@ -75,7 +75,7 @@ class FinalisasiHeaderSidebarShiftTest extends TestCase
         $this->managerUser->branches()->attach($this->branch->id);
     }
 
-    public function test_employee_header_has_realtime_clock_and_profile_icon_without_name(): void
+    public function test_employee_header_has_realtime_clock_search_and_profile_with_name(): void
     {
         $response = $this->actingAs($this->employeeUser)->get(route('employee.dashboard'));
 
@@ -83,13 +83,9 @@ class FinalisasiHeaderSidebarShiftTest extends TestCase
         $response->assertSee('id="header-realtime-clock"', false);
         $response->assertSee('id="realtime-clock-time"', false);
         $response->assertSee('id="realtime-clock-date"', false);
-        $response->assertSee('KARYAWAN');
-        $response->assertSee('aria-label="Profil Karyawan"', false);
-
-        // Header tidak menampilkan nama teks di baris header atas (hanya di sidebar footer)
-        $content = $response->getContent();
-        $this->assertStringContainsString('id="header-realtime-clock"', $content);
-        $this->assertStringNotContainsString('<span class="text-xs font-semibold text-[#101828] hidden sm:inline max-w-[150px] truncate">', $content);
+        $response->assertSee('id="menu-search-input"', false);
+        $response->assertSee('Dedi Kurniawan');
+        $response->assertDontSee('KARYAWAN');
     }
 
     public function test_employee_sidebar_uses_white_background_and_exact_logo_asset(): void
@@ -110,14 +106,15 @@ class FinalisasiHeaderSidebarShiftTest extends TestCase
         $response->assertSee('Dedi Kurniawan');
     }
 
-    public function test_manager_header_keeps_name_and_clock(): void
+    public function test_manager_header_keeps_name_and_clock_without_role_badge(): void
     {
         $response = $this->actingAs($this->managerUser)->get(route('manager.dashboard'));
 
         $response->assertOk();
         $response->assertSee('id="header-realtime-clock"', false);
-        $response->assertSee('MANAJER');
+        $response->assertSee('id="menu-search-input"', false);
         $response->assertSee('Manager Toko');
+        $response->assertDontSee('MANAJER');
     }
 
     public function test_employee_can_only_see_their_own_shifts(): void

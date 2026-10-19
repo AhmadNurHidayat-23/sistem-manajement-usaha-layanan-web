@@ -1,13 +1,18 @@
 @php
-    $unreadCount = auth()->user()?->unreadNotifications()->count() ?? 0;
-    $isOwnerManager = in_array(auth()->user()?->role?->name, ['owner', 'manager'], true);
+    $authUser = auth()->user();
+    $unreadCount = $authUser ? \Illuminate\Support\Facades\Cache::remember(
+        "user_notif_unread_{$authUser->id}",
+        20,
+        fn () => $authUser->unreadNotifications()->count()
+    ) : 0;
+    $isOwnerManager = in_array($authUser?->role?->name, ['owner', 'manager'], true);
 @endphp
 
 <div class="relative" id="notification-bell-wrapper">
-    {{-- Tombol Lonceng Header --}}
+    {{-- Tombol Lonceng Header (Pill Rounded-Full) --}}
     <button type="button"
             id="notification-bell-btn"
-            class="relative w-9 h-9 rounded-lg flex items-center justify-center text-[#062072] hover:bg-[#EBF2FE] transition-colors cursor-pointer"
+            class="relative w-9 h-9 rounded-full flex items-center justify-center text-[#062072] hover:bg-[#EBF2FE] border border-transparent hover:border-[#E4E7EC] transition-colors cursor-pointer"
             title="Notifikasi"
             aria-label="Lihat Notifikasi"
             aria-expanded="false"

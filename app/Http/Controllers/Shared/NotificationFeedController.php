@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Shared;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class NotificationFeedController extends Controller
 {
@@ -19,6 +20,7 @@ class NotificationFeedController extends Controller
         }
 
         $unreadCount = $user->unreadNotifications()->count();
+        Cache::put("user_notif_unread_{$user->id}", $unreadCount, 20);
 
         $notifications = $user->notifications()
             ->latest()
@@ -57,6 +59,9 @@ class NotificationFeedController extends Controller
         }
 
         $notification->markAsRead();
+        if ($request->user()) {
+            Cache::forget("user_notif_unread_{$request->user()->id}");
+        }
 
         return response()->json(['success' => true]);
     }
@@ -69,6 +74,7 @@ class NotificationFeedController extends Controller
         $user = $request->user();
         if ($user) {
             $user->unreadNotifications->markAsRead();
+            Cache::forget("user_notif_unread_{$user->id}");
         }
 
         return response()->json(['success' => true]);

@@ -14,10 +14,8 @@ class KinerjaKaryawanService
 {
     /**
      * Ringkasan performa karyawan.
-     *
-     * @return array<string, mixed>
      */
-    public function getEmployeePerformanceSummary(Employee $employee): array
+    public function getEmployeePerformanceSummary(Employee $employee, bool $includeRecentLists = true): array
     {
         // Statistik booking (1 query agregasi)
         $bookingCounts = $employee->bookings()
@@ -62,25 +60,31 @@ class KinerjaKaryawanService
         $paidCommission = (float) ($commissionSums[CommissionStatus::Paid->value] ?? 0);
         $totalCommissionEarned = $pendingCommission + $approvedCommission + $paidCommission;
 
-        // Aktivitas terbaru
-        $recentShifts = $employee->shifts()
-            ->with('branch')
-            ->orderBy('shift_date', 'desc')
-            ->orderBy('start_time', 'desc')
-            ->limit(7)
-            ->get();
+        // Aktivitas terbaru (opsional, dilewati pada dashboard summary untuk menghemat query)
+        $recentShifts = $includeRecentLists
+            ? $employee->shifts()
+                ->with('branch')
+                ->orderBy('shift_date', 'desc')
+                ->orderBy('start_time', 'desc')
+                ->limit(7)
+                ->get()
+            : collect();
 
-        $recentCommissions = $employee->commissions()
-            ->with(['service', 'transaction'])
-            ->latest()
-            ->limit(10)
-            ->get();
+        $recentCommissions = $includeRecentLists
+            ? $employee->commissions()
+                ->with(['service', 'transaction'])
+                ->latest()
+                ->limit(10)
+                ->get()
+            : collect();
 
-        $recentBookings = $employee->bookings()
-            ->with(['service', 'user', 'branch'])
-            ->latest('booking_date')
-            ->limit(5)
-            ->get();
+        $recentBookings = $includeRecentLists
+            ? $employee->bookings()
+                ->with(['service', 'user', 'branch'])
+                ->latest('booking_date')
+                ->limit(5)
+                ->get()
+            : collect();
 
         return [
             'total_bookings_assigned' => $totalBookingsAssigned,
@@ -135,9 +139,10 @@ class KinerjaKaryawanService
         }
 
         $employee->load(['branch', 'skills']);
-        $performance = $this->getEmployeePerformanceSummary($employee);
+        $performance = $this->getEmployeePerformanceSummary($employee, false);
 
         $todayShift = $employee->shifts()
+            ->with('branch')
             ->whereDate('shift_date', Carbon::today())
             ->first();
 
