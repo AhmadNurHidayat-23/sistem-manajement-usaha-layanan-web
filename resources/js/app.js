@@ -12,6 +12,7 @@ import { initHeaderClock } from './internal/header-clock.js';
 import { initMenuSearch } from './internal/menu-search.js';
 import { initProfileDropdown } from './internal/profile-dropdown.js';
 import { initLinkPrefetch } from './internal/link-prefetch.js';
+import { initNavProgress } from './internal/nav-progress.js';
 import './modules/kasir-pos/kasir-shift.js';
 import './modules/kasir-pos/pos-transaction.js';
 import './modules/karyawan/employee-skills.js';
@@ -43,8 +44,10 @@ window.initReportFilter = initReportFilter;
 window.initReceiptWaHandlers = initReceiptWaHandlers;
 window.initMenuSearch = initMenuSearch;
 window.initProfileDropdown = initProfileDropdown;
+window.initNavProgress = initNavProgress;
 
 export function initApp(root = document) {
+    initNavProgress();
     initCustomSelects(root);
     initCustomDatePickers(root);
     initModalListeners(root);
@@ -83,14 +86,21 @@ if (typeof document !== 'undefined') {
         }
     });
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => initApp());
-    } else {
+    const onReady = () => {
         initApp();
+        setupDynamicMutationObserver();
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', onReady);
+    } else {
+        onReady();
     }
 
-    // Safe scoped observer untuk node baru yang disisipkan secara dinamis (mis. AJAX)
-    if (typeof MutationObserver !== 'undefined') {
+    // Safe scoped observer untuk node baru yang disisipkan secara dinamis (mis. AJAX/Modal)
+    function setupDynamicMutationObserver() {
+        if (typeof MutationObserver === 'undefined') return;
+
         let isMutatingSelf = false;
         let mutationRaf = null;
         const pendingRoots = new Set();

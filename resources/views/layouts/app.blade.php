@@ -5,16 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'Dashboard' }}</title>
     <link rel="icon" type="image/png" href="{{ asset('images/brand/favicon.png') }}">
-    <!-- Google Fonts: Inter Profesional (Asynchronous Non-render-blocking) -->
+    <!-- Google Fonts: Inter Profesional -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
-    <noscript>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-    </noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-[#F5F8FC] text-[#101828] font-sans antialiased h-screen overflow-hidden">
+    <!-- Top Loading Progress Bar untuk Instant Click Feedback -->
+    <div id="app-top-progress" class="fixed top-0 left-0 h-[2.5px] bg-[#062072] z-50 pointer-events-none transition-all duration-300 opacity-0 w-0" aria-hidden="true"></div>
     <!-- Sidebar Navigasi Berdasarkan Role -->
     @php
         $isCollapsed = request()->cookie('sidebar_collapsed') === '1';
