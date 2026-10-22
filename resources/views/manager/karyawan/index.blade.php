@@ -8,8 +8,8 @@
             <h2 class="text-xl font-bold text-[#101828] m-0">Daftar Karyawan</h2>
             <p class="text-xs text-[#667085] mt-1 m-0">Kelola data staf, keahlian teknisi, jadwal shift, dan skema komisi.</p>
         </div>
-        <div class="flex items-center gap-2">
-            <x-buttons.btn variant="primary" href="{{ route('employees.create') }}" data-modal-open="modal-create-employee" class="gap-1.5 text-xs shadow-2xs">
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+            <x-buttons.btn variant="primary" href="{{ route('employees.create') }}" data-modal-open="modal-create-employee" class="gap-1.5 text-xs shadow-2xs w-full sm:w-auto justify-center">
                 <x-icons.icon name="plus" class="w-4 h-4" />
                 Tambah Karyawan
             </x-buttons.btn>

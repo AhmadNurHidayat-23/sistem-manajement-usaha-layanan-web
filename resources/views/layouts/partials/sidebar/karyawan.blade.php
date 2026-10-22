@@ -20,9 +20,17 @@
             </a>
         </div>
        
-        <button type="button" class="sidebar-toggle-btn p-1.5 rounded-lg border border-[#E4E7EC] hover:bg-[#F5F8FC] text-[#667085] hover:text-[#062072] transition-colors cursor-pointer shrink-0" title="Toggle Sidebar" aria-label="Toggle Sidebar">
+        {{-- Tombol Toggle Desktop (Kecilkan/Perlebar Sidebar) --}}
+        <button type="button" class="sidebar-toggle-btn hidden lg:flex items-center justify-center p-1.5 rounded-lg border border-[#E4E7EC] hover:bg-[#F5F8FC] text-[#667085] hover:text-[#062072] transition-colors cursor-pointer shrink-0" title="Kecilkan Sidebar" aria-label="Kecilkan Sidebar">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+            </svg>
+        </button>
+
+        {{-- Tombol Tutup Mobile Drawer --}}
+        <button type="button" onclick="closeMobileSidebar()" class="sidebar-close-btn lg:hidden flex items-center justify-center w-8 h-8 rounded-lg border border-[#E4E7EC] hover:bg-rose-50 text-[#667085] hover:text-rose-600 transition-colors cursor-pointer shrink-0" title="Tutup Menu Navigasi" aria-label="Tutup Menu Navigasi">
+            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
         </button>
     </div>

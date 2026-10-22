@@ -1,4 +1,4 @@
-@extends('layouts.pelanggan', ['title' => 'Buat Appointment'])
+@extends('layouts.pelanggan', ['title' => 'Buat Janji Temu'])
 
 @section('content')
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
@@ -8,10 +8,10 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
-            Kembali ke Appointment
+            Kembali ke Janji Temu
         </a>
         <h2 class="text-xl font-bold text-[#101828] m-0">Buat Janji Temu</h2>
-        <p class="text-xs text-[#667085] mt-1 m-0">Pilih cabang, layanan, tanggal, dan waktu untuk membuat appointment</p>
+        <p class="text-xs text-[#667085] mt-1 m-0">Pilih cabang, layanan, tanggal, dan waktu untuk membuat janji temu</p>
     </div>
 
     {{-- Flash --}}
@@ -136,7 +136,7 @@
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Memeriksa ketersediaan jam booking...
+                    Memeriksa ketersediaan jam janji temu...
                 </div>
 
                 <div id="slots-container" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 sm:gap-2.5"></div>
@@ -162,9 +162,9 @@
                 Batal
             </a>
             <button type="submit" id="submitBtn"
-                class="px-6 py-2.5 bg-[#062072] hover:bg-[#04184F] text-white rounded-xl text-sm font-semibold transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-6 py-2.5 bg-[#062072] hover:bg-[#04184F] text-white rounded-xl text-sm font-semibold transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 disabled>
-                Buat Appointment
+                Buat Janji Temu
             </button>
         </div>
     </form>
@@ -311,6 +311,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     const btn = document.createElement('button');
                     btn.type = 'button';
 
+                    const unselectedBtnClass = 'slot-btn group relative flex flex-col items-center justify-center py-2.5 px-2 rounded-xl text-xs font-semibold border border-[#D0D5DD] bg-white text-[#101828] hover:border-[#062072] hover:bg-[#F5F8FC] hover:shadow-xs transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#062072]/40 shadow-2xs';
+                    const selectedBtnClass = 'slot-btn is-selected group relative flex flex-col items-center justify-center py-2.5 px-2 rounded-xl text-xs font-semibold border border-[#062072] bg-[#062072] text-white hover:bg-[#04184F] hover:border-[#04184F] hover:text-white transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#062072]/40 shadow-sm ring-2 ring-[#062072]/20';
+
                     if (status === 'full') {
                         // 1. JAM PENUH: Card merah lembut, teks merah, disabled (tidak bisa diklik)
                         btn.disabled = true;
@@ -327,24 +330,25 @@ document.addEventListener('DOMContentLoaded', function() {
                             </span>
                         `;
                     } else if (status === 'past' || status === 'outside_shift') {
-                        // 4. JAM LEWAT / DI LUAR JADWAL: Tampil abu-abu, disabled
+                        // 2. JAM LEWAT / DI LUAR JADWAL: Tampil abu-abu, disabled
                         btn.disabled = true;
                         btn.tabIndex = -1;
-                        btn.className = 'relative flex flex-col items-center justify-center py-2.5 px-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-400 bg-slate-100 cursor-not-allowed select-none transition-all';
+                        btn.className = 'relative flex flex-col items-center justify-center py-2.5 px-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-500 bg-slate-100 cursor-not-allowed select-none transition-all';
                         const labelText = status === 'past' ? 'Lewat' : 'Tutup';
                         btn.title = isObj && item.message ? item.message : `Jam ${time} ${labelText.toLowerCase()}`;
                         btn.innerHTML = `
-                            <span class="text-sm font-bold tracking-tight text-slate-400">${time}</span>
-                            <span class="text-[10px] text-slate-400 font-medium mt-0.5">${labelText}</span>
+                            <span class="text-sm font-bold tracking-tight text-slate-500">${time}</span>
+                            <span class="text-[10px] text-slate-500 font-medium mt-0.5">${labelText}</span>
                         `;
                     } else {
-                        // 3. JAM TERSEDIA: Tetap putih, border netral, hover biru navy, bisa dipilih
-                        btn.className = 'slot-btn group relative flex flex-col items-center justify-center py-2.5 px-2 rounded-xl text-xs font-semibold border border-[#D0D5DD] text-[#101828] bg-white hover:border-[#062072] hover:bg-[#DCE8FF]/20 hover:shadow-xs transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#062072]/30 shadow-2xs';
+                        // 3. JAM TERSEDIA: Normal putih, hover navy cerah dengan teks navy, focus ring kontras
+                        btn.className = unselectedBtnClass;
                         btn.dataset.time = time;
-                        btn.title = `Klik untuk memilih jam ${time}`;
+                        btn.setAttribute('aria-pressed', 'false');
+                        btn.title = `Pilih jam ${time} WIB`;
                         btn.innerHTML = `
-                            <span class="slot-time text-sm font-bold tracking-tight text-[#101828]">${time}</span>
-                            <span class="slot-badge text-[10px] text-emerald-700 font-medium mt-0.5">Tersedia</span>
+                            <span class="slot-time text-sm font-bold tracking-tight text-[#101828] group-hover:text-[#062072] transition-colors">${time}</span>
+                            <span class="slot-badge text-[10px] text-emerald-700 font-semibold mt-0.5">Tersedia</span>
                         `;
 
                         btn.addEventListener('click', function() {
@@ -372,29 +376,37 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
+    function applyUnselectedSlot(b) {
+        b.className = 'slot-btn group relative flex flex-col items-center justify-center py-2.5 px-2 rounded-xl text-xs font-semibold border border-[#D0D5DD] bg-white text-[#101828] hover:border-[#062072] hover:bg-[#F5F8FC] hover:shadow-xs transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#062072]/40 shadow-2xs';
+        b.setAttribute('aria-pressed', 'false');
+        const st = b.querySelector('.slot-time');
+        if (st) st.className = 'slot-time text-sm font-bold tracking-tight text-[#101828] group-hover:text-[#062072] transition-colors';
+        const badge = b.querySelector('.slot-badge');
+        if (badge) {
+            badge.className = 'slot-badge text-[10px] text-emerald-700 font-semibold mt-0.5';
+            badge.textContent = 'Tersedia';
+        }
+    }
+
+    function applySelectedSlot(b) {
+        b.className = 'slot-btn is-selected group relative flex flex-col items-center justify-center py-2.5 px-2 rounded-xl text-xs font-semibold border border-[#062072] bg-[#062072] text-white hover:bg-[#04184F] hover:border-[#04184F] hover:text-white transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#062072]/40 shadow-sm ring-2 ring-[#062072]/20';
+        b.setAttribute('aria-pressed', 'true');
+        const st = b.querySelector('.slot-time');
+        if (st) st.className = 'slot-time text-sm font-bold tracking-tight text-white transition-colors';
+        const badge = b.querySelector('.slot-badge');
+        if (badge) {
+            badge.className = 'slot-badge text-[10px] text-white/95 font-medium mt-0.5';
+            badge.textContent = 'Dipilih';
+        }
+    }
+
     function selectSlot(btn, time) {
         document.querySelectorAll('.slot-btn').forEach(b => {
-            b.classList.remove('bg-[#062072]', 'text-white', 'border-[#062072]', 'shadow-sm', 'ring-2', 'ring-[#062072]/20');
-            b.classList.add('bg-white', 'text-[#101828]', 'border-[#D0D5DD]');
-            const st = b.querySelector('.slot-time');
-            if (st) st.className = 'slot-time text-sm font-bold tracking-tight text-[#101828]';
-            const badge = b.querySelector('.slot-badge');
-            if (badge) {
-                badge.className = 'slot-badge text-[10px] text-emerald-700 font-medium mt-0.5';
-                badge.textContent = 'Tersedia';
-            }
+            applyUnselectedSlot(b);
         });
 
-        // Terapkan styling terpilih (Biru Navy #062072 dengan teks putih)
-        btn.classList.remove('bg-white', 'text-[#101828]', 'border-[#D0D5DD]');
-        btn.classList.add('bg-[#062072]', 'text-white', 'border-[#062072]', 'shadow-sm', 'ring-2', 'ring-[#062072]/20');
-        const activeSt = btn.querySelector('.slot-time');
-        if (activeSt) activeSt.className = 'slot-time text-sm font-bold tracking-tight text-white';
-        const activeBadge = btn.querySelector('.slot-badge');
-        if (activeBadge) {
-            activeBadge.className = 'slot-badge text-[10px] text-white/90 font-medium mt-0.5';
-            activeBadge.textContent = 'Dipilih';
-        }
+        // Terapkan styling terpilih (Biru Navy #062072 solid dengan teks putih tajam, hover #04184F)
+        applySelectedSlot(btn);
 
         timeInput.value = time;
         if (selectedPreview && selectedTimeSpan) {

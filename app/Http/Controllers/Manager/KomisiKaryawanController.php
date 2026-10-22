@@ -28,7 +28,8 @@ class KomisiKaryawanController extends Controller
     public function index(Request $request): View
     {
         $user = $request->user();
-        $filters = $request->only(['employee_id', 'branch_id', 'status', 'start_date', 'end_date']);
+        $filters = $request->only(['employee_id', 'branch_id', 'status', 'start_date', 'end_date', 'tab']);
+        $activeTab = $request->query('tab', 'history');
 
         $commissions = $this->komisiService->getCommissions($user, $filters);
         $overview = $this->komisiService->getCommissionOverview(
@@ -45,7 +46,12 @@ class KomisiKaryawanController extends Controller
         }
         $employees = $employeesQuery->orderBy('name')->get();
 
-        $services = Service::where('is_active', true)->orderBy('name')->get();
+        $servicesQuery = Service::with(['category', 'branch'])->where('is_active', true);
+        if ($user->role?->name === 'manager') {
+            $managedBranchIds = $user->branches()->pluck('branches.id');
+            $servicesQuery->whereIn('branch_id', $managedBranchIds);
+        }
+        $services = $servicesQuery->orderBy('name')->get();
 
         return view('manager.komisi.index', compact(
             'commissions',
@@ -53,7 +59,8 @@ class KomisiKaryawanController extends Controller
             'branches',
             'employees',
             'services',
-            'filters'
+            'filters',
+            'activeTab'
         ));
     }
 
@@ -109,8 +116,10 @@ class KomisiKaryawanController extends Controller
             'overview' => $overview,
             'branches' => collect([$employee->branch]),
             'employees' => collect([$employee]),
+            'services' => collect(),
             'filters' => ['employee_id' => $employee->id],
             'isSelfView' => true,
+            'activeTab' => 'history',
         ]);
     }
 }

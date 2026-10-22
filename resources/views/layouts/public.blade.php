@@ -56,10 +56,10 @@
                     </form>
                 @else
                     <x-buttons.btn variant="outline" href="{{ route('login') }}">
-                        Login
+                        Masuk
                     </x-buttons.btn>
                     <x-buttons.btn variant="secondary" href="{{ route('register') }}">
-                        Daftar Customer
+                        Daftar Pelanggan
                     </x-buttons.btn>
                 @endauth
             </div>

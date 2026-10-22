@@ -104,6 +104,13 @@
                 'keywords' => 'diskon promo voucher kupon potongan promosi',
             ],
             [
+                'title' => 'Komisi Karyawan',
+                'section' => 'Manajemen',
+                'url' => route('employees.commissions.index'),
+                'icon' => 'money',
+                'keywords' => 'komisi bonus insentif bagi hasil skema uang karyawan pegawai',
+            ],
+            [
                 'title' => 'Laporan Keuangan',
                 'section' => 'Laporan',
                 'url' => route('reports.index'),
@@ -199,8 +206,8 @@
 <div class="relative flex items-center" id="menu-search-wrapper" data-menus='@json($menuData)'>
     <div class="relative flex items-center">
         {{-- Ikon Pencarian --}}
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#667085]">
-            <x-icons.icon name="search" class="w-4 h-4 text-[#667085]" />
+        <div class="absolute inset-y-0 left-0 pl-2.5 sm:pl-3 flex items-center pointer-events-none text-[#667085]">
+            <x-icons.icon name="search" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#667085]" />
         </div>
 
         {{-- Input Pencarian Pill Rounded-Full --}}
@@ -210,7 +217,7 @@
                autocomplete="off"
                spellcheck="false"
                aria-label="Cari menu navigasi"
-               class="w-32 xs:w-40 sm:w-48 md:w-56 lg:w-64 h-9 pl-9 pr-7 rounded-full text-xs sm:text-[13px] bg-[#F5F8FC] border border-[#E4E7EC] hover:border-[#D0D5DD] text-[#101828] placeholder-[#98A2B3] focus:outline-hidden focus:ring-2 focus:ring-[#062072]/15 focus:border-[#062072] focus:bg-white focus:w-44 xs:focus:w-52 sm:focus:w-56 md:focus:w-64 transition-all duration-200">
+               class="w-24 xs:w-36 sm:w-48 md:w-56 lg:w-64 h-8.5 sm:h-9 pl-8 sm:pl-9 pr-6 sm:pr-7 rounded-full text-xs sm:text-[13px] bg-[#F5F8FC] border border-[#E4E7EC] hover:border-[#D0D5DD] text-[#101828] placeholder-[#98A2B3] focus:outline-hidden focus:ring-2 focus:ring-[#062072]/15 focus:border-[#062072] focus:bg-white focus:w-36 xs:focus:w-48 sm:focus:w-56 md:focus:w-64 transition-all duration-200">
 
         {{-- Tombol Hapus Input --}}
         <button type="button"

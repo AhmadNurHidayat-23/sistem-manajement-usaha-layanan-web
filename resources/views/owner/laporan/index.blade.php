@@ -29,21 +29,21 @@
                 {{ $headerSubtitle }}
             </p>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="flex items-center gap-2 w-full sm:w-auto">
             <!-- Export PDF Button -->
             <a href="{{ route('reports.export.pdf', $exportParams) }}"
-               class="h-9 px-3.5 inline-flex items-center justify-center text-xs font-semibold rounded-lg border border-[#C2D8FC] bg-[#EAF2FF] text-[#062072] hover:bg-[#D5E5FD] transition-colors gap-1.5 shadow-2xs">
+               class="flex-1 sm:flex-initial h-9 px-3.5 inline-flex items-center justify-center text-xs font-semibold rounded-lg border border-[#C2D8FC] bg-[#EAF2FF] text-[#062072] hover:bg-[#D5E5FD] transition-colors gap-1.5 shadow-2xs">
                 <x-icons.icon name="printer" class="w-4 h-4 text-[#062072]" />
                 <span>Ekspor PDF</span>
             </a>
 
             <!-- Export Excel (.xlsx) Button -->
             <a href="{{ route('reports.export.excel', $exportParams) }}"
-               class="h-9 px-3.5 inline-flex items-center justify-center text-xs font-semibold rounded-lg bg-[#062072] hover:bg-[#0B3A9E] text-white transition-colors gap-1.5 shadow-2xs">
+               class="flex-1 sm:flex-initial h-9 px-3.5 inline-flex items-center justify-center text-xs font-semibold rounded-lg bg-[#062072] hover:bg-[#0B3A9E] text-white transition-colors gap-1.5 shadow-2xs">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                 </svg>
-                <span>Ekspor Excel (.xlsx)</span>
+                <span>Ekspor Excel</span>
             </a>
         </div>
     </div>

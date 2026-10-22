@@ -6,6 +6,7 @@ use App\Http\Controllers\Pelanggan\PelangganLayananController;
 use App\Http\Controllers\Pelanggan\PelangganMemberController;
 use App\Http\Controllers\Pelanggan\PelangganPembayaranController;
 use App\Http\Controllers\Pelanggan\PelangganPesananController;
+use App\Http\Controllers\Pelanggan\PelangganProfilController;
 use App\Http\Controllers\Pelanggan\PelangganPromoController;
 use App\Http\Controllers\Pelanggan\PelangganUlasanController;
 use Illuminate\Support\Facades\Route;
@@ -34,6 +35,10 @@ Route::prefix('customer')->group(function () {
 Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer.')->group(function () {
     // Dashboard Pelanggan
     Route::get('/dashboard', [PelangganDashboardController::class, 'index'])->name('dashboard');
+
+    // Profil Pelanggan
+    Route::get('/profil', [PelangganProfilController::class, 'show'])->name('profile');
+    Route::put('/profil', [PelangganProfilController::class, 'update'])->name('profile.update');
 
     // Booking (Appointment)
     Route::get('/booking', [PelangganBookingController::class, 'index'])->name('booking.index');

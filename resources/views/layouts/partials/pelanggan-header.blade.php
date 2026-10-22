@@ -50,12 +50,13 @@
                 @endforeach
             </nav>
 
-            {{-- Action Login --}}
+            {{-- Action Login / Profile --}}
             <div class="flex items-center gap-2.5">
                 @if (auth()->check())
                     @php
                         $cleanUserName = preg_replace('/\s*\(.*?\)\s*$/', '', auth()->user()->name);
                         $dashboardRoute = auth()->user()->getDashboardUrl();
+                        $profileRoute = route('customer.profile');
                     @endphp
 
                     @include('layouts.partials.notification-bell')
@@ -68,14 +69,68 @@
                         </a>
                     @endif
 
-                    <form method="POST" action="{{ route('logout') }}" class="m-0 hidden sm:block">
-                        @csrf
-                        <button type="submit"
-                            id="header-logout-btn"
-                            class="px-3.5 py-1.5 rounded-lg text-xs font-medium {{ $isHome ? 'text-white/90 hover:text-white border border-white/20 hover:bg-white/10' : 'text-[#667085] hover:text-[#101828] border border-[#E4E7EC] hover:bg-neutral-50' }} transition-colors cursor-pointer bg-transparent">
-                            Logout
+                    {{-- Dropdown Profil & Keluar Pelanggan (Desktop & Tablet) --}}
+                    <div class="relative hidden sm:block" id="customer-profile-menu">
+                        <button type="button"
+                            id="customer-profile-btn"
+                            class="flex items-center gap-2 py-1 pl-1 pr-2.5 rounded-full transition-colors cursor-pointer select-none text-left group border-0 {{ $isHome ? 'text-white hover:bg-white/15' : 'text-[#101828] hover:bg-[#F5F8FC]' }}"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                            aria-label="Menu Pelanggan: {{ $cleanUserName }}">
+                            @if (auth()->user()->avatar_url)
+                                <img src="{{ auth()->user()->avatar_url }}"
+                                     alt="{{ $cleanUserName }}"
+                                     class="w-7 h-7 rounded-full object-cover border border-[#E4E7EC] shrink-0">
+                            @else
+                                <div class="w-7 h-7 rounded-full {{ $isHome ? 'bg-white text-[#062072]' : 'bg-[#062072] text-white' }} flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+                                    {{ strtoupper(substr($cleanUserName, 0, 2)) }}
+                                </div>
+                            @endif
+
+                            <span class="text-xs font-semibold max-w-[130px] truncate leading-tight transition-colors {{ $isHome ? 'text-white' : 'text-[#101828] group-hover:text-[#062072]' }}">
+                                {{ $cleanUserName }}
+                            </span>
+
+                            <svg class="w-3.5 h-3.5 shrink-0 opacity-70 transition-transform group-aria-expanded:rotate-180 {{ $isHome ? 'text-white' : 'text-[#667085]' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
                         </button>
-                    </form>
+
+                        {{-- Dropdown Menu --}}
+                        <div id="customer-profile-dropdown"
+                             class="hidden absolute right-0 top-full mt-2 w-52 bg-white rounded-xl shadow-xl border border-[#E4E7EC] z-50 overflow-hidden divide-y divide-[#F2F4F7]"
+                             role="menu"
+                             aria-orientation="vertical">
+                            <div class="px-4 py-3 bg-[#F8FAFC]">
+                                <p class="text-xs font-bold text-[#101828] truncate m-0 leading-tight">{{ $cleanUserName }}</p>
+                                <p class="text-[11px] text-[#667085] truncate m-0 mt-0.5">{{ auth()->user()->email }}</p>
+                            </div>
+                            <div class="py-1">
+                                <a href="{{ $profileRoute }}"
+                                   id="customer-profile-link"
+                                   class="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-[#344054] hover:bg-[#F5F8FC] hover:text-[#062072] transition-colors text-left no-underline cursor-pointer"
+                                   role="menuitem">
+                                    <svg class="w-4 h-4 text-[#667085]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    <span>Profil</span>
+                                </a>
+                            </div>
+                            <div class="py-1">
+                                <form method="POST" action="{{ route('logout') }}" class="m-0">
+                                    @csrf
+                                    <button type="submit"
+                                        id="header-logout-btn"
+                                        title="Logout"
+                                        class="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 transition-colors text-left cursor-pointer border-0 bg-transparent"
+                                        role="menuitem">
+                                        <x-icons.icon name="logout" class="w-4 h-4 text-rose-500" />
+                                        <span>Keluar</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 @else
                     <a href="{{ route('login') }}"
                         id="header-login-btn"
@@ -88,7 +143,7 @@
                 <button type="button" onclick="toggleMobileNav()"
                     id="mobile-toggle-btn"
                     class="lg:hidden inline-flex items-center justify-center w-9 h-9 rounded-lg {{ $isHome ? 'text-white hover:bg-white/10' : 'text-[#101828] hover:bg-neutral-100' }} transition-colors cursor-pointer border-0 bg-transparent"
-                    aria-label="Toggle navigation">
+                    aria-label="Buka navigasi">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
@@ -96,13 +151,33 @@
             </div>
         </div>
 
-        {{-- Mobile Dropdown --}}
+        {{-- Mobile Dropdown Panel --}}
         <div id="mobile-nav-panel" class="hidden lg:hidden mt-2 pt-3 rounded-2xl bg-white/95 backdrop-blur-md p-4 shadow-xl border border-[#E4E7EC] space-y-1">
             @if (auth()->check())
-                <div class="py-2 px-3 mb-2 rounded-lg bg-[#F5F8FC] border border-[#E4E7EC]">
-                    <p class="text-xs font-semibold text-[#101828] m-0">{{ $cleanUserName ?? 'Pelanggan' }}</p>
-                    <p class="text-[11px] text-[#667085] m-0">{{ auth()->user()->email }}</p>
+                <div class="py-2.5 px-3 mb-2 rounded-xl bg-[#F5F8FC] border border-[#E4E7EC] flex items-center gap-3">
+                    @if (auth()->user()->avatar_url)
+                        <img src="{{ auth()->user()->avatar_url }}"
+                             alt="{{ $cleanUserName }}"
+                             class="w-9 h-9 rounded-full object-cover border border-[#E4E7EC] shrink-0">
+                    @else
+                        <div class="w-9 h-9 rounded-full bg-[#062072] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs border border-[#062072]">
+                            {{ strtoupper(substr($cleanUserName, 0, 2)) }}
+                        </div>
+                    @endif
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs font-bold text-[#101828] truncate m-0">{{ $cleanUserName ?? 'Pelanggan' }}</p>
+                        <p class="text-[11px] text-[#667085] truncate m-0">{{ auth()->user()->email }}</p>
+                    </div>
                 </div>
+
+                <a href="{{ $profileRoute }}" onclick="closeMobileNav()"
+                    id="mobile-profile-link"
+                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-[#344054] hover:text-[#062072] hover:bg-[#F5F8FC] no-underline">
+                    <svg class="w-4 h-4 text-[#667085]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    <span>Profil</span>
+                </a>
             @endif
 
             @foreach ($navItems as $item)
@@ -123,8 +198,10 @@
                 <form method="POST" action="{{ route('logout') }}" class="m-0 pt-2 border-t border-[#E4E7EC]">
                     @csrf
                     <button type="submit"
-                        class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-rose-600 hover:bg-rose-50 cursor-pointer border-0 bg-transparent">
-                        Logout
+                        title="Logout"
+                        class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-rose-600 hover:bg-rose-50 cursor-pointer border-0 bg-transparent">
+                        <x-icons.icon name="logout" class="w-4 h-4 text-rose-500" />
+                        <span>Keluar</span>
                     </button>
                 </form>
             @else

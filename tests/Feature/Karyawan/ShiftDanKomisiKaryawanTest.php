@@ -157,4 +157,60 @@ class ShiftDanKomisiKaryawanTest extends TestCase
         $responseCommissions = $this->actingAs($this->employeeUser)->get(route('employees.my-commissions'));
         $responseCommissions->assertOk();
     }
+
+    public function test_manager_can_access_commissions_history_tab_and_filter_by_date_range(): void
+    {
+        EmployeeCommission::create([
+            'employee_id' => $this->employee1->id,
+            'service_id' => $this->service->id,
+            'commission_type' => CommissionType::Percentage,
+            'commission_value' => 10,
+            'commission_amount' => 20000,
+            'status' => CommissionStatus::Pending,
+            'created_at' => now()->subDays(2),
+        ]);
+
+        $response = $this->actingAs($this->manager)->get(route('employees.commissions.index', [
+            'tab' => 'history',
+            'start_date' => now()->subDays(5)->toDateString(),
+            'end_date' => now()->toDateString(),
+        ]));
+
+        $response->assertOk()
+            ->assertSee('Riwayat Komisi')
+            ->assertSee('Skema Komisi Layanan')
+            ->assertSee('Tune Up Mesin Injeksi')
+            ->assertSee('Budi Santoso');
+    }
+
+    public function test_manager_can_access_service_schemes_tab_with_branch_scoping(): void
+    {
+        $otherBranch = Branch::create([
+            'name' => 'Cabang Depok',
+            'address' => 'Jl. Margonda Raya',
+            'phone' => '08123456782',
+            'is_active' => true,
+        ]);
+
+        $otherService = Service::create([
+            'service_category_id' => $this->service->service_category_id,
+            'branch_id' => $otherBranch->id,
+            'name' => 'Layanan Luar Cabang Manajer',
+            'price' => 150000,
+            'service_type' => 'single',
+            'commission_type' => CommissionType::Fixed,
+            'commission_value' => 15000,
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($this->manager)->get(route('employees.commissions.index', [
+            'tab' => 'schemes',
+        ]));
+
+        $response->assertOk()
+            ->assertSee('Skema Komisi Layanan')
+            ->assertSee('Atur Skema')
+            ->assertSee($this->service->name)
+            ->assertDontSee($otherService->name);
+    }
 }

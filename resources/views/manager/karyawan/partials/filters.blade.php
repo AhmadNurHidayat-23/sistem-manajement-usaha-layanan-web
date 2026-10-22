@@ -1,8 +1,8 @@
 <!-- Filter data karyawan -->
 <x-cards.card class="p-3.5 sm:px-5 sm:py-3.5">
-    <form method="GET" action="{{ route('employees.index') }}" class="flex flex-col lg:flex-row lg:items-end gap-3">
+    <form method="GET" action="{{ route('employees.index') }}" class="flex flex-col sm:flex-row sm:flex-wrap lg:flex-nowrap lg:items-end gap-3">
         <!-- Pencarian nama, telepon, email -->
-        <div class="flex-1 min-w-[200px]">
+        <div class="flex-1 min-w-[200px] w-full">
             <label for="filter_q" class="block text-[13px] font-medium text-[#101828] mb-1">Cari Karyawan</label>
             <div class="relative">
                 <input type="text" id="filter_q" name="q" value="{{ request('q') }}" placeholder="Cari nama, no. telepon, atau email..." class="w-full h-10 pl-9 pr-3.5 bg-white border border-[#E4E7EC] rounded-lg text-[13px] text-[#101828] placeholder-[#667085] focus:outline-none focus:ring-2 focus:ring-[#062072]">
@@ -34,8 +34,8 @@
         </div>
 
         <!-- Tombol aksi -->
-        <div class="flex items-center gap-2 shrink-0">
-            <button type="submit" class="h-10 px-4 bg-[#062072] hover:bg-[#04184F] text-white rounded-lg text-[13px] font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs">
+        <div class="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+            <button type="submit" class="flex-1 sm:flex-initial h-10 px-4 bg-[#062072] hover:bg-[#04184F] text-white rounded-lg text-[13px] font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs">
                 <x-icons.icon name="search" class="w-4 h-4 shrink-0" />
                 <span>Filter</span>
             </button>

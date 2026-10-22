@@ -75,6 +75,14 @@ export function initSidebarListeners(root = document) {
         mobileBtn.addEventListener('click', openMobileSidebar);
     }
 
+    const closeBtns = root.querySelectorAll('.sidebar-close-btn');
+    closeBtns.forEach((btn) => {
+        if (!btn.dataset.sidebarBound) {
+            btn.dataset.sidebarBound = '1';
+            btn.addEventListener('click', closeMobileSidebar);
+        }
+    });
+
     const backdrop = root.getElementById?.('sidebar-backdrop') ?? document.getElementById('sidebar-backdrop');
     if (backdrop && !backdrop.dataset.sidebarBound) {
         backdrop.dataset.sidebarBound = '1';

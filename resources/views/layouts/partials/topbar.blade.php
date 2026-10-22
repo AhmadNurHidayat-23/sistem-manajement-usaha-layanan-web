@@ -29,12 +29,12 @@
 
         <div id="header-realtime-clock" class="flex flex-col text-left select-none" aria-hidden="true">
             <span id="realtime-clock-time" class="text-xs sm:text-[14px] leading-tight font-semibold sm:font-medium text-[#101828]"></span>
-            <span id="realtime-clock-date" class="text-[11px] sm:text-[13px] leading-tight text-[#667085] sm:text-[#101828] mt-[1px] sm:mt-[2px]"></span>
+            <span id="realtime-clock-date" class="hidden sm:inline-block text-[11px] sm:text-[13px] leading-tight text-[#667085] sm:text-[#101828] mt-[1px] sm:mt-[2px]"></span>
         </div>
     </div>
 
     <!-- Sisi Kanan: Urutan: Pencarian -> Notifikasi -> Foto Profil + Nama Pengguna -->
-    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+    <div class="flex items-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0">
         {{-- 1. Pencarian Menu (Pill Rounded-Full, Tanpa Dropdown) --}}
         @include('layouts.partials.menu-search')
 
@@ -45,7 +45,7 @@
         <div class="relative" id="header-profile-menu">
             <button type="button"
                     id="header-profile-btn"
-                    class="flex items-center gap-2 sm:gap-2.5 py-1 pl-1 pr-2.5 sm:pr-3 rounded-full hover:bg-[#F5F8FC] transition-colors cursor-pointer select-none border border-transparent hover:border-[#E4E7EC] text-left group"
+                    class="flex items-center gap-1.5 sm:gap-2.5 py-1 pl-1 pr-1 sm:pr-3 rounded-full hover:bg-[#F5F8FC] transition-colors cursor-pointer select-none border border-transparent hover:border-[#E4E7EC] text-left group"
                     aria-haspopup="true"
                     aria-expanded="false"
                     aria-label="Menu Profil: {{ $cleanName }}">
@@ -59,7 +59,7 @@
                     </div>
                 @endif
 
-                <span class="text-xs sm:text-[13px] font-semibold text-[#101828] group-hover:text-[#062072] max-w-[85px] xs:max-w-[120px] sm:max-w-[150px] md:max-w-[180px] truncate leading-tight transition-colors">
+                <span class="hidden sm:inline-block text-xs sm:text-[13px] font-semibold text-[#101828] group-hover:text-[#062072] max-w-[120px] sm:max-w-[150px] md:max-w-[180px] truncate leading-tight transition-colors">
                     {{ $cleanName }}
                 </span>
             </button>

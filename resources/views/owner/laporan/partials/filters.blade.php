@@ -41,12 +41,12 @@
         </div>
 
         <!-- Sisi Kanan: Pilihan Cabang (Owner) / Info Cabang (Manager) & Periode Aktif -->
-        <div class="flex flex-wrap items-center gap-3 shrink-0">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 w-full xl:w-auto shrink-0">
             @if ($isOwner)
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
                     <label for="report-branch-select" class="text-xs font-semibold text-[#6B7280] uppercase tracking-wider shrink-0">Cabang:</label>
                     <select name="branch_id" id="report-branch-select"
-                        class="h-9 text-xs rounded-lg border border-[#E7ECF3] px-2.5 pr-8 text-[#1F2937] focus:outline-none focus:ring-1 focus:ring-[#062072] bg-white cursor-pointer min-w-[200px] sm:min-w-[220px]">
+                        class="h-9 text-xs rounded-lg border border-[#E7ECF3] px-2.5 pr-8 text-[#1F2937] focus:outline-none focus:ring-1 focus:ring-[#062072] bg-white cursor-pointer w-full sm:w-auto sm:min-w-[200px]">
                         <option value="">Semua Cabang (Laporan Gabungan)</option>
                         @foreach ($report['branches'] as $branch)
                             <option value="{{ $branch->id }}" {{ (string) $report['branch_id'] === (string) $branch->id ? 'selected' : '' }}>
@@ -63,7 +63,7 @@
                 @endif
             @endif
 
-            <div class="inline-flex items-center gap-1.5 text-xs text-[#062072] bg-[#EAF2FF] px-2.5 py-1.5 rounded-lg border border-[#C2D8FC] shrink-0 font-medium">
+            <div class="inline-flex items-center gap-1.5 text-xs text-[#062072] bg-[#EAF2FF] px-2.5 py-1.5 rounded-lg border border-[#C2D8FC] shrink-0 font-medium self-start sm:self-auto">
                 <span class="text-[#6B7280] font-normal">Periode aktif:</span>
                 <span class="font-semibold tabular-nums text-[#062072]">
                     {{ $report['formatted_start_date'] }} – {{ $report['formatted_end_date'] }}
@@ -74,26 +74,26 @@
 
     <!-- Area Rentang Kustom (Muncul tepat di bawah baris utama saat Kustom dipilih/aktif) -->
     <form method="GET" action="{{ route('reports.index') }}" id="report-custom-filter-form"
-        class="{{ $isCustom ? 'flex' : 'hidden' }} flex-wrap items-center gap-2.5 sm:gap-3 pt-3 mt-3 border-t border-[#E7ECF3] m-0">
+        class="{{ $isCustom ? 'flex' : 'hidden' }} flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2.5 sm:gap-3 pt-3 mt-3 border-t border-[#E7ECF3] m-0">
         <input type="hidden" name="period" value="custom">
         @if (!empty($currentBranchId))
             <input type="hidden" name="branch_id" value="{{ $currentBranchId }}">
         @endif
 
-        <div class="flex items-center gap-1.5">
-            <label for="filter-start-date" class="text-xs font-medium text-[#4B5563] shrink-0">Tanggal Mulai:</label>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+            <label for="filter-start-date" class="text-xs font-medium text-[#4B5563] shrink-0 w-24 sm:w-auto">Mulai:</label>
             <input type="date" id="filter-start-date" name="start_date" value="{{ $isCustom ? ($report['start_date'] ?? '') : '' }}"
-                class="h-9 px-2.5 rounded-lg border border-[#D0D5DD] text-xs text-[#101828] bg-white focus:outline-none focus:ring-1 focus:ring-[#062072] w-36 sm:w-40"
+                class="flex-1 sm:flex-initial h-9 px-2.5 rounded-lg border border-[#D0D5DD] text-xs text-[#101828] bg-white focus:outline-none focus:ring-1 focus:ring-[#062072] w-full sm:w-38"
                 placeholder="dd/mm/yyyy" required>
         </div>
-        <div class="flex items-center gap-1.5">
-            <label for="filter-end-date" class="text-xs font-medium text-[#4B5563] shrink-0">Tanggal Akhir:</label>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+            <label for="filter-end-date" class="text-xs font-medium text-[#4B5563] shrink-0 w-24 sm:w-auto">Akhir:</label>
             <input type="date" id="filter-end-date" name="end_date" value="{{ $isCustom ? ($report['end_date'] ?? '') : '' }}"
-                class="h-9 px-2.5 rounded-lg border border-[#D0D5DD] text-xs text-[#101828] bg-white focus:outline-none focus:ring-1 focus:ring-[#062072] w-36 sm:w-40"
+                class="flex-1 sm:flex-initial h-9 px-2.5 rounded-lg border border-[#D0D5DD] text-xs text-[#101828] bg-white focus:outline-none focus:ring-1 focus:ring-[#062072] w-full sm:w-38"
                 placeholder="dd/mm/yyyy" required>
         </div>
         <button type="submit" id="btn-apply-custom-date"
-            class="h-9 px-3.5 bg-[#062072] hover:bg-[#0B3A9E] text-white text-xs font-semibold rounded-lg transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs">
+            class="h-9 px-4 bg-[#062072] hover:bg-[#0B3A9E] text-white text-xs font-semibold rounded-lg transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs w-full sm:w-auto">
             <x-icons.icon name="search" class="w-3.5 h-3.5 shrink-0" />
             <span>Terapkan</span>
         </button>

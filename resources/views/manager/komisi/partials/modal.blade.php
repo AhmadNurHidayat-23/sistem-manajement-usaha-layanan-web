@@ -1,68 +1,110 @@
-<!-- Modal Catat Komisi Baru -->
+<!-- Modal Catat Komisi Manual -->
 @if (! ($isSelfView ?? false))
-    <div id="modal-create-commission" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 hidden">
-        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4 border border-[#E7ECF3]">
-            <div class="flex items-center justify-between border-b border-[#E4E7EC] pb-3">
-                <h3 class="text-base font-bold text-[#101828] m-0">Catat Komisi Layanan Baru</h3>
-                <button type="button" onclick="document.getElementById('modal-create-commission').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
-                    <x-icons.icon name="close" class="w-5 h-5" />
+    <x-modals.modal id="modal-create-commission" title="Catat Komisi Manual" subtitle="Pencatatan komisi pengerjaan layanan untuk karyawan" maxWidth="max-w-md">
+        <form id="form-create-commission" method="POST" action="{{ route('employees.commissions.store') }}" class="space-y-4">
+            @csrf
+
+            <div>
+                <label for="create_comm_emp" class="block text-xs font-semibold text-[#101828] mb-1">
+                    Pilih Karyawan <span class="text-rose-500">*</span>
+                </label>
+                <select id="create_comm_emp" name="employee_id" required class="w-full px-3 py-2 bg-white border border-[#E4E7EC] rounded-lg text-xs text-[#101828] focus:outline-hidden focus:ring-2 focus:ring-[#062072]">
+                    <option value="">Pilih Karyawan Penerima Komisi</option>
+                    @foreach ($employees as $emp)
+                        <option value="{{ $emp->id }}" {{ old('employee_id') == $emp->id ? 'selected' : '' }}>
+                            {{ $emp->name }} ({{ $emp->branch->display_name }})
+                        </option>
+                    @endforeach
+                </select>
+                @error('employee_id')
+                    <p class="mt-1 text-xs text-rose-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="create_comm_service" class="block text-xs font-semibold text-[#101828] mb-1">
+                    Pilih Layanan <span class="text-rose-500">*</span>
+                </label>
+                <select id="create_comm_service" name="service_id" required class="w-full px-3 py-2 bg-white border border-[#E4E7EC] rounded-lg text-xs text-[#101828] focus:outline-hidden focus:ring-2 focus:ring-[#062072]">
+                    <option value="">Pilih Layanan</option>
+                    @foreach ($services as $srv)
+                        <option value="{{ $srv->id }}" {{ old('service_id') == $srv->id ? 'selected' : '' }}>
+                            {{ $srv->name }} — Rp {{ number_format($srv->price, 0, ',', '.') }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('service_id')
+                    <p class="mt-1 text-xs text-rose-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label for="create_comm_type" class="block text-xs font-semibold text-[#101828] mb-1">
+                        Bentuk Skema <span class="text-rose-500">*</span>
+                    </label>
+                    <select id="create_comm_type" name="commission_type" required class="w-full px-3 py-2 bg-white border border-[#E4E7EC] rounded-lg text-xs text-[#101828] focus:outline-hidden focus:ring-2 focus:ring-[#062072]">
+                        <option value="percentage" {{ old('commission_type') === 'percentage' ? 'selected' : '' }}>Persentase (%)</option>
+                        <option value="fixed" {{ old('commission_type') === 'fixed' ? 'selected' : '' }}>Nominal Tetap (Rp)</option>
+                    </select>
+                    @error('commission_type')
+                        <p class="mt-1 text-xs text-rose-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label for="create_comm_val" class="block text-xs font-semibold text-[#101828] mb-1">
+                        Nilai Skema <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="number" step="0.01" min="0" id="create_comm_val" name="commission_value" value="{{ old('commission_value', '10') }}" required class="w-full px-3 py-2 bg-white border border-[#E4E7EC] rounded-lg text-xs text-[#101828] focus:outline-hidden focus:ring-2 focus:ring-[#062072]">
+                    @error('commission_value')
+                        <p class="mt-1 text-xs text-rose-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <div>
+                <label for="create_comm_status" class="block text-xs font-semibold text-[#101828] mb-1">Status Awal Komisi</label>
+                <select id="create_comm_status" name="status" class="w-full px-3 py-2 bg-white border border-[#E4E7EC] rounded-lg text-xs text-[#101828] focus:outline-hidden focus:ring-2 focus:ring-[#062072]">
+                    <option value="pending" {{ old('status', 'pending') === 'pending' ? 'selected' : '' }}>Menunggu (Estimasi)</option>
+                    <option value="approved" {{ old('status') === 'approved' ? 'selected' : '' }}>Disetujui (Siap Dicairkan)</option>
+                    <option value="paid" {{ old('status') === 'paid' ? 'selected' : '' }}>Telah Dicairkan</option>
+                </select>
+                @error('status')
+                    <p class="mt-1 text-xs text-rose-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="pt-3 border-t border-[#E4E7EC] flex items-center justify-end gap-2">
+                <button type="button" data-modal-close="modal-create-commission" class="px-3.5 py-2 border border-[#D0D5DD] rounded-lg text-xs font-semibold text-[#344054] hover:bg-slate-50 transition-colors cursor-pointer">
+                    Batal
+                </button>
+                <button type="submit" id="btn-submit-commission" class="px-4 py-2 bg-[#062072] text-white rounded-lg text-xs font-semibold hover:bg-[#04184F] transition-colors cursor-pointer inline-flex items-center gap-1.5 shadow-2xs">
+                    <span id="btn-submit-text">Simpan Komisi</span>
                 </button>
             </div>
-            <form method="POST" action="{{ route('employees.commissions.store') }}" class="space-y-4">
-                @csrf
+        </form>
+    </x-modals.modal>
 
-                <div>
-                    <label for="create_comm_emp" class="block text-xs font-semibold text-[#101828] mb-1">Pilih Karyawan <span class="text-rose-500">*</span></label>
-                    <select id="create_comm_emp" name="employee_id" required class="w-full px-3 py-2 bg-white border border-[#E4E7EC] rounded-lg text-xs text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#062072]">
-                        <option value="">Pilih Karyawan Penerima Komisi</option>
-                        @foreach ($employees as $emp)
-                            <option value="{{ $emp->id }}">{{ $emp->name }} ({{ $emp->branch->display_name }})</option>
-                        @endforeach
-                    </select>
-                </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('form-create-commission');
+            const submitBtn = document.getElementById('btn-submit-commission');
+            const submitText = document.getElementById('btn-submit-text');
 
-                <div>
-                    <label for="create_comm_service" class="block text-xs font-semibold text-[#101828] mb-1">Pilih Layanan <span class="text-rose-500">*</span></label>
-                    <select id="create_comm_service" name="service_id" required class="w-full px-3 py-2 bg-white border border-[#E4E7EC] rounded-lg text-xs text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#062072]">
-                        <option value="">Pilih Layanan</option>
-                        @foreach ($services as $srv)
-                            <option value="{{ $srv->id }}">{{ $srv->name }} — Rp {{ number_format($srv->price, 0, ',', '.') }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label for="create_comm_type" class="block text-xs font-semibold text-[#101828] mb-1">Skema Komisi <span class="text-rose-500">*</span></label>
-                        <select id="create_comm_type" name="commission_type" class="w-full px-3 py-2 bg-white border border-[#E4E7EC] rounded-lg text-xs text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#062072]">
-                            <option value="percentage">Persentase (%)</option>
-                            <option value="fixed">Nominal Tetap (Rp)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="create_comm_val" class="block text-xs font-semibold text-[#101828] mb-1">Nilai Skema <span class="text-rose-500">*</span></label>
-                        <input type="number" step="0.01" id="create_comm_val" name="commission_value" value="10" required class="w-full px-3 py-2 bg-white border border-[#E4E7EC] rounded-lg text-xs text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#062072]">
-                    </div>
-                </div>
-
-                <div>
-                    <label for="create_comm_status" class="block text-xs font-semibold text-[#101828] mb-1">Status Komisi Awal</label>
-                    <select id="create_comm_status" name="status" class="w-full px-3 py-2 bg-white border border-[#E4E7EC] rounded-lg text-xs text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#062072]">
-                        <option value="pending">Pending (Estimasi)</option>
-                        <option value="approved">Disetujui (Siap Dicairkan)</option>
-                        <option value="paid">Telah Dicairkan (Paid)</option>
-                    </select>
-                </div>
-
-                <div class="pt-3 border-t border-[#E4E7EC] flex items-center justify-end gap-2">
-                    <button type="button" onclick="document.getElementById('modal-create-commission').classList.add('hidden')" class="px-3 py-1.5 border border-[#E4E7EC] rounded-lg text-xs font-semibold text-[#667085] hover:bg-slate-50">
-                        Batal
-                    </button>
-                    <button type="submit" class="px-3 py-1.5 bg-[#062072] text-white rounded-lg text-xs font-semibold hover:bg-[#0B3A9E]">
-                        Simpan Komisi
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+            if (form && submitBtn) {
+                form.addEventListener('submit', function (e) {
+                    if (submitBtn.disabled) {
+                        e.preventDefault();
+                        return;
+                    }
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                    if (submitText) {
+                        submitText.textContent = 'Menyimpan...';
+                    }
+                });
+            }
+        });
+    </script>
 @endif
+

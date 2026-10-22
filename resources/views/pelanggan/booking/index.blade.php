@@ -1,11 +1,11 @@
-@extends('layouts.pelanggan', ['title' => 'Appointment Saya'])
+@extends('layouts.pelanggan', ['title' => 'Janji Temu Saya'])
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h2 class="text-xl font-bold text-[#101828] m-0">Appointment Saya</h2>
+            <h2 class="text-xl font-bold text-[#101828] m-0">Janji Temu Saya</h2>
             <p class="text-xs text-[#667085] mt-1 m-0">Kelola janji temu Anda di semua cabang SIMAUL</p>
         </div>
         <a href="{{ route('customer.booking.create') }}"
@@ -13,7 +13,7 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
-            Buat Appointment Baru
+            Buat Janji Temu Baru
         </a>
     </div>
 
@@ -67,23 +67,23 @@
                 <div class="p-4 sm:p-5">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
                         <div class="flex items-center gap-3">
-                            <span class="text-sm font-bold text-[#101828]">Booking #{{ $booking->id }}</span>
+                            <span class="text-sm font-bold text-[#101828]">Janji Temu #{{ $booking->id }}</span>
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold {{ $sc['bg'] }} {{ $sc['text'] }} {{ $sc['border'] }} border">
                                 <span class="w-1.5 h-1.5 rounded-full {{ $sc['dot'] }}"></span>
                                 {{ $sc['label'] }}
                             </span>
                         </div>
-                        <span class="text-xs text-[#667085]">Dibuat: {{ $booking->created_at->format('d M Y, H:i') }}</span>
+                        <span class="text-xs text-[#667085]">Dibuat: {{ \Carbon\Carbon::parse($booking->created_at)->translatedFormat('d M Y, H:i') }} WIB</span>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-sm">
                         <div>
                             <span class="text-[10px] text-[#667085] uppercase tracking-wider block">Tanggal</span>
-                            <span class="font-medium text-[#101828]">{{ $booking->booking_date->format('d M Y') }}</span>
+                            <span class="font-medium text-[#101828]">{{ \Carbon\Carbon::parse($booking->booking_date)->translatedFormat('d M Y') }}</span>
                         </div>
                         <div>
                             <span class="text-[10px] text-[#667085] uppercase tracking-wider block">Jam</span>
-                            <span class="font-medium text-[#101828]">{{ $booking->booking_time }}</span>
+                            <span class="font-medium text-[#101828]">{{ $booking->booking_time }} WIB</span>
                         </div>
                         <div>
                             <span class="text-[10px] text-[#667085] uppercase tracking-wider block">Layanan</span>
@@ -108,11 +108,11 @@
                 <svg class="w-12 h-12 mx-auto mb-3 text-[#E4E7EC]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
-                <h3 class="text-sm font-bold text-[#101828] mb-1">Belum Ada Appointment</h3>
-                <p class="text-xs text-[#667085] mb-4">Anda belum memiliki janji temu. Buat appointment pertama Anda sekarang.</p>
+                <h3 class="text-sm font-bold text-[#101828] mb-1">Belum Ada Janji Temu</h3>
+                <p class="text-xs text-[#667085] mb-4">Anda belum memiliki janji temu. Buat janji temu pertama Anda sekarang.</p>
                 <a href="{{ route('customer.booking.create') }}"
                     class="inline-flex items-center gap-2 px-4 py-2 bg-[#062072] hover:bg-[#04184F] text-white rounded-lg text-sm font-semibold transition-colors no-underline">
-                    Buat Appointment Pertama
+                    Buat Janji Temu Pertama
                 </a>
             </div>
         @endforelse
