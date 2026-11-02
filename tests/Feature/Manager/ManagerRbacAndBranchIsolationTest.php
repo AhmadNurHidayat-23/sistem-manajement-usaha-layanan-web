@@ -82,7 +82,7 @@ class ManagerRbacAndBranchIsolationTest extends TestCase
     public function test_manager_cannot_access_customer_booking_create_or_voucher_catalog(): void
     {
         $this->actingAs($this->managerBranch1)
-            ->get('/bookings/create')
+            ->get(route('customer.booking.create'))
             ->assertForbidden();
 
         $this->actingAs($this->managerBranch1)

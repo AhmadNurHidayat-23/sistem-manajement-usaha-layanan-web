@@ -35,7 +35,7 @@
             <option value="">-- Pilih Booking Appointment --</option>
             @forelse ($eligibleBookings as $eb)
                 <option value="{{ $eb->uuid ?? $eb->id }}">
-                    {{ $eb->user?->name ?? 'Pelanggan' }} &bull; {{ $eb->service?->name }} ({{ is_string($eb->booking_time) ? substr($eb->booking_time, 0, 5) : $eb->booking_time?->format('H:i') }})
+                    [{{ $eb->status === \App\Enums\BookingStatus::Pending ? 'Belum Diverifikasi' : 'Terverifikasi' }}] {{ $eb->user?->name ?? 'Pelanggan' }} &bull; {{ $eb->service?->name }} ({{ is_string($eb->booking_time) ? substr($eb->booking_time, 0, 5) : $eb->booking_time?->format('H:i') }})
                 </option>
             @empty
                 <option value="" disabled>Tidak ada booking berstatus siap bayar</option>

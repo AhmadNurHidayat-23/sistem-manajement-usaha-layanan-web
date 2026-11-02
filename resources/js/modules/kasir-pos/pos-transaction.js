@@ -25,11 +25,16 @@ export function selectSource(source) {
         }
     });
 
+    const verBanner = document.getElementById('booking-verification-banner');
+    const confBanner = document.getElementById('booking-confirmed-banner');
+
     if (source === 'direct') {
         if (tabDirect) tabDirect.className = 'py-2 px-3 rounded-md text-center font-bold bg-white text-[#062072] shadow-sm transition-all flex items-center justify-center gap-1.5';
         if (badge) badge.innerText = 'Transaksi Langsung';
         bookingContainer?.classList.add('hidden');
         orderContainer?.classList.add('hidden');
+        if (verBanner) verBanner.classList.add('hidden');
+        if (confBanner) confBanner.classList.add('hidden');
         const bInput = document.getElementById('booking_id');
         const oInput = document.getElementById('order_id');
         if (bInput) bInput.value = '';
@@ -46,13 +51,19 @@ export function selectSource(source) {
         if (badge) badge.innerText = 'Dari Drop-off Pesanan';
         orderContainer?.classList.remove('hidden');
         bookingContainer?.classList.add('hidden');
+        if (verBanner) verBanner.classList.add('hidden');
+        if (confBanner) confBanner.classList.add('hidden');
         const bInput = document.getElementById('booking_id');
         if (bInput) bInput.value = '';
     }
 }
 
 export function loadBookingData(bookingId) {
-    if (!bookingId) return;
+    if (!bookingId) {
+        document.getElementById('booking-verification-banner')?.classList.add('hidden');
+        document.getElementById('booking-confirmed-banner')?.classList.add('hidden');
+        return;
+    }
     fetch(`/pos/source-data?type=booking&id=${bookingId}`)
         .then(res => res.json())
         .then(data => {
@@ -60,11 +71,25 @@ export function loadBookingData(bookingId) {
             const oInput = document.getElementById('order_id');
             const cName = document.getElementById('customer_name');
             const cPhone = document.getElementById('customer_phone');
+            const verBanner = document.getElementById('booking-verification-banner');
+            const confBanner = document.getElementById('booking-confirmed-banner');
 
             if (bInput) bInput.value = data.id;
             if (oInput) oInput.value = '';
             if (cName) cName.value = data.customer_name || '';
             if (cPhone) cPhone.value = data.customer_phone || '';
+
+            // Handle status verification banner
+            if (data.is_pending_booking || data.status === 'pending') {
+                if (verBanner) verBanner.classList.remove('hidden');
+                if (confBanner) confBanner.classList.add('hidden');
+            } else if (data.status === 'confirmed' || data.status === 'in_progress') {
+                if (verBanner) verBanner.classList.add('hidden');
+                if (confBanner) confBanner.classList.remove('hidden');
+            } else {
+                if (verBanner) verBanner.classList.add('hidden');
+                if (confBanner) confBanner.classList.add('hidden');
+            }
 
             cart = [];
             if (data.items && data.items.length > 0) {
@@ -80,6 +105,63 @@ export function loadBookingData(bookingId) {
             renderCart();
         })
         .catch(err => console.error(err));
+}
+
+export function checkInCurrentBooking() {
+    const bookingInput = document.getElementById('booking_id');
+    const bookingId = bookingInput ? bookingInput.value : null;
+    if (!bookingId) {
+        alert('Pilih booking terlebih dahulu');
+        return;
+    }
+
+    const btn = document.getElementById('btn-pos-checkin');
+    const originalText = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Memverifikasi...`;
+    }
+
+    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+        || document.querySelector('input[name="_token"]')?.value;
+
+    fetch(`/pos/bookings/${bookingId}/check-in`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': token
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const verBanner = document.getElementById('booking-verification-banner');
+            const confBanner = document.getElementById('booking-confirmed-banner');
+            if (verBanner) verBanner.classList.add('hidden');
+            if (confBanner) confBanner.classList.remove('hidden');
+
+            const selectEl = document.getElementById('select_booking_id');
+            if (selectEl) {
+                const opt = selectEl.querySelector(`option[value="${bookingId}"]`);
+                if (opt) {
+                    opt.textContent = opt.textContent.replace('[Belum Diverifikasi]', '[Terverifikasi]');
+                }
+            }
+        } else {
+            alert(data.message || 'Gagal melakukan check-in booking.');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Terjadi kesalahan saat memproses check-in.');
+    })
+    .finally(() => {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    });
 }
 
 export function loadOrderData(orderId) {
@@ -387,4 +469,5 @@ if (typeof window !== 'undefined') {
     window.addCash = addCash;
     window.calculateChange = calculateChange;
     window.formatRupiah = formatRupiah;
+    window.checkInCurrentBooking = checkInCurrentBooking;
 }

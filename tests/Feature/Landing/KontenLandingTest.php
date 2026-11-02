@@ -73,8 +73,8 @@ class KontenLandingTest extends TestCase
         $response->assertSee($branchAppointment->display_name);
         $response->assertSee($branchDropOff->display_name);
         $response->assertSee($branchBoth->display_name);
-        $response->assertSee('Appointment');
-        $response->assertSee('Drop-off');
-        $response->assertSee('Appointment & Drop-off');
+        $response->assertSee('Janji Temu');
+        $response->assertSee('Antar-Langsung');
+        $response->assertSee('Janji Temu & Antar-Langsung');
     }
 }

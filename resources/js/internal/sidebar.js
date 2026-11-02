@@ -88,6 +88,56 @@ export function initSidebarListeners(root = document) {
         backdrop.dataset.sidebarBound = '1';
         backdrop.addEventListener('click', closeMobileSidebar);
     }
+
+    initSidebarTooltips(root);
+}
+
+export function initSidebarTooltips(root = document) {
+    if (typeof document === 'undefined') return;
+
+    let tooltipEl = document.getElementById('sidebar-floating-tooltip');
+    if (!tooltipEl) {
+        tooltipEl = document.createElement('div');
+        tooltipEl.id = 'sidebar-floating-tooltip';
+        tooltipEl.className = 'fixed pointer-events-none z-[9999] px-2.5 py-1 bg-[#101828] text-white text-xs font-medium rounded-md whitespace-nowrap shadow-lg border border-white/10 opacity-0 transition-opacity duration-150';
+        document.body.appendChild(tooltipEl);
+    }
+
+    const links = root.querySelectorAll('.sidebar-nav .sidebar-link');
+    links.forEach((link) => {
+        if (link.dataset.tooltipBound) return;
+        link.dataset.tooltipBound = '1';
+
+        link.addEventListener('mouseenter', () => {
+            const sidebar = document.getElementById('sidebar-nav');
+            if (!sidebar || !sidebar.classList.contains('collapsed') || window.innerWidth < 1024) return;
+
+            const tooltipSpan = link.querySelector('.sidebar-tooltip');
+            const tooltipText = tooltipSpan?.textContent?.trim() || link.getAttribute('title');
+            if (!tooltipText || !tooltipEl) return;
+
+            tooltipEl.textContent = tooltipText;
+            const rect = link.getBoundingClientRect();
+            const top = rect.top + (rect.height - (tooltipEl.offsetHeight || 24)) / 2;
+            const left = rect.right + 10;
+
+            tooltipEl.style.top = `${top}px`;
+            tooltipEl.style.left = `${left}px`;
+            tooltipEl.style.opacity = '1';
+        });
+
+        link.addEventListener('mouseleave', () => {
+            if (tooltipEl) {
+                tooltipEl.style.opacity = '0';
+            }
+        });
+
+        link.addEventListener('click', () => {
+            if (tooltipEl) {
+                tooltipEl.style.opacity = '0';
+            }
+        });
+    });
 }
 
 // Global initialization & event listeners
@@ -97,6 +147,7 @@ if (typeof window !== 'undefined') {
     window.closeMobileSidebar = closeMobileSidebar;
     window.restoreSidebarState = restoreSidebarState;
     window.initSidebarListeners = initSidebarListeners;
+    window.initSidebarTooltips = initSidebarTooltips;
 
     // Tutup mobile drawer saat tombol Escape ditekan
     document.addEventListener('keydown', (e) => {

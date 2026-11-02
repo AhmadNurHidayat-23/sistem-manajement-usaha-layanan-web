@@ -35,6 +35,88 @@
     .main-area.sidebar-animate {
         transition: margin-left 0.25s ease;
     }
+
+    /* Logo display switching on Desktop */
+    .sidebar-brand-mini {
+        display: none !important;
+    }
+
+    .sidebar-nav.collapsed .sidebar-brand-full {
+        display: none !important;
+    }
+
+    .sidebar-nav.collapsed .sidebar-brand-mini {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .sidebar-nav.collapsed .sidebar-brand-mini img {
+        margin: 0 auto;
+    }
+
+    .sidebar-nav.collapsed .sidebar-header {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+        justify-content: center !important;
+    }
+
+    /* Sembunyikan teks menu & section header saat sidebar desktop collapse */
+    .sidebar-nav.collapsed .sidebar-label {
+        display: none !important;
+    }
+
+    .sidebar-nav.collapsed .sidebar-brand-text {
+        display: none !important;
+    }
+
+    .sidebar-nav.collapsed .sidebar-section-header {
+        display: none !important;
+    }
+
+    /* Tampilkan garis pemisah antar-grup saat collapsed */
+    .sidebar-nav.collapsed .sidebar-section-divider {
+        display: block !important;
+    }
+
+    /* Logo icon lebih besar saat collapse */
+    .sidebar-nav.collapsed .sidebar-brand-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    /* Pusatkan link menu saat collapse */
+    .sidebar-nav.collapsed .sidebar-link {
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .sidebar-nav.collapsed .sidebar-link svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Footer user di sidebar saat collapse */
+    .sidebar-nav.collapsed .sidebar-user-info {
+        display: none !important;
+    }
+
+    .sidebar-nav.collapsed .sidebar-logout-label {
+        display: none !important;
+    }
+
+    .sidebar-nav.collapsed .sidebar-footer-section {
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sidebar-nav.collapsed .sidebar-logout-btn {
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
+    }
 }
 
 /* --------------------------------------------------------------------------
@@ -57,6 +139,51 @@
         margin-left: 0 !important;
         width: 100% !important;
     }
+
+    /* Mobile drawer: selalu tampilkan nama, label, section header, dan brand penuh */
+    .sidebar-nav .sidebar-brand-full,
+    .sidebar-nav.collapsed .sidebar-brand-full {
+        display: flex !important;
+    }
+
+    .sidebar-nav .sidebar-brand-mini,
+    .sidebar-nav.collapsed .sidebar-brand-mini {
+        display: none !important;
+    }
+
+    .sidebar-nav .sidebar-label,
+    .sidebar-nav.collapsed .sidebar-label {
+        display: inline-block !important;
+    }
+
+    .sidebar-nav .sidebar-section-header,
+    .sidebar-nav.collapsed .sidebar-section-header {
+        display: block !important;
+    }
+
+    .sidebar-nav .sidebar-logout-label,
+    .sidebar-nav.collapsed .sidebar-logout-label {
+        display: inline-block !important;
+    }
+
+    .sidebar-nav .sidebar-link,
+    .sidebar-nav.collapsed .sidebar-link {
+        justify-content: flex-start !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+
+    .sidebar-nav .sidebar-header,
+    .sidebar-nav.collapsed .sidebar-header {
+        padding-left: 1.25rem !important;
+        padding-right: 1.25rem !important;
+        justify-content: space-between !important;
+    }
+
+    .sidebar-nav .sidebar-section-divider,
+    .sidebar-nav.collapsed .sidebar-section-divider {
+        display: none !important;
+    }
 }
 
 /* Backdrop Overlay for Mobile Drawer */
@@ -69,95 +196,19 @@
     pointer-events: auto !important;
 }
 
-/* Logo display switching */
-.sidebar-brand-mini {
-    display: none !important;
-}
-
-.sidebar-nav.collapsed .sidebar-brand-full {
-    display: none !important;
-}
-
-.sidebar-nav.collapsed .sidebar-brand-mini {
-    display: block !important;
-}
-
-.sidebar-nav.collapsed .sidebar-header {
-    padding-left: 0.75rem !important;
-    padding-right: 0.75rem !important;
-}
-
-/* Sembunyikan teks menu & section header saat sidebar collapse */
-.sidebar-nav.collapsed .sidebar-label {
-    display: none !important;
-}
-
-.sidebar-nav.collapsed .sidebar-brand-text {
-    display: none !important;
-}
-
-.sidebar-nav.collapsed .sidebar-section-header {
-    display: none !important;
-}
-
-/* Logo icon lebih besar saat collapse */
-.sidebar-nav.collapsed .sidebar-brand-icon {
-    width: 36px;
-    height: 36px;
-}
-
-/* Pusatkan link menu saat collapse */
-.sidebar-nav.collapsed .sidebar-link {
-    justify-content: center;
-    padding-left: 0;
-    padding-right: 0;
-}
-
-.sidebar-nav.collapsed .sidebar-link svg {
-    width: 20px;
-    height: 20px;
-}
-
-/* Toggle button */
+/* Toggle button rotation */
 .sidebar-toggle-btn {
-    transition: transform 0.25s ease;
+    transition: transform 0.25s ease, background-color 0.15s ease, color 0.15s ease;
 }
 
+.main-area.sidebar-collapsed .sidebar-toggle-btn,
 .sidebar-nav.collapsed .sidebar-toggle-btn {
     transform: rotate(180deg);
 }
 
-/* Tooltip saat sidebar ditutup */
-.sidebar-nav.collapsed .sidebar-link {
-    position: relative;
-}
-
+/* Hide native inline tooltips to prevent overflow clipping; handled via floating fixed tooltip */
 .sidebar-tooltip {
-    display: none;
-}
-
-.sidebar-nav.collapsed .sidebar-link:hover .sidebar-tooltip {
-    display: block;
-}
-
-/* Footer user di sidebar saat collapse */
-.sidebar-nav.collapsed .sidebar-user-info {
-    display: none;
-}
-
-.sidebar-nav.collapsed .sidebar-logout-label {
-    display: none;
-}
-
-.sidebar-nav.collapsed .sidebar-footer-section {
-    align-items: center;
-    justify-content: center;
-}
-
-.sidebar-nav.collapsed .sidebar-logout-btn {
-    justify-content: center;
-    padding-left: 0;
-    padding-right: 0;
+    display: none !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -199,4 +250,3 @@
         color: #000000 !important;
     }
 }
-

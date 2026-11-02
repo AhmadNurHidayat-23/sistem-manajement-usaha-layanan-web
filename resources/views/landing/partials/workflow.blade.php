@@ -39,7 +39,7 @@
                 <span class="text-xs font-bold text-[#062072] font-sans block mb-2">03</span>
                 <h3 class="text-sm font-semibold text-[#101828] mb-1.5 m-0">Buat Pesanan</h3>
                 <p class="text-xs text-[#667085] leading-relaxed m-0">
-                    Tentukan waktu booking appointment atau jadwal drop-off langsung ke cabang pilihan.
+                    Tentukan waktu janji temu atau jadwal antar-langsung ke cabang pilihan.
                 </p>
             </div>
         </div>

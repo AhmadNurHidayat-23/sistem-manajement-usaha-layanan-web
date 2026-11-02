@@ -105,7 +105,7 @@ class SimaulLandingAndPosWaReceiptTest extends TestCase
         $response = $this->get('/');
 
         $response->assertStatus(200);
-        $response->assertSee('Login');
+        $response->assertSee('Masuk');
         $response->assertDontSee('id="header-dashboard-btn"', false);
         $response->assertDontSee('id="header-logout-btn"', false);
     }
@@ -160,7 +160,7 @@ class SimaulLandingAndPosWaReceiptTest extends TestCase
 
         $landing = $this->get('/');
         $landing->assertStatus(200);
-        $landing->assertSee('Login');
+        $landing->assertSee('Masuk');
     }
 
     // ─────────────────────────────────────────────────────────────────────────

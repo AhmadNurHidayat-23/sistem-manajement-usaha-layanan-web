@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Kasir;
 
+use App\Enums\BookingStatus;
 use App\Enums\StatusTransaksi;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Order;
 use App\Models\Service;
 use App\Models\Transaction;
+use App\Services\BookingAntrian\StatusPekerjaanService;
 use App\Services\KasirPOS\KasirService;
 use App\Services\KasirPOS\TransaksiService;
 use Illuminate\Http\JsonResponse;
@@ -114,5 +116,50 @@ class PosController extends Controller
         }
 
         return response()->json($data);
+    }
+
+    /**
+     * Konfirmasi / check-in booking oleh kasir saat pelanggan hadir di cabang.
+     */
+    public function checkInBooking(Request $request, Booking $booking): JsonResponse|RedirectResponse
+    {
+        $user = $request->user();
+
+        if ($booking->status === BookingStatus::Cancelled) {
+            $msg = 'Booking yang telah dibatalkan tidak dapat diverifikasi atau di-check-in.';
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $msg], 422);
+            }
+
+            return back()->with('error', $msg);
+        }
+
+        try {
+            $statusService = app(StatusPekerjaanService::class);
+            $statusService->updateBookingStatus($user, $booking, BookingStatus::Confirmed->value);
+
+            $msg = "Booking #{$booking->id} berhasil diverifikasi (Check-in). Status kini Dikonfirmasi.";
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $msg,
+                    'status' => 'confirmed',
+                    'status_label' => 'Dikonfirmasi',
+                    'booking' => $booking->fresh(['user', 'service']),
+                ]);
+            }
+
+            return back()->with('success', $msg);
+        } catch (\Throwable $e) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+
+            return back()->with('error', $e->getMessage());
+        }
     }
 }

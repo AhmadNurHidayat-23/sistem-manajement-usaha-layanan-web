@@ -51,7 +51,7 @@
                 <div class="pt-4 border-t border-white/15 flex flex-col gap-2.5 text-xs text-[#DCE8FF]/70">
                     <div class="flex items-center gap-2">
                         <span class="w-1.5 h-1.5 rounded-full bg-[#DCE8FF] shrink-0"></span>
-                        <span>Mode Layanan Appointment & Drop-off Cabang</span>
+                        <span>Mode Layanan Janji Temu & Antar-Langsung Cabang</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="w-1.5 h-1.5 rounded-full bg-[#DCE8FF] shrink-0"></span>

@@ -237,10 +237,15 @@ class TransaksiSourceService
         }
 
         $fallbackName = $type === 'booking' ? 'Pelanggan Booking' : 'Pelanggan Drop-off';
+        $statusVal = $source->status instanceof \BackedEnum ? $source->status->value : (string) $source->status;
+        $statusLabel = method_exists($source->status, 'label') ? $source->status->label() : ucfirst($statusVal);
 
         return [
             'type' => $type,
             'id' => $source->id,
+            'status' => $statusVal,
+            'status_label' => $statusLabel,
+            'is_pending_booking' => ($type === 'booking' && $statusVal === 'pending'),
             'customer_name' => $source->user?->name ?? $fallbackName,
             'customer_phone' => $source->user?->phone ?? '',
             'items' => $items,

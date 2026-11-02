@@ -5,7 +5,7 @@
     <!-- Header Banner -->
     <div class="bg-gradient-to-r from-[#062072] to-[#0B3A9E] rounded-xl text-white p-6 sm:p-8">
         <h2 class="text-2xl font-bold text-white m-0">Katalog Layanan & Paket</h2>
-        <p class="text-sm text-[#DCE8FF] mt-1 m-0">Temukan layanan service dan perawatan terbaik dengan filter mudah.</p>
+        <p class="text-sm text-[#DCE8FF] mt-1 m-0">Temukan layanan dan perawatan terbaik dengan filter mudah.</p>
     </div>
 
     <!-- Search & Filter Card -->

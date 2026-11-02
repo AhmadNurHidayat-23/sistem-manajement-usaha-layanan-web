@@ -215,7 +215,7 @@ class BookingService
      *
      * @throws AuthorizationException
      */
-    public function cancelBooking(User $user, Booking $booking): Booking
+    public function cancelBooking(User $user, Booking $booking, ?string $reason = null): Booking
     {
         $this->authorizeBookingModification($user, $booking);
 
@@ -223,7 +223,12 @@ class BookingService
             throw new \RuntimeException('Booking tidak dapat dibatalkan pada status saat ini.');
         }
 
-        $booking->update(['status' => BookingStatus::Cancelled]);
+        $updateData = ['status' => BookingStatus::Cancelled];
+        if ($reason !== null && trim($reason) !== '') {
+            $updateData['cancellation_reason'] = trim($reason);
+        }
+
+        $booking->update($updateData);
 
         return $booking;
     }

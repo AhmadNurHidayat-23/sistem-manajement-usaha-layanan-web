@@ -45,7 +45,7 @@
                 <div class="pt-4 border-t border-white/10 flex flex-col gap-2.5 text-xs text-[#DCE8FF]/85">
                     <div class="flex items-center gap-2.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-[#DCE8FF] shrink-0"></span>
-                        <span>Reservasi janji temu dan pesanan drop-off terpadu</span>
+                        <span>Reservasi janji temu dan pesanan antar-langsung terpadu</span>
                     </div>
                     <div class="flex items-center gap-2.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-[#DCE8FF] shrink-0"></span>

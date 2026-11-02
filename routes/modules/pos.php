@@ -16,6 +16,7 @@ Route::middleware(['auth', 'role:owner,manager,cashier'])->group(function () {
     // POS Terminal & Source Data
     Route::get('pos', [PosController::class, 'index'])->name('pos.index');
     Route::get('pos/source-data', [PosController::class, 'sourceData'])->name('pos.source-data');
+    Route::post('pos/bookings/{booking}/check-in', [PosController::class, 'checkInBooking'])->name('pos.bookings.check-in');
 
     // Shifts
     Route::get('pos/shift', [ShiftController::class, 'index'])->name('pos.shift.index');

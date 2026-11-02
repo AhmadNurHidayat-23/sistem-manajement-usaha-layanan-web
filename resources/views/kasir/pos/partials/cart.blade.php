@@ -27,6 +27,37 @@
                     + Daftar Member
                 </button>
             </div>
+
+            {{-- Verification & Check-in Banners for Booking --}}
+            <div id="booking-verification-banner" class="hidden p-3 rounded-xl bg-amber-50 border border-amber-200 space-y-2 text-xs">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-amber-900 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                        Belum Diverifikasi (Pending)
+                    </span>
+                    <span class="text-[10px] bg-amber-200/70 text-amber-800 font-semibold px-2 py-0.5 rounded">Menunggu Konfirmasi</span>
+                </div>
+                <p class="text-[11px] text-amber-800 leading-normal m-0">
+                    Pelanggan hadir di cabang? Lakukan verifikasi kehadiran (check-in) untuk mengonfirmasi booking sebelum pembayaran.
+                </p>
+                <button type="button" id="btn-pos-checkin" onclick="checkInCurrentBooking()" class="w-full py-1.5 px-3 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Konfirmasi Kehadiran (Check-in)</span>
+                </button>
+            </div>
+
+            <div id="booking-confirmed-banner" class="hidden p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs flex items-center justify-between">
+                <span class="font-bold text-emerald-800 flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Booking Terverifikasi (Dikonfirmasi)
+                </span>
+                <span class="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded">Check-in OK</span>
+            </div>
+
             <div class="grid grid-cols-2 gap-2">
                 <div>
                     <input type="text" id="customer_name" name="customer_name" placeholder="Nama Pelanggan (Umum)" class="w-full px-2.5 py-1.5 bg-[#F5F8FC] border border-[#E4E7EC] rounded-lg text-xs text-[#101828] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#062072]">

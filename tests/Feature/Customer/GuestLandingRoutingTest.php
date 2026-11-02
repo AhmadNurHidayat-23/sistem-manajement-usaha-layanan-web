@@ -128,7 +128,7 @@ class GuestLandingRoutingTest extends TestCase
         $response->assertSee('Apa Kata Mereka?');
         $response->assertSee('Sangat bersih dan rapi!');
         $response->assertSee(route('login'));
-        $response->assertSee('Login');
+        $response->assertSee('Masuk');
     }
 
     public function test_authenticated_customer_sees_same_landing_page_with_name_and_logout(): void
@@ -140,7 +140,7 @@ class GuestLandingRoutingTest extends TestCase
         $response->assertSee('SEMUA LAYANAN');
         $response->assertSee('Cuci Kilat Express');
         $response->assertSee('Budi Pratama');
-        $response->assertSee('Logout');
+        $response->assertSee('Keluar');
         $response->assertSee(route('logout'));
     }
 

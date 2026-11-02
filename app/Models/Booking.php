@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-#[Fillable(['uuid', 'user_id', 'branch_id', 'service_id', 'employee_id', 'booking_date', 'booking_time', 'status', 'notes'])]
+#[Fillable(['uuid', 'user_id', 'branch_id', 'service_id', 'employee_id', 'booking_date', 'booking_time', 'status', 'notes', 'cancellation_reason'])]
 class Booking extends Model
 {
     use HasFactory, HasPublicUuid;

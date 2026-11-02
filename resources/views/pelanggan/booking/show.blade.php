@@ -60,9 +60,52 @@ document.addEventListener('DOMContentLoaded', function() {
     const cancelForm = document.getElementById('form-cancel-booking');
     const confirmBtn = document.getElementById('btn-cancel-dialog-confirm');
     const backBtn = document.getElementById('btn-cancel-dialog-back');
+    const reasonRadios = document.querySelectorAll('.cancel-reason-radio');
+    const customWrapper = document.getElementById('wrapper-reason-custom');
+    const customTextarea = document.getElementById('reason_custom');
+    const errorPreset = document.getElementById('error-reason-preset');
+    const errorCustom = document.getElementById('error-reason-custom');
+
+    if (reasonRadios.length) {
+        reasonRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (errorPreset) errorPreset.classList.add('hidden');
+                if (this.value === 'Alasan lainnya') {
+                    customWrapper?.classList.remove('hidden');
+                    customTextarea?.focus();
+                } else {
+                    customWrapper?.classList.add('hidden');
+                    if (errorCustom) errorCustom.classList.add('hidden');
+                }
+            });
+        });
+    }
 
     if (cancelForm && confirmBtn) {
         cancelForm.addEventListener('submit', function(e) {
+            let selectedRadio = document.querySelector('.cancel-reason-radio:checked');
+            if (!selectedRadio) {
+                e.preventDefault();
+                if (errorPreset) {
+                    errorPreset.textContent = 'Silakan pilih alasan pembatalan.';
+                    errorPreset.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (selectedRadio.value === 'Alasan lainnya') {
+                const val = customTextarea?.value.trim() ?? '';
+                if (!val) {
+                    e.preventDefault();
+                    if (errorCustom) {
+                        errorCustom.textContent = 'Alasan pembatalan lainnya wajib diisi.';
+                        errorCustom.classList.remove('hidden');
+                    }
+                    customTextarea?.focus();
+                    return;
+                }
+            }
+
             if (confirmBtn.disabled) {
                 e.preventDefault();
                 return;

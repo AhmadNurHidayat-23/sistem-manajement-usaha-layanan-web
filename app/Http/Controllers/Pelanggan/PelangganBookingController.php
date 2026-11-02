@@ -197,8 +197,32 @@ class PelangganBookingController extends Controller
     {
         $this->authorize('cancel', $booking);
 
+        $reason = null;
+
+        if ($request->has('_from_modal') || $request->has('reason_preset') || $request->has('cancellation_reason')) {
+            $validated = $request->validate([
+                'reason_preset' => ['required', 'string'],
+                'reason_custom' => ['nullable', 'string', 'max:500'],
+            ], [
+                'reason_preset.required' => 'Silakan pilih alasan pembatalan.',
+            ]);
+
+            $selectedReason = $validated['reason_preset'];
+            if ($selectedReason === 'Alasan lainnya') {
+                $customReason = trim($request->input('reason_custom', ''));
+                if ($customReason === '') {
+                    return back()->withInput()->withErrors([
+                        'reason_custom' => 'Alasan pembatalan lainnya wajib diisi.',
+                    ]);
+                }
+                $reason = $customReason;
+            } else {
+                $reason = $selectedReason;
+            }
+        }
+
         try {
-            $this->bookingService->cancelBooking($request->user(), $booking);
+            $this->bookingService->cancelBooking($request->user(), $booking, $reason);
 
             rescue(fn () => $this->notifikasiService->notifikasiStatusBooking($booking->fresh()));
 

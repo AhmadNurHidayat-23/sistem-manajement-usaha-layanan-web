@@ -35,20 +35,65 @@
             Tindakan pembatalan ini tidak dapat diurungkan kembali. Slot waktu akan dibuka kembali untuk pelanggan lain.
         </p>
 
-        <form id="form-cancel-booking" action="{{ route('customer.booking.cancel', $booking) }}" method="POST" class="m-0 pt-2 flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5">
+        <form id="form-cancel-booking" action="{{ route('customer.booking.cancel', $booking) }}" method="POST" class="m-0 space-y-3.5">
             @csrf
             @method('PATCH')
-            <button type="button"
-                data-modal-close="modal-cancel-booking"
-                id="btn-cancel-dialog-back"
-                class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#D0D5DD] bg-white text-xs sm:text-sm font-semibold text-[#344054] hover:bg-neutral-50 transition-colors cursor-pointer text-center">
-                Kembali
-            </button>
-            <button type="submit"
-                id="btn-cancel-dialog-confirm"
-                class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-[0.98] text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm flex items-center justify-center gap-1.5">
-                <span>Ya, Batalkan</span>
-            </button>
+            <input type="hidden" name="_from_modal" value="1">
+
+            <div class="space-y-2 text-left">
+                <label class="block text-xs font-semibold text-[#101828]">
+                    Alasan Pembatalan <span class="text-rose-500">*</span>
+                </label>
+                <div class="space-y-1.5" id="cancellation-reason-group">
+                    @php
+                        $presets = [
+                            'Jadwal mendadak',
+                            'Salah memilih cabang',
+                            'Salah memilih tanggal atau jam',
+                            'Tidak dapat hadir',
+                            'Tidak jadi menggunakan layanan',
+                            'Alasan lainnya',
+                        ];
+                    @endphp
+                    @foreach($presets as $preset)
+                    <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-[#E4E7EC] hover:bg-[#F8F9FC] cursor-pointer transition-colors text-xs text-[#344054] select-none">
+                        <input type="radio" name="reason_preset" value="{{ $preset }}" class="text-[#062072] focus:ring-[#062072] cancel-reason-radio w-3.5 h-3.5" {{ old('reason_preset') === $preset ? 'checked' : '' }} required>
+                        <span class="font-medium">{{ $preset }}</span>
+                    </label>
+                    @endforeach
+                </div>
+                <p id="error-reason-preset" class="text-[11px] text-rose-600 hidden m-0 font-medium"></p>
+                @error('reason_preset')
+                    <p class="text-[11px] text-rose-600 m-0 font-medium">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Textarea jika memilih "Alasan lainnya" --}}
+            <div id="wrapper-reason-custom" class="space-y-1.5 text-left {{ old('reason_preset') === 'Alasan lainnya' ? '' : 'hidden' }}">
+                <label for="reason_custom" class="block text-xs font-semibold text-[#101828]">
+                    Tuliskan Alasan Pembatalan <span class="text-rose-500">*</span>
+                </label>
+                <textarea id="reason_custom" name="reason_custom" rows="3" placeholder="Tuliskan alasan pembatalan Anda di sini..."
+                    class="w-full text-xs p-2.5 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-2 focus:ring-[#062072] focus:border-[#062072] placeholder:text-[#98A2B3] resize-none">{{ old('reason_custom') }}</textarea>
+                <p id="error-reason-custom" class="text-[11px] text-rose-600 hidden m-0 font-medium"></p>
+                @error('reason_custom')
+                    <p class="text-[11px] text-rose-600 m-0 font-medium">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="pt-2 flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5">
+                <button type="button"
+                    data-modal-close="modal-cancel-booking"
+                    id="btn-cancel-dialog-back"
+                    class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#D0D5DD] bg-white text-xs sm:text-sm font-semibold text-[#344054] hover:bg-neutral-50 transition-colors cursor-pointer text-center">
+                    Kembali
+                </button>
+                <button type="submit"
+                    id="btn-cancel-dialog-confirm"
+                    class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-[0.98] text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm flex items-center justify-center gap-1.5">
+                    <span>Ya, Batalkan</span>
+                </button>
+            </div>
         </form>
     </div>
 </x-modals.modal>
