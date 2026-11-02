@@ -24,11 +24,11 @@ class BookingPolicy
     {
         $roleName = $user->role?->name;
 
-        if (in_array($roleName, ['employee', 'manager'], true)) {
+        if ($roleName === 'employee') {
             return false;
         }
 
-        return in_array($roleName, ['owner', 'cashier', 'customer'], true);
+        return in_array($roleName, ['owner', 'manager', 'cashier', 'customer'], true);
     }
 
     /**

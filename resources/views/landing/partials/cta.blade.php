@@ -7,7 +7,7 @@
                 Siap Menikmati Layanan Terbaik?
             </h2>
             <p class="text-sm sm:text-base text-[#DCE8FF]/85 leading-relaxed m-0 font-normal">
-                Pilih layanan yang Anda butuhkan atau masuk ke akun Anda untuk kemudahan booking appointment dan memantau status pesanan secara real-time.
+                Pilih layanan yang Anda butuhkan atau masuk ke akun Anda untuk kemudahan membuat janji temu dan memantau status pesanan secara real-time.
             </p>
             <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <a href="#layanan"
@@ -17,7 +17,7 @@
                 @guest
                     <a href="{{ route('login') }}"
                         class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-lg border border-white/25 hover:border-white/50 hover:bg-white/10 text-white text-sm font-semibold transition-colors no-underline">
-                        Login
+                        Masuk
                     </a>
                 @else
                     <a href="{{ route('customer.pesanan.index') }}"

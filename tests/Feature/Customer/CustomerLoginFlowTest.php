@@ -79,6 +79,6 @@ class CustomerLoginFlowTest extends TestCase
 
         $landingResponse = $this->get('/');
         $landingResponse->assertStatus(200);
-        $landingResponse->assertSee('Login');
+        $landingResponse->assertSee('Masuk');
     }
 }

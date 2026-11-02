@@ -15,8 +15,9 @@
 
 <!-- Header / Topbar: Tinggi sama persis dengan sidebar header (h-[72px]) -->
 <header class="h-[72px] bg-white border-b border-[#E4E7EC] px-3 sm:px-6 flex items-center justify-between shrink-0 z-20">
-    <!-- Sisi Kiri: Mobile Toggle + Jam & Tanggal Real-time -->
+    <!-- Sisi Kiri: Mobile Toggle + Desktop Toggle + Jam & Tanggal Real-time -->
     <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
+        {{-- Tombol Toggle Mobile --}}
         <button type="button"
                 id="mobile-sidebar-toggle-btn"
                 class="lg:hidden w-9 h-9 rounded-lg flex items-center justify-center text-[#101828] hover:bg-[#F5F8FC] border border-[#E4E7EC] transition-colors cursor-pointer"
@@ -24,6 +25,17 @@
                 aria-label="Buka Menu Navigasi">
             <svg class="w-5 h-5 text-[#062072]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
+
+        {{-- Tombol Toggle Desktop --}}
+        <button type="button"
+                id="desktop-sidebar-toggle-btn"
+                class="sidebar-toggle-btn hidden lg:flex items-center justify-center w-9 h-9 rounded-lg border border-[#E4E7EC] hover:bg-[#F5F8FC] text-[#667085] hover:text-[#062072] transition-colors cursor-pointer shrink-0"
+                title="Kecilkan/Perlebar Sidebar"
+                aria-label="Kecilkan atau Perlebar Sidebar">
+            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
             </svg>
         </button>
 

@@ -26,7 +26,10 @@ class KasirAkunPerUsahaTest extends TestCase
             'kasir.autocare@simaul.com',
         ];
 
-        $plainPassword = (string) (env('DEMO_CASHIER_PASSWORD') ?: 'password123');
+        $plainPassword = (string) (env('DEMO_CASHIER_PASSWORD') ?: config('auth.demo_cashier_password'));
+        if ($plainPassword === '') {
+            $plainPassword = 'kasir_demo_'.hash('crc32', (string) config('app.key'));
+        }
 
         foreach ($accounts as $email) {
             $user = User::where('email', $email)->first();

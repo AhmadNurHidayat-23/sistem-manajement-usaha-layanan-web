@@ -74,7 +74,7 @@
     <!-- Footer -->
     <footer class="bg-white border-t border-[#E4E7EC] py-6 text-center text-xs text-[#667085] mt-auto">
         <div class="max-w-7xl mx-auto px-4">
-            <p class="m-0">&copy; {{ date('Y') }} SIMAUL — Sistem Informasi Manajemen Usaha Layanan. All rights reserved.</p>
+            <p class="m-0">&copy; {{ date('Y') }} SIMAUL — Sistem Informasi Manajemen Usaha Layanan. Hak cipta dilindungi.</p>
         </div>
     </footer>
 </body>

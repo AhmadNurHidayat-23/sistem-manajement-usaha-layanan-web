@@ -66,6 +66,10 @@ class StatusPekerjaanService
             throw new AuthorizationException('Karyawan tidak memiliki wewenang untuk membatalkan booking.');
         }
 
+        if ($user->role?->name === 'cashier' && ! in_array($targetStatus, [BookingStatus::Confirmed->value, BookingStatus::InProgress->value], true)) {
+            throw new AuthorizationException('Kasir hanya memiliki wewenang untuk mengonfirmasi / check-in booking.');
+        }
+
         $booking->update(['status' => $targetStatus]);
 
         $fresh = $booking->fresh(['branch', 'service', 'employee', 'user']);
@@ -140,6 +144,13 @@ class StatusPekerjaanService
 
         if ($roleName === 'manager' && $user->branches()->where('branches.id', $booking->branch_id)->exists()) {
             return;
+        }
+
+        if ($roleName === 'cashier') {
+            if ($user->branches()->where('branches.id', $booking->branch_id)->exists()
+                || (int) ($user->employee?->branch_id) === (int) $booking->branch_id) {
+                return;
+            }
         }
 
         if ($roleName === 'employee') {

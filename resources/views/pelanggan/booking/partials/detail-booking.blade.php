@@ -1,7 +1,26 @@
 {{-- Kartu Detail Utama Booking --}}
 <div class="bg-white border border-[#E4E7EC] rounded-2xl shadow-sm overflow-hidden">
     <div class="p-5 sm:p-7 space-y-6">
-        
+
+        {{-- Status Pembatalan & Alasan --}}
+        @if($booking->status->value === 'cancelled' && $booking->cancellation_reason)
+        <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 sm:p-5">
+            <div class="flex items-start gap-3">
+                <div class="w-9 h-9 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 shadow-2xs">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-xs font-bold text-rose-900 uppercase tracking-wider block">Janji Temu Dibatalkan</span>
+                    <p class="text-xs sm:text-sm text-rose-700 mt-1 m-0 leading-relaxed">
+                        <strong class="font-semibold text-rose-900">Alasan:</strong> {{ $booking->cancellation_reason }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        @endif
+
         {{-- Jadwal & Waktu Pelaksanaan --}}
         <div class="bg-[#F8F9FC] border border-[#E4E7EC] rounded-xl p-4 sm:p-5">
             <span class="text-[11px] font-bold text-[#667085] uppercase tracking-wider block mb-3">Jadwal Pelaksanaan</span>

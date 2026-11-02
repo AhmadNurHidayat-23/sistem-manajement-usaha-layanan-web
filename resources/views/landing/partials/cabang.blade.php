@@ -25,10 +25,10 @@
             @php
                 $isSelected = isset($currentBranch) && $currentBranch && $currentBranch->id === $branch->id;
                 $serviceModeText = match($branch->service_mode) {
-                    'appointment' => 'Appointment',
-                    'drop_off' => 'Drop-off',
-                    'both' => 'Appointment & Drop-off',
-                    default => 'Appointment & Drop-off',
+                    'appointment' => 'Janji Temu',
+                    'drop_off' => 'Antar-Langsung',
+                    'both' => 'Janji Temu & Antar-Langsung',
+                    default => 'Janji Temu & Antar-Langsung',
                 };
                 $branchCategories = $branch->services
                     ? $branch->services->map(fn($s) => $s->category?->name)->filter()->unique()->values()

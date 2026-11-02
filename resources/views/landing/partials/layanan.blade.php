@@ -34,12 +34,12 @@
             <div class="text-[11px] text-[#667085] flex items-center gap-2.5 shrink-0">
                 <span class="inline-flex items-center gap-1.5 text-[#062072] font-medium">
                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    Appointment
+                    Janji Temu
                 </span>
                 <span class="text-[#D0D5DD]">&bull;</span>
                 <span class="inline-flex items-center gap-1.5 text-[#062072] font-medium">
                     <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                    Drop-off
+                    Antar-Langsung
                 </span>
             </div>
         </div>
@@ -52,9 +52,9 @@
                 $unitLabel = $service->unit ?: ($service->service_type === 'appointment' ? 'sesi' : 'layanan');
 
                 $serviceModeDisplay = match($service->service_type) {
-                    'appointment' => 'Appointment',
-                    'drop_off' => 'Drop-off',
-                    'both' => 'Appointment & Drop-off',
+                    'appointment' => 'Janji Temu',
+                    'drop_off' => 'Antar-Langsung',
+                    'both' => 'Janji Temu & Antar-Langsung',
                     default => ucfirst(str_replace('_', ' ', $service->service_type)),
                 };
             @endphp

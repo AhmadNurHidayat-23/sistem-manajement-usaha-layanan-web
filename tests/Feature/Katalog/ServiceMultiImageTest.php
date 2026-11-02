@@ -20,6 +20,25 @@ class ServiceMultiImageTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        $seeder = new ServiceImageSeeder;
+        $reflection = new \ReflectionClass(ServiceImageSeeder::class);
+        $property = $reflection->getProperty('serviceDirectories');
+        $property->setAccessible(true);
+        $directories = $property->getValue($seeder);
+
+        foreach ($directories as $dir) {
+            $parent = dirname($dir);
+            $slug = basename($dir);
+            @mkdir(storage_path('app/public/'.$parent), 0755, true);
+            for ($i = 1; $i <= 3; $i++) {
+                $path = storage_path("app/public/{$parent}/{$slug}-{$i}.jpg");
+                if (! file_exists($path)) {
+                    file_put_contents($path, 'dummy-image-content');
+                }
+            }
+        }
+
         $this->seed([
             PeranSeeder::class,
             CabangSeeder::class,

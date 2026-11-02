@@ -121,7 +121,7 @@
                                     @csrf
                                     <button type="submit"
                                         id="header-logout-btn"
-                                        title="Logout"
+                                        title="Keluar"
                                         class="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 transition-colors text-left cursor-pointer border-0 bg-transparent"
                                         role="menuitem">
                                         <x-icons.icon name="logout" class="w-4 h-4 text-rose-500" />
@@ -135,7 +135,7 @@
                     <a href="{{ route('login') }}"
                         id="header-login-btn"
                         class="inline-flex items-center px-4 py-2 rounded-lg text-xs font-semibold {{ $isHome ? 'text-[#062072] bg-white hover:bg-neutral-100 shadow-xs' : 'text-white bg-[#062072] hover:bg-[#04184F]' }} transition-all no-underline">
-                        Login
+                        Masuk
                     </a>
                 @endif
 
@@ -198,7 +198,7 @@
                 <form method="POST" action="{{ route('logout') }}" class="m-0 pt-2 border-t border-[#E4E7EC]">
                     @csrf
                     <button type="submit"
-                        title="Logout"
+                        title="Keluar"
                         class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-rose-600 hover:bg-rose-50 cursor-pointer border-0 bg-transparent">
                         <x-icons.icon name="logout" class="w-4 h-4 text-rose-500" />
                         <span>Keluar</span>
@@ -207,7 +207,7 @@
             @else
                 <div class="pt-3 border-t border-[#E4E7EC]">
                     <a href="{{ route('login') }}" class="block text-center px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#062072] hover:bg-[#04184F] no-underline">
-                        Login
+                        Masuk
                     </a>
                 </div>
             @endif
