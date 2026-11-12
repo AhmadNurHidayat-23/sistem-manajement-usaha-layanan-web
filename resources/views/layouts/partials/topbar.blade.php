@@ -15,9 +15,9 @@
 
 <!-- Header / Topbar: Tinggi sama persis dengan sidebar header (h-[72px]) -->
 <header class="h-[72px] bg-white border-b border-[#E4E7EC] px-3 sm:px-6 flex items-center justify-between shrink-0 z-20">
-    <!-- Sisi Kiri: Mobile Toggle + Desktop Toggle + Jam & Tanggal Real-time -->
+    <!-- Sisi Kiri: Mobile Toggle + Jam & Tanggal Real-time -->
     <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
-        {{-- Tombol Toggle Mobile --}}
+        {{-- Mobile Drawer Toggle Button --}}
         <button type="button"
                 id="mobile-sidebar-toggle-btn"
                 class="lg:hidden w-9 h-9 rounded-lg flex items-center justify-center text-[#101828] hover:bg-[#F5F8FC] border border-[#E4E7EC] transition-colors cursor-pointer"
@@ -28,32 +28,18 @@
             </svg>
         </button>
 
-        {{-- Tombol Toggle Desktop --}}
-        <button type="button"
-                id="desktop-sidebar-toggle-btn"
-                class="sidebar-toggle-btn hidden lg:flex items-center justify-center w-9 h-9 rounded-lg border border-[#E4E7EC] hover:bg-[#F5F8FC] text-[#667085] hover:text-[#062072] transition-colors cursor-pointer shrink-0"
-                title="Kecilkan/Perlebar Sidebar"
-                aria-label="Kecilkan atau Perlebar Sidebar">
-            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
-            </svg>
-        </button>
-
         <div id="header-realtime-clock" class="flex flex-col text-left select-none" aria-hidden="true">
             <span id="realtime-clock-time" class="text-xs sm:text-[14px] leading-tight font-semibold sm:font-medium text-[#101828]"></span>
             <span id="realtime-clock-date" class="hidden sm:inline-block text-[11px] sm:text-[13px] leading-tight text-[#667085] sm:text-[#101828] mt-[1px] sm:mt-[2px]"></span>
         </div>
     </div>
 
-    <!-- Sisi Kanan: Urutan: Pencarian -> Notifikasi -> Foto Profil + Nama Pengguna -->
-    <div class="flex items-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0">
-        {{-- 1. Pencarian Menu (Pill Rounded-Full, Tanpa Dropdown) --}}
-        @include('layouts.partials.menu-search')
-
-        {{-- 2. Lonceng Notifikasi --}}
+    <!-- Sisi Kanan: Notifikasi -> Foto Profil + Nama Pengguna -->
+    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+        {{-- 1. Lonceng Notifikasi --}}
         @include('layouts.partials.notification-bell')
 
-        {{-- 3. Profil: Foto Profil Berbentuk Lingkaran + Nama Pengguna --}}
+        {{-- 2. Profil: Foto Profil Berbentuk Lingkaran + Nama Pengguna --}}
         <div class="relative" id="header-profile-menu">
             <button type="button"
                     id="header-profile-btn"

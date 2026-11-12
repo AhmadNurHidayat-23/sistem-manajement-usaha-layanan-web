@@ -181,8 +181,16 @@ class FilterPeriodeLaporanTest extends TestCase
                 && (float) $report['summary']['total_omzet'] === 200000.0;
         });
 
-        // Form kustom aktif dengan class flex
-        $response->assertSee('class="flex flex-wrap items-center', false);
+        // Dropdown filter kustom aktif dan menampilkan panel dropdown
+        $response->assertSee('id="custom-period-dropdown-wrapper"', false);
+        $response->assertSee('id="btn-toggle-custom-period"', false);
+        $response->assertSee('id="report-custom-filter-dropdown"', false);
+        $response->assertSee('id="filter-custom-day"', false);
+        $response->assertSee('id="filter-custom-date"', false);
+        $response->assertSee('id="filter-custom-month"', false);
+        $response->assertSee('id="filter-custom-year"', false);
+        $response->assertSee('id="btn-apply-custom-date"', false);
+        $response->assertSee('id="btn-cancel-custom-date"', false);
     }
 
     public function test_custom_period_rejects_end_date_before_start_date(): void

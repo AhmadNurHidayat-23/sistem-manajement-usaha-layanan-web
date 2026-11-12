@@ -72,6 +72,7 @@ class LaporanKinerjaService
     /**
      * Hitung rincian komisi karyawan.
      *
+     * @param  Collection<int, Transaction>|null  $transactions
      * @return array{
      *     total_commission: float,
      *     paid_commission: float,
@@ -79,15 +80,31 @@ class LaporanKinerjaService
      *     by_employee: array<int, array<string, mixed>>
      * }
      */
-    public function buildCommissionsBreakdown(Carbon $startDate, Carbon $endDate, ?int $branchId): array
+    public function buildCommissionsBreakdown(?Carbon $startDate = null, ?Carbon $endDate = null, ?int $branchId = null, ?Collection $transactions = null): array
     {
-        $query = EmployeeCommission::with(['employee.branch', 'service'])
-            ->whereBetween('created_at', [$startDate, $endDate]);
+        $query = EmployeeCommission::with(['employee.branch', 'service']);
 
-        if ($branchId) {
-            $query->whereHas('employee', function ($q) use ($branchId) {
-                $q->where('branch_id', $branchId);
-            });
+        if ($transactions !== null) {
+            $transactionIds = $transactions->pluck('id')->all();
+            if (empty($transactionIds)) {
+                return [
+                    'total_commission' => 0.0,
+                    'paid_commission' => 0.0,
+                    'pending_commission' => 0.0,
+                    'by_employee' => [],
+                ];
+            }
+            $query->whereIn('transaction_id', $transactionIds);
+        } else {
+            if ($startDate && $endDate) {
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+            }
+
+            if ($branchId) {
+                $query->whereHas('employee', function ($q) use ($branchId) {
+                    $q->where('branch_id', $branchId);
+                });
+            }
         }
 
         $commissions = $query->get();
@@ -129,16 +146,48 @@ class LaporanKinerjaService
     /**
      * Hitung perbandingan kinerja antar cabang (view Owner konsolidasi).
      *
+     * @param  Collection<int, Transaction>|null  $transactions
      * @return array<int, array<string, mixed>>
      */
-    public function buildBranchPerformance(Carbon $startDate, Carbon $endDate): array
+    public function buildBranchPerformance(?Carbon $startDate = null, ?Carbon $endDate = null, ?Collection $transactions = null): array
     {
         $branches = Branch::where('is_active', true)->orderBy('name')->get();
 
-        // Agregasi transaksi cabang dalam 1 query (hindari N+1)
-        $trxStats = Transaction::query()
-            ->where('status', StatusTransaksi::Paid)
-            ->whereBetween('transaction_date', [$startDate, $endDate])
+        if ($transactions !== null) {
+            $trxStats = $transactions->groupBy('branch_id');
+
+            $result = [];
+            foreach ($branches as $branch) {
+                $branchTrxs = $trxStats->get($branch->id, collect());
+                $count = $branchTrxs->count();
+                $omzet = (float) $branchTrxs->sum('total');
+                $discount = (float) $branchTrxs->sum('discount');
+                $avg = $count > 0 ? round($omzet / $count, 2) : 0.0;
+
+                $result[] = [
+                    'branch_id' => $branch->id,
+                    'branch_name' => $branch->display_name,
+                    'address' => $branch->address,
+                    'total_transactions' => $count,
+                    'total_omzet' => $omzet,
+                    'total_discount' => $discount,
+                    'average_transaction_value' => $avg,
+                ];
+            }
+
+            usort($result, fn ($a, $b) => $b['total_omzet'] <=> $a['total_omzet']);
+
+            return $result;
+        }
+
+        $query = Transaction::query()
+            ->where('status', StatusTransaksi::Paid);
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('transaction_date', [$startDate, $endDate]);
+        }
+
+        $trxStats = $query
             ->selectRaw('branch_id, count(*) as total_count, sum(total) as sum_total, sum(discount) as sum_discount')
             ->groupBy('branch_id')
             ->get()

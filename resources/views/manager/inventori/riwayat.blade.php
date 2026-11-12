@@ -67,7 +67,7 @@
                     class="h-10 px-4 bg-[#062072] hover:bg-[#04184F] text-white rounded-lg text-[13px] font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                 >
                     <x-icons.icon name="search" class="w-4 h-4 shrink-0" />
-                    <span>Filter</span>
+                    <span>Cari</span>
                 </button>
                 <a
                     href="{{ route('inventori.history') }}"

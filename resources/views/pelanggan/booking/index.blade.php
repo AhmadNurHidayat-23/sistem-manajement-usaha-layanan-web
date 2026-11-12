@@ -3,17 +3,17 @@
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
     {{-- Header --}}
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between items-start gap-4">
         <div>
             <h2 class="text-xl font-bold text-[#101828] m-0">Janji Temu Saya</h2>
             <p class="text-xs text-[#667085] mt-1 m-0">Kelola janji temu Anda di semua cabang SIMAUL</p>
         </div>
         <a href="{{ route('customer.booking.create') }}"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-[#062072] hover:bg-[#04184F] text-white rounded-lg text-sm font-semibold transition-colors no-underline shadow-sm">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            class="w-fit self-start sm:self-auto inline-flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 bg-[#062072] hover:bg-[#04184F] text-white rounded-xl text-xs sm:text-sm font-semibold transition-colors no-underline shadow-sm">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
-            Buat Janji Temu Baru
+            <span>Buat Janji Temu Baru</span>
         </a>
     </div>
 
@@ -67,7 +67,7 @@
                 <div class="p-4 sm:p-5">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
                         <div class="flex items-center gap-3">
-                            <span class="text-sm font-bold text-[#101828]">Janji Temu #{{ $booking->id }}</span>
+                            <span class="text-sm font-bold text-[#101828]">Janji Temu</span>
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold {{ $sc['bg'] }} {{ $sc['text'] }} {{ $sc['border'] }} border">
                                 <span class="w-1.5 h-1.5 rounded-full {{ $sc['dot'] }}"></span>
                                 {{ $sc['label'] }}

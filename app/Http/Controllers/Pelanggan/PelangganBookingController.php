@@ -47,7 +47,7 @@ class PelangganBookingController extends Controller
             : collect();
 
         $employees = ! empty($selectedBranchId)
-            ? $this->bookingService->getBranchEmployees((int) $selectedBranchId)
+            ? $this->bookingService->getBranchEmployees((int) $selectedBranchId, ! empty($selectedServiceId) ? (int) $selectedServiceId : null)
             : collect();
 
         $selectedBranch = $selectedBranchId ? Branch::find($selectedBranchId) : null;
@@ -68,12 +68,13 @@ class PelangganBookingController extends Controller
     public function branchData(Request $request): JsonResponse
     {
         $branchId = $request->query('branch_id');
+        $serviceId = $request->query('service_id');
         if (! $branchId) {
             return response()->json(['services' => [], 'employees' => []]);
         }
 
         $services = $this->bookingService->getActiveServices((int) $branchId);
-        $employees = $this->bookingService->getBranchEmployees((int) $branchId);
+        $employees = $this->bookingService->getBranchEmployees((int) $branchId, $serviceId ? (int) $serviceId : null);
 
         $branch = Branch::find($branchId);
 
@@ -122,6 +123,8 @@ class PelangganBookingController extends Controller
         if (! $branch->isOpenOnDate($date)) {
             return response()->json([
                 'is_open' => false,
+                'reason' => 'branch_closed',
+                'label' => 'Cabang Tutup',
                 'message' => 'Cabang tidak beroperasi pada hari tersebut.',
                 'slots' => [],
             ]);
@@ -147,8 +150,20 @@ class PelangganBookingController extends Controller
             $serviceId ? (int) $serviceId : null,
         );
 
+        $employeeOffDuty = false;
+        $employeeMessage = null;
+        if ($employeeId && count($slots) > 0) {
+            $allNoShift = collect($slots)->every(fn ($s) => in_array($s['reason'] ?? '', ['employee_no_shift', 'employee_wrong_branch'], true));
+            if ($allNoShift) {
+                $employeeOffDuty = true;
+                $employeeMessage = 'Petugas yang dipilih tidak memiliki jadwal kerja pada tanggal ini. Silakan pilih tanggal lain atau petugas lainnya.';
+            }
+        }
+
         return response()->json([
             'is_open' => true,
+            'employee_off_duty' => $employeeOffDuty,
+            'employee_message' => $employeeMessage,
             'slots' => $slots,
         ]);
     }
@@ -197,9 +212,9 @@ class PelangganBookingController extends Controller
     {
         $this->authorize('cancel', $booking);
 
-        $reason = null;
+        $isPresetFormat = $request->has('reason_preset') || $request->has('_from_modal');
 
-        if ($request->has('_from_modal') || $request->has('reason_preset') || $request->has('cancellation_reason')) {
+        if ($isPresetFormat) {
             $validated = $request->validate([
                 'reason_preset' => ['required', 'string'],
                 'reason_custom' => ['nullable', 'string', 'max:500'],
@@ -215,19 +230,42 @@ class PelangganBookingController extends Controller
                         'reason_custom' => 'Alasan pembatalan lainnya wajib diisi.',
                     ]);
                 }
-                $reason = $customReason;
+                $finalReason = $customReason;
             } else {
-                $reason = $selectedReason;
+                $finalReason = $selectedReason;
+            }
+        } else {
+            $validated = $request->validate([
+                'cancellation_reason' => ['required', 'string', 'max:500'],
+                'other_cancellation_reason' => ['nullable', 'string', 'max:1000'],
+            ], [
+                'cancellation_reason.required' => 'Pilih alasan pembatalan janji temu.',
+            ]);
+
+            $finalReason = trim($validated['cancellation_reason']);
+            if (in_array(strtolower($finalReason), ['alasan lainnya', 'other', 'lainnya'], true)) {
+                $other = trim($request->input('other_cancellation_reason', ''));
+                if ($other === '') {
+                    return back()->withInput()->withErrors([
+                        'other_cancellation_reason' => 'Silakan tuliskan alasan pembatalan Anda.',
+                    ]);
+                }
+                $finalReason = $other;
             }
         }
 
         try {
-            $this->bookingService->cancelBooking($request->user(), $booking, $reason);
+            $this->bookingService->cancelBooking($request->user(), $booking, $finalReason);
 
             rescue(fn () => $this->notifikasiService->notifikasiStatusBooking($booking->fresh()));
 
-            return redirect()->route('customer.booking.index')
-                ->with('success', 'Booking berhasil dibatalkan.');
+            if ($request->has('_from_modal')) {
+                return redirect()->route('customer.booking.index')
+                    ->with('success', 'Booking berhasil dibatalkan.');
+            }
+
+            return redirect()->route('customer.booking.show', $booking)
+                ->with('success', 'Janji temu berhasil dibatalkan.');
         } catch (\RuntimeException|AuthorizationException $e) {
             return back()->with('error', $e->getMessage());
         }

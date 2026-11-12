@@ -59,26 +59,23 @@ class ManagerDashboardService
             ];
         }
 
-        // 1. KPI Omzet Cabang (Hari Ini & Bulan Ini - agregasi langsung di database)
-        $todayTrxs = Transaction::query()
-            ->where('branch_id', $branch->id)
-            ->where('status', StatusTransaksi::Paid)
-            ->whereBetween('transaction_date', [$startOfDay, $endOfDay])
-            ->selectRaw('COALESCE(SUM(total), 0) as total_sum, COUNT(*) as total_count')
-            ->first();
-
-        $todayOmzet = (float) ($todayTrxs?->total_sum ?? 0);
-        $todayTransactionsCount = (int) ($todayTrxs?->total_count ?? 0);
-
-        $monthMetrics = Transaction::query()
+        // 1. KPI Omzet Cabang (Hari Ini & Bulan Ini - 1 agregasi gabungan di database)
+        $kpiMetrics = Transaction::query()
             ->where('branch_id', $branch->id)
             ->where('status', StatusTransaksi::Paid)
             ->whereBetween('transaction_date', [$startOfMonth, $endOfDay])
-            ->selectRaw('COALESCE(SUM(total), 0) as total_sum, COUNT(*) as total_count')
+            ->selectRaw('
+                COALESCE(SUM(CASE WHEN transaction_date >= ? THEN total ELSE 0 END), 0) as today_sum,
+                COUNT(CASE WHEN transaction_date >= ? THEN 1 END) as today_count,
+                COALESCE(SUM(total), 0) as month_sum,
+                COUNT(*) as month_count
+            ', [$startOfDay, $startOfDay])
             ->first();
 
-        $monthOmzet = (float) ($monthMetrics?->total_sum ?? 0);
-        $monthTransactionsCount = (int) ($monthMetrics?->total_count ?? 0);
+        $todayOmzet = (float) ($kpiMetrics?->today_sum ?? 0);
+        $todayTransactionsCount = (int) ($kpiMetrics?->today_count ?? 0);
+        $monthOmzet = (float) ($kpiMetrics?->month_sum ?? 0);
+        $monthTransactionsCount = (int) ($kpiMetrics?->month_count ?? 0);
 
         // 2. KPI Tingkat Kehadiran Booking (SRS Patokan Wajib)
         // Khusus Laundry (drop_off only): state informatif "Tidak berlaku"
@@ -201,13 +198,15 @@ class ManagerDashboardService
         $lowStockCount = (int) ($inventoryStats?->low_stock_count ?? 0);
         $outOfStockCount = (int) ($inventoryStats?->out_of_stock_count ?? 0);
 
-        $criticalInventoryItems = InventoryItem::where('branch_id', $branch->id)
-            ->where(function ($q) {
-                $q->whereColumn('current_stock', '<=', 'minimum_stock');
-            })
-            ->orderBy('current_stock')
-            ->limit(5)
-            ->get();
+        $criticalInventoryItems = ($lowStockCount + $outOfStockCount > 0)
+            ? InventoryItem::where('branch_id', $branch->id)
+                ->where(function ($q) {
+                    $q->whereColumn('current_stock', '<=', 'minimum_stock');
+                })
+                ->orderBy('current_stock')
+                ->limit(5)
+                ->get()
+            : collect();
 
         $inventorySummary = [
             'total_items' => $totalInventoryItems,

@@ -51,17 +51,33 @@ class LaporanBreakdownService
     /**
      * Hitung rincian penggunaan voucher promosi.
      *
+     * @param  Collection<int, Transaction>|null  $transactions
      * @return array{total_usages: int, total_discount: float, list: array<int, array<string, mixed>>}
      */
-    public function buildPromotionsBreakdown(Carbon $startDate, Carbon $endDate, ?int $branchId): array
+    public function buildPromotionsBreakdown(?Carbon $startDate = null, ?Carbon $endDate = null, ?int $branchId = null, ?Collection $transactions = null): array
     {
-        $query = PromotionUsage::with(['promotion', 'transaction'])
-            ->whereBetween('used_at', [$startDate, $endDate]);
+        $query = PromotionUsage::with(['promotion', 'transaction']);
 
-        if ($branchId) {
-            $query->whereHas('transaction', function ($q) use ($branchId) {
-                $q->where('branch_id', $branchId);
-            });
+        if ($transactions !== null) {
+            $transactionIds = $transactions->pluck('id')->all();
+            if (empty($transactionIds)) {
+                return [
+                    'total_usages' => 0,
+                    'total_discount' => 0.0,
+                    'list' => [],
+                ];
+            }
+            $query->whereIn('transaction_id', $transactionIds);
+        } else {
+            if ($startDate && $endDate) {
+                $query->whereBetween('used_at', [$startDate, $endDate]);
+            }
+
+            if ($branchId) {
+                $query->whereHas('transaction', function ($q) use ($branchId) {
+                    $q->where('branch_id', $branchId);
+                });
+            }
         }
 
         $usages = $query->get();

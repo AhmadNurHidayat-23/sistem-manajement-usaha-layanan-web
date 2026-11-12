@@ -265,12 +265,13 @@ class KaryawanService
      */
     public function getAvailableUsersForEmployee(User $user, ?Employee $currentEmployee = null): Collection
     {
-        $employeeRole = Role::where('name', 'employee')->first();
-        if (! $employeeRole) {
+        static $cachedRoleId = null;
+        $employeeRoleId = $cachedRoleId ??= Role::where('name', 'employee')->value('id');
+        if (! $employeeRoleId) {
             return new Collection;
         }
 
-        $query = User::where('role_id', $employeeRole->id);
+        $query = User::where('role_id', $employeeRoleId);
 
         if ($currentEmployee && $currentEmployee->user_id) {
             $currentUserId = $currentEmployee->user_id;

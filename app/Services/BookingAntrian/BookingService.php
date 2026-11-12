@@ -437,12 +437,40 @@ class BookingService
     /**
      * Daftar karyawan cabang.
      */
-    public function getBranchEmployees(int $branchId): Collection
+    /**
+     * Dapatkan daftar karyawan aktif pada cabang tertentu.
+     * Dapat difilter berdasarkan keahlian (skills) yang sesuai dengan layanan jika ada.
+     */
+    public function getBranchEmployees(int $branchId, ?int $serviceId = null): Collection
     {
-        return Employee::where('branch_id', $branchId)
+        $employees = Employee::with('skills')
+            ->where(function ($q) use ($branchId) {
+                $q->where('branch_id', $branchId)
+                    ->orWhereHas('shifts', fn ($sq) => $sq->where('branch_id', $branchId));
+            })
             ->where('status', 'active')
             ->orderBy('name')
             ->get();
+
+        if ($serviceId) {
+            $service = Service::find($serviceId);
+            if ($service) {
+                $serviceNameLower = mb_strtolower(trim($service->name));
+                $matchingEmployees = $employees->filter(function ($emp) use ($serviceNameLower) {
+                    return $emp->skills->contains(function ($skill) use ($serviceNameLower) {
+                        $skillLower = mb_strtolower(trim($skill->skill_name));
+
+                        return str_contains($serviceNameLower, $skillLower) || str_contains($skillLower, $serviceNameLower);
+                    });
+                });
+
+                if ($matchingEmployees->isNotEmpty()) {
+                    return $matchingEmployees->values();
+                }
+            }
+        }
+
+        return $employees;
     }
 
     /**
@@ -510,6 +538,16 @@ class BookingService
         $empBookings = collect();
 
         if ($employeeId) {
+            $employee = Employee::find($employeeId);
+            $isAssigned = $employee && (
+                (int) $employee->branch_id === (int) $branch->id
+                || EmployeeShift::where('employee_id', $employeeId)->where('branch_id', $branch->id)->exists()
+            );
+
+            if (! $employee || ! $isAssigned || $employee->status !== 'active') {
+                return [];
+            }
+
             $shift = EmployeeShift::where('employee_id', $employeeId)
                 ->where('branch_id', $branch->id)
                 ->whereDate('shift_date', $date)
@@ -599,29 +637,41 @@ class BookingService
         $shiftStart = null;
         $shiftEnd = null;
         $employeeHasNoShift = false;
+        $employeeWrongBranch = false;
 
         $empBookings = collect();
 
         if ($employeeId) {
-            $shift = EmployeeShift::where('employee_id', $employeeId)
-                ->where('branch_id', $branch->id)
-                ->whereDate('shift_date', $date)
-                ->whereIn('status', [StatusShiftKaryawan::Scheduled, StatusShiftKaryawan::Present, StatusShiftKaryawan::Late])
-                ->first();
+            $employee = Employee::find($employeeId);
+            $isAssigned = $employee && (
+                (int) $employee->branch_id === (int) $branch->id
+                || EmployeeShift::where('employee_id', $employeeId)->where('branch_id', $branch->id)->exists()
+            );
 
-            if (! $shift) {
+            if (! $employee || ! $isAssigned || $employee->status !== 'active') {
+                $employeeWrongBranch = true;
                 $employeeHasNoShift = true;
             } else {
-                $shiftStart = Carbon::parse($date.' '.$shift->start_time);
-                $shiftEnd = Carbon::parse($date.' '.$shift->end_time);
-            }
+                $shift = EmployeeShift::where('employee_id', $employeeId)
+                    ->where('branch_id', $branch->id)
+                    ->whereDate('shift_date', $date)
+                    ->whereIn('status', [StatusShiftKaryawan::Scheduled, StatusShiftKaryawan::Present, StatusShiftKaryawan::Late])
+                    ->first();
 
-            $empBookings = Booking::with(['service', 'details'])
-                ->where('employee_id', $employeeId)
-                ->whereDate('booking_date', $date)
-                ->whereNotIn('status', [BookingStatus::Cancelled->value])
-                ->when($excludeBookingId, fn ($q) => $q->where('id', '!=', $excludeBookingId))
-                ->get();
+                if (! $shift) {
+                    $employeeHasNoShift = true;
+                } else {
+                    $shiftStart = Carbon::parse($date.' '.$shift->start_time);
+                    $shiftEnd = Carbon::parse($date.' '.$shift->end_time);
+                }
+
+                $empBookings = Booking::with(['service', 'details'])
+                    ->where('employee_id', $employeeId)
+                    ->whereDate('booking_date', $date)
+                    ->whereNotIn('status', [BookingStatus::Cancelled->value])
+                    ->when($excludeBookingId, fn ($q) => $q->where('id', '!=', $excludeBookingId))
+                    ->get();
+            }
         }
 
         $branchBookings = Booking::with(['service', 'details'])
@@ -651,16 +701,24 @@ class BookingService
             // 2. Cek apakah di luar jadwal operasional / shift
             $isOutsideShift = false;
             $outsideReason = '';
+            $outsideReasonCode = '';
 
             if ($candidateEnd->gt($branchClose)) {
                 $isOutsideShift = true;
+                $outsideReasonCode = 'outside_operating_hours';
                 $outsideReason = 'Melebihi jam operasional cabang';
             } elseif ($employeeId) {
-                if ($employeeHasNoShift) {
+                if ($employeeWrongBranch) {
                     $isOutsideShift = true;
+                    $outsideReasonCode = 'employee_wrong_branch';
+                    $outsideReason = 'Petugas tidak bertugas pada cabang ini';
+                } elseif ($employeeHasNoShift) {
+                    $isOutsideShift = true;
+                    $outsideReasonCode = 'employee_no_shift';
                     $outsideReason = 'Petugas libur / tidak bertugas';
                 } elseif ($candidateStart->lt($shiftStart) || $candidateEnd->gt($shiftEnd)) {
                     $isOutsideShift = true;
+                    $outsideReasonCode = 'outside_employee_shift';
                     $outsideReason = 'Di luar jam shift petugas';
                 }
             }
@@ -668,10 +726,12 @@ class BookingService
             // 3. Cek bentrok petugas atau kapasitas penuh
             $isFull = false;
             $fullReason = '';
+            $fullReasonCode = '';
 
             if (! $isPast && ! $isOutsideShift) {
                 if ($employeeId && $this->hasEmployeeConflict($empBookings, $date, $candidateStart, $candidateEnd)) {
                     $isFull = true;
+                    $fullReasonCode = 'employee_conflict';
                     $fullReason = 'Petugas sudah dibooking';
                 } else {
                     $overCapacitySlot = $this->getFirstOverCapacitySlot(
@@ -684,6 +744,7 @@ class BookingService
 
                     if ($overCapacitySlot !== null) {
                         $isFull = true;
+                        $fullReasonCode = 'capacity_full';
                         $fullReason = 'Kapasitas slot penuh';
                     }
                 }
@@ -698,6 +759,9 @@ class BookingService
                 foreach ($branchBookings as $bb) {
                     $bbStart = Carbon::parse($date.' '.$bb->booking_time);
                     $bbDuration = $this->getBookingDuration($bb);
+                    if ($bbDuration <= 0) {
+                        $bbDuration = 30;
+                    }
                     $bbEnd = $bbStart->copy()->addMinutes($bbDuration);
                     if ($segment->lt($bbEnd) && $segFinish->gt($bbStart)) {
                         $activeCount++;
@@ -710,24 +774,58 @@ class BookingService
             }
             $remainingCapacity = max(0, $capacity - $maxActiveBookings);
 
-            // Tentukan status akhir
+            // Tentukan status, reason, label, dan message sesuai aturan
             if ($isPast) {
                 $status = 'past';
+                $reason = 'past';
+                $label = 'Lewat';
                 $message = 'Waktu sudah lewat';
             } elseif ($isOutsideShift) {
                 $status = 'outside_shift';
-                $message = $outsideReason ?: 'Di luar jadwal';
+                if ($outsideReasonCode === 'employee_no_shift') {
+                    $reason = 'employee_no_shift';
+                    $label = 'Petugas Libur';
+                    $message = 'Petugas libur / tidak bertugas';
+                } elseif ($outsideReasonCode === 'outside_operating_hours') {
+                    $reason = 'outside_operating_hours';
+                    $label = 'Di Luar Jam Operasional';
+                    $message = 'Melebihi jam operasional cabang';
+                } elseif ($outsideReasonCode === 'employee_wrong_branch') {
+                    $reason = 'employee_wrong_branch';
+                    $label = 'Petugas Tidak Tersedia';
+                    $message = 'Petugas tidak bertugas pada cabang ini';
+                } elseif ($outsideReasonCode === 'outside_employee_shift') {
+                    $reason = 'outside_employee_shift';
+                    $label = 'Petugas Tidak Tersedia';
+                    $message = 'Di luar jam shift petugas';
+                } else {
+                    $reason = 'outside_shift';
+                    $label = 'Di Luar Jam Operasional';
+                    $message = $outsideReason ?: 'Di luar jadwal';
+                }
             } elseif ($isFull) {
                 $status = 'full';
-                $message = $fullReason ?: 'Penuh';
+                if ($fullReasonCode === 'employee_conflict') {
+                    $reason = 'employee_conflict';
+                    $label = 'Petugas Tidak Tersedia';
+                    $message = 'Petugas sudah dibooking';
+                } else {
+                    $reason = 'capacity_full';
+                    $label = 'Penuh';
+                    $message = 'Kapasitas slot penuh';
+                }
             } else {
                 $status = 'available';
+                $reason = 'available';
+                $label = 'Tersedia';
                 $message = 'Tersedia';
             }
 
             $slots[] = [
                 'time' => $timeString,
                 'status' => $status,
+                'reason' => $reason,
+                'label' => $label,
                 'is_available' => $status === 'available',
                 'is_full' => $status === 'full',
                 'is_past' => $status === 'past',
@@ -782,6 +880,13 @@ class BookingService
             $employee = Employee::find($employeeId);
             if (! $employee) {
                 throw new \RuntimeException('Petugas yang dipilih tidak ditemukan.');
+            }
+
+            $isAssigned = (int) $employee->branch_id === (int) $branchId
+                || EmployeeShift::where('employee_id', $employeeId)->where('branch_id', $branchId)->exists();
+
+            if (! $isAssigned || $employee->status !== 'active') {
+                throw new \RuntimeException('Petugas yang dipilih tidak bertugas pada cabang ini.');
             }
 
             $shift = EmployeeShift::where('employee_id', $employeeId)

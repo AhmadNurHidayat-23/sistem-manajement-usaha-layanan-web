@@ -40,7 +40,7 @@ class KomisiKaryawanController extends Controller
 
         $branches = $this->karyawanService->getAccessibleBranches($user);
 
-        $employeesQuery = Employee::query()->where('status', 'active');
+        $employeesQuery = Employee::query()->with('branch')->where('status', 'active');
         if ($user->role?->name === 'manager') {
             $employeesQuery->whereIn('branch_id', $user->branches()->pluck('branches.id'));
         }

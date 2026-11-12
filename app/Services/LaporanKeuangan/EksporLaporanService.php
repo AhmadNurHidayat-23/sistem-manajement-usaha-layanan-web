@@ -34,7 +34,8 @@ class EksporLaporanService
             ? 'Konsolidasi Seluruh Cabang'
             : ($report['selected_branch']?->name ?? 'Semua Cabang');
 
-        $sheet->setCellValue('A2', 'Periode: '.$report['formatted_start_date'].' - '.$report['formatted_end_date']);
+        $periodLabel = $report['formatted_period_label'] ?? ($report['formatted_start_date'].' - '.$report['formatted_end_date']);
+        $sheet->setCellValue('A2', 'Periode: '.$periodLabel);
         $sheet->setCellValue('A3', 'Cabang: '.$branchName);
         $sheet->setCellValue('A4', 'Tanggal Ekspor: '.now()->translatedFormat('d F Y H:i'));
 
@@ -221,7 +222,7 @@ class EksporLaporanService
 
             fputcsv($handle, ['LAPORAN KINERJA & PENJUALAN']);
             fputcsv($handle, ['Sistem Manajemen POS']);
-            fputcsv($handle, ['Periode', $report['formatted_start_date'].' - '.$report['formatted_end_date']]);
+            fputcsv($handle, ['Periode', $report['formatted_period_label'] ?? ($report['formatted_start_date'].' - '.$report['formatted_end_date'])]);
             fputcsv($handle, ['Cakupan Cabang', $report['is_combined'] ? 'Konsolidasi Seluruh Cabang' : ($report['selected_branch']?->name ?? 'Semua Cabang')]);
             fputcsv($handle, ['Tanggal Ekspor', now()->translatedFormat('d F Y H:i')]);
             fputcsv($handle, []);

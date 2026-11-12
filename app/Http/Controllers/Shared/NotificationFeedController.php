@@ -20,7 +20,7 @@ class NotificationFeedController extends Controller
         }
 
         $unreadCount = $user->unreadNotifications()->count();
-        Cache::put("user_notif_unread_{$user->id}", $unreadCount, 20);
+        Cache::put("user_notif_unread_{$user->id}", $unreadCount, 120);
 
         $notifications = $user->notifications()
             ->latest()

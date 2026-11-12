@@ -22,6 +22,10 @@ class FilterLaporanRequest extends FormRequest
             'branch_id' => ['nullable', 'exists:branches,id'],
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'day' => ['nullable', 'string', 'in:senin,selasa,rabu,kamis,jumat,sabtu,minggu,1,2,3,4,5,6,7'],
+            'date' => ['nullable', 'integer', 'between:1,31'],
+            'month' => ['nullable', 'integer', 'between:1,12'],
+            'year' => ['nullable', 'integer', 'digits:4'],
         ];
     }
 }

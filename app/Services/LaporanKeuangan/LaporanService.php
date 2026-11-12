@@ -8,8 +8,10 @@ use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LaporanService
@@ -25,11 +27,19 @@ class LaporanService
     /**
      * Resolusi rentang tanggal laporan.
      *
-     * @return array{start_date: Carbon, end_date: Carbon, period: string}
+     * @param  array<string, mixed>  $customFilters
+     * @return array{
+     *     start_date: ?Carbon,
+     *     end_date: ?Carbon,
+     *     period: string,
+     *     is_custom: bool,
+     *     custom_filters: array{day: ?string, date: ?int, month: ?int, year: ?int},
+     *     formatted_label: string
+     * }
      */
-    public function resolveDateRange(?string $period = null, ?string $startDate = null, ?string $endDate = null): array
+    public function resolveDateRange(?string $period = null, ?string $startDate = null, ?string $endDate = null, array $customFilters = []): array
     {
-        return $this->periodResolver->resolve($period, $startDate, $endDate);
+        return $this->periodResolver->resolve($period, $startDate, $endDate, $customFilters);
     }
 
     /**
@@ -78,9 +88,162 @@ class LaporanService
     }
 
     /**
+     * Ambil daftar tahun transaksi yang tersedia di database.
+     *
+     * @return array<int, int>
+     */
+    public function getAvailableTransactionYears(): array
+    {
+        $driver = DB::connection()->getDriverName();
+
+        if ($driver === 'sqlite') {
+            $years = Transaction::selectRaw("DISTINCT cast(strftime('%Y', transaction_date) as integer) as year")
+                ->whereNotNull('transaction_date')
+                ->orderByDesc('year')
+                ->pluck('year')
+                ->filter()
+                ->values()
+                ->all();
+        } else {
+            $years = Transaction::selectRaw('DISTINCT YEAR(transaction_date) as year')
+                ->whereNotNull('transaction_date')
+                ->orderByDesc('year')
+                ->pluck('year')
+                ->filter()
+                ->values()
+                ->all();
+        }
+
+        $currentYear = (int) date('Y');
+        if (! in_array($currentYear, $years, true)) {
+            $years[] = $currentYear;
+            rsort($years);
+        }
+
+        return array_values(array_unique(array_map('intval', $years)));
+    }
+
+    /**
+     * Konversi hari bahasa Indonesia atau ISO numerik ke integer ISO-8601 (1 = Senin, ..., 7 = Minggu).
+     */
+    public function resolveIsoDayOfWeek(string|int $day): ?int
+    {
+        $normalized = strtolower(trim((string) $day));
+        $map = [
+            'senin' => 1,
+            'selasa' => 2,
+            'rabu' => 3,
+            'kamis' => 4,
+            'jumat' => 5,
+            'sabtu' => 6,
+            'minggu' => 7,
+            '1' => 1,
+            '2' => 2,
+            '3' => 3,
+            '4' => 4,
+            '5' => 5,
+            '6' => 6,
+            '7' => 7,
+        ];
+
+        return $map[$normalized] ?? null;
+    }
+
+    /**
+     * Terapkan kondisi hari dalam seminggu secara cross-database (MySQL, SQLite, PostgreSQL).
+     */
+    public function applyDayOfWeekCondition(Builder $query, int $isoDay, string $column = 'transaction_date'): void
+    {
+        $driver = $query->getConnection()->getDriverName();
+
+        if ($driver === 'sqlite') {
+            // SQLite: %w mengembalikan 0 = Minggu, 1 = Senin, ..., 6 = Sabtu
+            $sqliteWeekday = ($isoDay === 7) ? 0 : $isoDay;
+            $query->whereRaw("cast(strftime('%w', {$column}) as integer) = ?", [$sqliteWeekday]);
+        } elseif ($driver === 'pgsql') {
+            $query->whereRaw("cast(extract(isodow from {$column}) as integer) = ?", [$isoDay]);
+        } else {
+            // MySQL / MariaDB: WEEKDAY() mengembalikan 0 = Senin, ..., 6 = Minggu
+            $mysqlWeekday = $isoDay - 1;
+            $query->whereRaw("WEEKDAY({$column}) = ?", [$mysqlWeekday]);
+        }
+    }
+
+    /**
+     * Terapkan filter tanggal (preset, rentang tanggal legacy, atau 4 kombinasi opsional kustom).
+     *
+     * @param  array<string, mixed>  $dateParams
+     */
+    public function applyDateFilters(Builder $query, array $dateParams, string $column = 'transaction_date'): void
+    {
+        $period = $dateParams['period'] ?? 'this_month';
+
+        if ($period === 'custom') {
+            $day = $dateParams['custom_day'] ?? null;
+            $date = $dateParams['custom_date'] ?? null;
+            $month = $dateParams['custom_month'] ?? null;
+            $year = $dateParams['custom_year'] ?? null;
+
+            $hasCustomConditions = ($day !== null && $day !== '')
+                || ($date !== null && $date !== '')
+                || ($month !== null && $month !== '')
+                || ($year !== null && $year !== '');
+
+            if ($hasCustomConditions) {
+                // Logika AND: seluruh filter yang terisi diterapkan bersamaan
+                if ($year !== null && $year !== '') {
+                    $query->whereYear($column, (int) $year);
+                }
+
+                if ($month !== null && $month !== '') {
+                    $query->whereMonth($column, (int) $month);
+                }
+
+                if ($date !== null && $date !== '') {
+                    $query->whereDay($column, (int) $date);
+                }
+
+                if ($day !== null && $day !== '') {
+                    $isoDay = $this->resolveIsoDayOfWeek($day);
+                    if ($isoDay !== null) {
+                        $this->applyDayOfWeekCondition($query, $isoDay, $column);
+                    }
+                }
+
+                return;
+            }
+
+            // Fallback backward compatibility: rentang tanggal legacy start_date & end_date
+            if (! empty($dateParams['start_date']) && ! empty($dateParams['end_date'])) {
+                $query->whereBetween($column, [$dateParams['start_date'], $dateParams['end_date']]);
+
+                return;
+            }
+
+            // Semua kosong pada mode custom:
+            // "Semua kosong → tampilkan seluruh data transaksi tanpa pembatasan tanggal."
+            return;
+        }
+
+        // Preset periode: today, this_week, this_month, this_year
+        if (! empty($dateParams['start_date']) && ! empty($dateParams['end_date'])) {
+            $query->whereBetween($column, [$dateParams['start_date'], $dateParams['end_date']]);
+        }
+    }
+
+    /**
      * Generate data laporan komprehensif.
      *
-     * @param  array{period?: ?string, branch_id?: ?int, start_date?: ?string, end_date?: ?string}  $filters
+     * @param  array{
+     *     period?: ?string,
+     *     branch_id?: ?int,
+     *     start_date?: ?string,
+     *     end_date?: ?string,
+     *     day?: ?string,
+     *     date?: ?int,
+     *     month?: ?int,
+     *     year?: ?int
+     * }  $filters
      * @return array<string, mixed>
      *
      * @throws AuthorizationException
@@ -99,28 +262,48 @@ class LaporanService
 
         $this->authorizeReportAccess($user, $targetBranchId);
 
+        // Ekstraksi custom filters (Hari, Tanggal, Bulan, Tahun)
+        $customFilters = [
+            'day' => ! empty($filters['day']) ? (string) $filters['day'] : null,
+            'date' => ! empty($filters['date']) ? (int) $filters['date'] : null,
+            'month' => ! empty($filters['month']) ? (int) $filters['month'] : null,
+            'year' => ! empty($filters['year']) ? (int) $filters['year'] : null,
+        ];
+
         // Resolusi tanggal
         $dates = $this->resolveDateRange(
             $filters['period'] ?? null,
             $filters['start_date'] ?? null,
-            $filters['end_date'] ?? null
+            $filters['end_date'] ?? null,
+            $customFilters
         );
 
         $startDate = $dates['start_date'];
         $endDate = $dates['end_date'];
         $period = $dates['period'];
+        $isCustom = $dates['is_custom'];
+        $formattedPeriodLabel = $dates['formatted_label'];
 
         $selectedBranch = $targetBranchId ? Branch::find($targetBranchId) : null;
         $isCombined = $targetBranchId === null && $roleName === 'owner';
 
-        // Query transaksi paid
+        // Query transaksi paid (menggunakan status resmi pendapatan)
         $transactionsQuery = Transaction::query()
-            ->where('status', StatusTransaksi::Paid)
-            ->whereBetween('transaction_date', [$startDate, $endDate]);
+            ->where('status', StatusTransaksi::Paid);
 
         if ($targetBranchId) {
             $transactionsQuery->where('branch_id', $targetBranchId);
         }
+
+        $this->applyDateFilters($transactionsQuery, [
+            'period' => $period,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'custom_day' => $customFilters['day'],
+            'custom_date' => $customFilters['date'],
+            'custom_month' => $customFilters['month'],
+            'custom_year' => $customFilters['year'],
+        ], 'transaction_date');
 
         $transactions = $transactionsQuery->with([
             'branch',
@@ -139,25 +322,41 @@ class LaporanService
         $totalDiscount = (float) $transactions->sum('discount');
         $averageTransaction = $totalTransactions > 0 ? round($totalOmzet / $totalTransactions, 2) : 0;
 
-        // Delegasi tren, rincian, dan performa
-        $trend = $this->trendService->buildTrendData($transactions, $startDate, $endDate);
+        // Tanggal awal dan akhir untuk view
+        $minTrxDate = $transactions->isNotEmpty() ? Carbon::parse($transactions->min('transaction_date')) : null;
+        $maxTrxDate = $transactions->isNotEmpty() ? Carbon::parse($transactions->max('transaction_date')) : null;
+
+        $formattedStartDate = $startDate ? $startDate->translatedFormat('d M Y') : ($minTrxDate ? $minTrxDate->translatedFormat('d M Y') : '-');
+        $formattedEndDate = $endDate ? $endDate->translatedFormat('d M Y') : ($maxTrxDate ? $maxTrxDate->translatedFormat('d M Y') : '-');
+
+        // Delegasi tren, rincian, dan performa (seluruhnya konsisten menggunakan data transaksi terfilter)
+        $trend = $this->trendService->buildTrendData($transactions, $startDate, $endDate, [
+            'period' => $period,
+            'custom_filters' => $customFilters,
+        ]);
         $paymentMethods = $this->breakdownService->buildPaymentMethodsBreakdown($transactions, $totalOmzet);
-        $promotionsData = $this->breakdownService->buildPromotionsBreakdown($startDate, $endDate, $targetBranchId);
+        $promotionsData = $this->breakdownService->buildPromotionsBreakdown($startDate, $endDate, $targetBranchId, $transactions);
         $servicesBreakdown = $this->breakdownService->buildServicesBreakdown($transactions, $totalOmzet);
         $employeesBreakdown = $this->performanceService->buildEmployeesBreakdown($targetBranchId, $transactions);
-        $commissionsData = $this->performanceService->buildCommissionsBreakdown($startDate, $endDate, $targetBranchId);
+        $commissionsData = $this->performanceService->buildCommissionsBreakdown($startDate, $endDate, $targetBranchId, $transactions);
 
         $branchPerformance = [];
         if ($isCombined) {
-            $branchPerformance = $this->performanceService->buildBranchPerformance($startDate, $endDate);
+            $branchPerformance = $this->performanceService->buildBranchPerformance($startDate, $endDate, $transactions);
         }
+
+        $availableYears = $this->getAvailableTransactionYears();
 
         return [
             'period' => $period,
-            'start_date' => $startDate->format('Y-m-d'),
-            'end_date' => $endDate->format('Y-m-d'),
-            'formatted_start_date' => $startDate->translatedFormat('d M Y'),
-            'formatted_end_date' => $endDate->translatedFormat('d M Y'),
+            'is_custom' => $isCustom,
+            'custom_filters' => $customFilters,
+            'formatted_period_label' => $formattedPeriodLabel,
+            'available_years' => $availableYears,
+            'start_date' => $startDate?->format('Y-m-d') ?? ($minTrxDate ? $minTrxDate->format('Y-m-d') : ''),
+            'end_date' => $endDate?->format('Y-m-d') ?? ($maxTrxDate ? $maxTrxDate->format('Y-m-d') : ''),
+            'formatted_start_date' => $formattedStartDate,
+            'formatted_end_date' => $formattedEndDate,
             'branch_id' => $targetBranchId,
             'selected_branch' => $selectedBranch,
             'is_combined' => $isCombined,
@@ -192,8 +391,11 @@ class LaporanService
         $eDate = $dates['end_date'];
 
         $query = Transaction::query()
-            ->where('status', StatusTransaksi::Paid)
-            ->whereBetween('transaction_date', [$sDate, $eDate]);
+            ->where('status', StatusTransaksi::Paid);
+
+        if ($sDate && $eDate) {
+            $query->whereBetween('transaction_date', [$sDate, $eDate]);
+        }
 
         if ($branchId) {
             $query->where('branch_id', $branchId);
@@ -205,21 +407,21 @@ class LaporanService
         return [
             'branch_id' => $branchId,
             'is_combined' => is_null($branchId),
-            'start_date' => $sDate->format('Y-m-d'),
-            'end_date' => $eDate->format('Y-m-d'),
+            'start_date' => $sDate?->format('Y-m-d') ?? '',
+            'end_date' => $eDate?->format('Y-m-d') ?? '',
             'total_omzet' => $totalOmzet,
             'total_transactions' => $transactions->count(),
             'payment_methods' => $this->breakdownService->buildPaymentMethodsBreakdown($transactions, $totalOmzet),
-            'promo_usages' => $this->breakdownService->buildPromotionsBreakdown($sDate, $eDate, $branchId)['list'],
+            'promo_usages' => $this->breakdownService->buildPromotionsBreakdown($sDate, $eDate, $branchId, $transactions)['list'],
             'revenue_per_service' => $this->breakdownService->buildServicesBreakdown($transactions, $totalOmzet),
-            'employee_commissions' => $this->performanceService->buildCommissionsBreakdown($sDate, $eDate, $branchId)['by_employee'],
+            'employee_commissions' => $this->performanceService->buildCommissionsBreakdown($sDate, $eDate, $branchId, $transactions)['by_employee'],
         ];
     }
 
     /**
      * Ekspor laporan ke CSV.
      *
-     * @param  array{period?: ?string, branch_id?: ?int, start_date?: ?string, end_date?: ?string}  $filters
+     * @param  array<string, mixed>  $filters
      *
      * @throws AuthorizationException
      */
@@ -233,7 +435,7 @@ class LaporanService
     /**
      * Ekspor laporan ke XLSX asli.
      *
-     * @param  array{period?: ?string, branch_id?: ?int, start_date?: ?string, end_date?: ?string}  $filters
+     * @param  array<string, mixed>  $filters
      *
      * @throws AuthorizationException
      */
@@ -247,7 +449,7 @@ class LaporanService
     /**
      * Ekspor laporan ke PDF asli server-side.
      *
-     * @param  array{period?: ?string, branch_id?: ?int, start_date?: ?string, end_date?: ?string}  $filters
+     * @param  array<string, mixed>  $filters
      *
      * @throws AuthorizationException
      */

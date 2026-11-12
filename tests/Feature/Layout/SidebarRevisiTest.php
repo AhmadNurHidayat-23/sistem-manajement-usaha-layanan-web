@@ -77,21 +77,19 @@ class SidebarRevisiTest extends TestCase
             $response = $this->actingAs($user)->get($url);
             $response->assertOk();
 
-            // 1. Desktop toggle button exists in Topbar
-            $response->assertSee('id="desktop-sidebar-toggle-btn"', false);
-            $response->assertSee('sidebar-toggle-btn hidden lg:flex', false);
+            // 1. Desktop toggle button is removed from Topbar per latest specification
+            $response->assertDontSee('id="desktop-sidebar-toggle-btn"', false);
 
-            // 2. Sidebar section dividers exist between menu groups
-            $response->assertSee('sidebar-section-divider', false);
+            // 2. Mobile toggle button remains in Topbar
+            $response->assertSee('id="mobile-sidebar-toggle-btn"', false);
 
-            // 3. Mini logo brand exists for collapsed state
+            // 3. Mini logo brand exists for collapsed state as reopen button
             $response->assertSee('sidebar-brand-mini', false);
+            $response->assertSee('title="Buka Menu Navigasi"', false);
 
-            // 4. Sidebar header contains close button for mobile but NO legacy sidebar-toggle-btn inside sidebar-header
-            $html = $response->getContent();
-            preg_match('/<div class="sidebar-header[^"]*">(.*?)<\/div>/s', $html, $matches);
-            $this->assertNotEmpty($matches, "Sidebar header must exist for user {$user->name}");
-            $this->assertStringNotContainsString('sidebar-toggle-btn', $matches[1], "Legacy sidebar-toggle-btn must not exist inside sidebar-header for user {$user->name}");
+            // 4. Sidebar header contains close toggle button for desktop
+            $response->assertSee('sidebar-toggle-close', false);
+            $response->assertSee('title="Kecilkan Sidebar"', false);
         }
     }
 }

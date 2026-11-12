@@ -9,7 +9,6 @@ import { initBookingForm } from './modules/booking-antrian/booking.js';
 import { initPesananCreate } from './modules/booking-antrian/pesanan.js';
 import { restoreSidebarState, initSidebarListeners } from './internal/sidebar.js';
 import { initHeaderClock } from './internal/header-clock.js';
-import { initMenuSearch } from './internal/menu-search.js';
 import { initProfileDropdown } from './internal/profile-dropdown.js';
 import { initLinkPrefetch } from './internal/link-prefetch.js';
 import { initNavProgress } from './internal/nav-progress.js';
@@ -42,7 +41,6 @@ window.initHeaderClock = initHeaderClock;
 window.initDashboardTable = initDashboardTable;
 window.initReportFilter = initReportFilter;
 window.initReceiptWaHandlers = initReceiptWaHandlers;
-window.initMenuSearch = initMenuSearch;
 window.initProfileDropdown = initProfileDropdown;
 window.initNavProgress = initNavProgress;
 
@@ -57,7 +55,6 @@ export function initApp(root = document) {
     restoreSidebarState();
     initSidebarListeners(root);
     initHeaderClock();
-    initMenuSearch(root);
     initProfileDropdown(root);
     initLinkPrefetch();
     initBookingForm();

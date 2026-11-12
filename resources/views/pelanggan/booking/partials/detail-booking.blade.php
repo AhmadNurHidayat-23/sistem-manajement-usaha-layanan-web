@@ -1,26 +1,27 @@
 {{-- Kartu Detail Utama Booking --}}
 <div class="bg-white border border-[#E4E7EC] rounded-2xl shadow-sm overflow-hidden">
     <div class="p-5 sm:p-7 space-y-6">
-
-        {{-- Status Pembatalan & Alasan --}}
-        @if($booking->status->value === 'cancelled' && $booking->cancellation_reason)
-        <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 sm:p-5">
+        {{-- Banner Janji Temu Dibatalkan --}}
+        @if($booking->status->value === 'cancelled')
+        <div class="p-4 sm:p-5 rounded-xl bg-rose-50 border border-rose-200">
             <div class="flex items-start gap-3">
-                <div class="w-9 h-9 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 shadow-2xs">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                <div class="w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 mt-0.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </div>
-                <div>
-                    <span class="text-xs font-bold text-rose-900 uppercase tracking-wider block">Janji Temu Dibatalkan</span>
-                    <p class="text-xs sm:text-sm text-rose-700 mt-1 m-0 leading-relaxed">
-                        <strong class="font-semibold text-rose-900">Alasan:</strong> {{ $booking->cancellation_reason }}
-                    </p>
+                <div class="space-y-1">
+                    <h4 class="text-xs sm:text-sm font-bold text-rose-900 m-0">Janji Temu Dibatalkan</h4>
+                    @if($booking->cancellation_reason)
+                        <p class="text-xs sm:text-sm text-rose-800 m-0 leading-relaxed">
+                            <span class="font-semibold text-rose-900">Alasan:</span> {{ $booking->cancellation_reason }}
+                        </p>
+                    @endif
                 </div>
             </div>
         </div>
         @endif
-
+        
         {{-- Jadwal & Waktu Pelaksanaan --}}
         <div class="bg-[#F8F9FC] border border-[#E4E7EC] rounded-xl p-4 sm:p-5">
             <span class="text-[11px] font-bold text-[#667085] uppercase tracking-wider block mb-3">Jadwal Pelaksanaan</span>
@@ -153,7 +154,7 @@
     <div class="px-5 sm:px-7 py-4 bg-[#F8F9FC] border-t border-[#E4E7EC] flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <a href="{{ route('customer.booking.index') }}"
             class="inline-flex items-center justify-center px-4 py-2.5 rounded-xl border border-[#D0D5DD] bg-white text-xs sm:text-sm font-semibold text-[#344054] hover:bg-neutral-50 transition-colors no-underline text-center">
-            Kembali ke Daftar Janji Temu
+            Kembali
         </a>
 
         @if(in_array($booking->status->value, ['pending', 'confirmed']))
@@ -164,7 +165,7 @@
                 <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
-                <span>Batalkan Janji Temu</span>
+                <span>Batalkan</span>
             </button>
         @endif
     </div>

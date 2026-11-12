@@ -2,7 +2,7 @@
     $authUser = auth()->user();
     $unreadCount = $authUser ? \Illuminate\Support\Facades\Cache::remember(
         "user_notif_unread_{$authUser->id}",
-        20,
+        120,
         fn () => $authUser->unreadNotifications()->count()
     ) : 0;
     $isOwnerManager = in_array($authUser?->role?->name, ['owner', 'manager'], true);

@@ -196,11 +196,92 @@
     pointer-events: auto !important;
 }
 
-/* Toggle button rotation */
+/* Logo display switching */
+.sidebar-brand-mini {
+    display: none !important;
+}
+
+@media (min-width: 1024px) {
+    .sidebar-nav.collapsed .sidebar-brand-full {
+        display: none !important;
+    }
+
+    /* Sembunyikan tombol toggle penutup saat collapsed */
+    .sidebar-nav.collapsed .sidebar-toggle-close {
+        display: none !important;
+    }
+
+    .sidebar-nav.collapsed .sidebar-brand-mini {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Saat collapsed (lebar 68px x tinggi 72px):
+       Logo mini tepat di tengah header secara horizontal dan vertikal */
+    .sidebar-nav.collapsed .sidebar-header {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
+    .sidebar-nav.collapsed .sidebar-brand-mini img {
+        width: 30px !important;
+        height: 30px !important;
+        max-width: 32px !important;
+        max-height: 32px !important;
+        object-fit: contain !important;
+        display: block !important;
+    }
+}
+
+/* Sembunyikan teks menu & section header saat sidebar collapse */
+.sidebar-nav.collapsed .sidebar-label {
+    display: none !important;
+}
+
+.sidebar-nav.collapsed .sidebar-brand-text {
+    display: none !important;
+}
+
+.sidebar-nav.collapsed .sidebar-section-header {
+    display: none !important;
+}
+
+/* Logo icon lebih besar saat collapse */
+.sidebar-nav.collapsed .sidebar-brand-icon {
+    width: 36px;
+    height: 36px;
+}
+
+/* Pusatkan link menu saat collapse */
+.sidebar-nav.collapsed .sidebar-link {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.sidebar-nav.collapsed .sidebar-link svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Toggle button */
 .sidebar-toggle-btn {
     transition: transform 0.25s ease, background-color 0.15s ease, color 0.15s ease;
 }
 
+.sidebar-toggle-btn svg {
+    transition: transform 0.25s ease;
+}
+
+.sidebar-nav.collapsed .sidebar-toggle-btn svg,
+.main-area.sidebar-collapsed .sidebar-toggle-btn svg,
 .main-area.sidebar-collapsed .sidebar-toggle-btn,
 .sidebar-nav.collapsed .sidebar-toggle-btn {
     transform: rotate(180deg);

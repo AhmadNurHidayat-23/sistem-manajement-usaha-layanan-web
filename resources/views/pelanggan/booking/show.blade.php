@@ -1,4 +1,4 @@
-@extends('layouts.pelanggan', ['title' => 'Detail Janji Temu #' . $booking->id])
+@extends('layouts.pelanggan', ['title' => 'Detail Janji Temu'])
 
 @section('content')
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
@@ -12,7 +12,7 @@
         </a>
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-                <h2 class="text-xl sm:text-2xl font-bold text-[#101828] m-0 tracking-tight">Janji Temu #{{ $booking->id }}</h2>
+                <h2 class="text-xl sm:text-2xl font-bold text-[#101828] m-0 tracking-tight">Janji Temu</h2>
                 <p class="text-xs text-[#667085] mt-1 m-0">Detail reservasi jadwal layanan Anda di SIMAUL</p>
             </div>
             @php
@@ -60,48 +60,54 @@ document.addEventListener('DOMContentLoaded', function() {
     const cancelForm = document.getElementById('form-cancel-booking');
     const confirmBtn = document.getElementById('btn-cancel-dialog-confirm');
     const backBtn = document.getElementById('btn-cancel-dialog-back');
-    const reasonRadios = document.querySelectorAll('.cancel-reason-radio');
-    const customWrapper = document.getElementById('wrapper-reason-custom');
-    const customTextarea = document.getElementById('reason_custom');
-    const errorPreset = document.getElementById('error-reason-preset');
-    const errorCustom = document.getElementById('error-reason-custom');
+    const reasonRadios = document.querySelectorAll('input[name="cancellation_reason"]');
+    const otherWrapper = document.getElementById('cancellation-other-wrapper');
+    const otherInput = document.getElementById('other_cancellation_reason');
+    const reasonError = document.getElementById('cancellation-reason-error');
+    const otherError = document.getElementById('other-reason-error');
 
-    if (reasonRadios.length) {
-        reasonRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                if (errorPreset) errorPreset.classList.add('hidden');
-                if (this.value === 'Alasan lainnya') {
-                    customWrapper?.classList.remove('hidden');
-                    customTextarea?.focus();
-                } else {
-                    customWrapper?.classList.add('hidden');
-                    if (errorCustom) errorCustom.classList.add('hidden');
+    // Toggle tampilan textarea jika "Alasan lainnya" dipilih
+    reasonRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (reasonError) reasonError.classList.add('hidden');
+            if (this.value === 'Alasan lainnya') {
+                if (otherWrapper) otherWrapper.classList.remove('hidden');
+                if (otherInput) {
+                    otherInput.focus();
                 }
-            });
+            } else {
+                if (otherWrapper) otherWrapper.classList.add('hidden');
+                if (otherError) otherError.classList.add('hidden');
+            }
+        });
+    });
+
+    if (otherInput) {
+        otherInput.addEventListener('input', function() {
+            if (this.value.trim().length > 0 && otherError) {
+                otherError.classList.add('hidden');
+            }
         });
     }
 
     if (cancelForm && confirmBtn) {
         cancelForm.addEventListener('submit', function(e) {
-            let selectedRadio = document.querySelector('.cancel-reason-radio:checked');
-            if (!selectedRadio) {
+            const selectedReason = cancelForm.querySelector('input[name="cancellation_reason"]:checked');
+
+            if (!selectedReason) {
                 e.preventDefault();
-                if (errorPreset) {
-                    errorPreset.textContent = 'Silakan pilih alasan pembatalan.';
-                    errorPreset.classList.remove('hidden');
-                }
+                if (reasonError) reasonError.classList.remove('hidden');
+                const firstRadio = cancelForm.querySelector('input[name="cancellation_reason"]');
+                if (firstRadio) firstRadio.focus();
                 return;
             }
 
-            if (selectedRadio.value === 'Alasan lainnya') {
-                const val = customTextarea?.value.trim() ?? '';
-                if (!val) {
+            if (selectedReason.value === 'Alasan lainnya') {
+                const otherValue = otherInput ? otherInput.value.trim() : '';
+                if (!otherValue) {
                     e.preventDefault();
-                    if (errorCustom) {
-                        errorCustom.textContent = 'Alasan pembatalan lainnya wajib diisi.';
-                        errorCustom.classList.remove('hidden');
-                    }
-                    customTextarea?.focus();
+                    if (otherError) otherError.classList.remove('hidden');
+                    if (otherInput) otherInput.focus();
                     return;
                 }
             }
@@ -110,6 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
                 return;
             }
+
             confirmBtn.disabled = true;
             if (backBtn) backBtn.disabled = true;
             confirmBtn.innerHTML = `
@@ -121,6 +128,14 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         });
     }
+
+    @if($errors->has('cancellation_reason') || $errors->has('other_cancellation_reason'))
+        // Buka modal secara otomatis jika terdapat error validasi dari server
+        const cancelModal = document.getElementById('modal-cancel-booking');
+        if (cancelModal) {
+            cancelModal.classList.remove('hidden');
+        }
+    @endif
 });
 </script>
 @endpush

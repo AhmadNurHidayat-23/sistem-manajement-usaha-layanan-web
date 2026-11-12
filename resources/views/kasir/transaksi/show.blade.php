@@ -52,7 +52,7 @@
             <div>
                 <span class="text-[12px] text-[#667085] block mb-1 font-medium">Sumber Transaksi</span>
                 @if ($transaction->booking_id)
-                    <p class="font-semibold text-[#062072] text-[15px] m-0">Booking #{{ $transaction->booking_id }}</p>
+                    <p class="font-semibold text-[#062072] text-[15px] m-0">Janji Temu (Booking)</p>
                 @elseif ($transaction->order_id)
                     <p class="font-semibold text-[#062072] text-[15px] m-0">Drop-off Pesanan #{{ $transaction->order_id }}</p>
                 @else

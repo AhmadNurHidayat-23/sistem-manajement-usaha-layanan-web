@@ -7,11 +7,16 @@
         : 'Analisis omzet, tren transaksi, metode pembayaran, performa layanan, serta rekapitulasi komisi karyawan.';
 
     $isCustomPeriod = ($report['period'] ?? null) === 'custom';
+    $customFilters = $report['custom_filters'] ?? [];
     $exportParams = array_filter([
         'period' => $report['period'] ?? null,
+        'branch_id' => $report['branch_id'] ?? null,
+        'day' => $isCustomPeriod ? ($customFilters['day'] ?? null) : null,
+        'date' => $isCustomPeriod ? ($customFilters['date'] ?? null) : null,
+        'month' => $isCustomPeriod ? ($customFilters['month'] ?? null) : null,
+        'year' => $isCustomPeriod ? ($customFilters['year'] ?? null) : null,
         'start_date' => $isCustomPeriod ? ($report['start_date'] ?? null) : null,
         'end_date' => $isCustomPeriod ? ($report['end_date'] ?? null) : null,
-        'branch_id' => $report['branch_id'] ?? null,
     ], fn ($v) => $v !== null && $v !== '');
 @endphp
 

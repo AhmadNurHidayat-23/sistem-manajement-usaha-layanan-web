@@ -46,10 +46,12 @@ class KasirService
 
     /**
      * Cabang aktif saat ini.
+     *
+     * @param  Collection<int, Branch>|null  $branches
      */
-    public function getActiveBranchForUser(User $user, ?int $branchId = null): ?Branch
+    public function getActiveBranchForUser(User $user, ?int $branchId = null, ?Collection $branches = null): ?Branch
     {
-        $branches = $this->getAccessibleBranches($user);
+        $branches ??= $this->getAccessibleBranches($user);
 
         if ($branchId) {
             return $branches->firstWhere('id', $branchId);

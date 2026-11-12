@@ -1,10 +1,10 @@
-@extends('layouts.app', ['title' => 'Edit Booking #' . $booking->id])
+@extends('layouts.app', ['title' => 'Edit Booking'])
 
 @section('content')
 <div class="max-w-3xl space-y-6">
     <div class="flex items-center justify-between">
         <div>
-            <h3 class="text-xl font-bold text-[#101828] m-0">Edit Booking #{{ $booking->id }}</h3>
+            <h3 class="text-xl font-bold text-[#101828] m-0">Edit Booking</h3>
             <p class="text-xs text-[#667085] mt-1 m-0">Ubah jadwal atau detail booking.</p>
         </div>
         <x-buttons.btn variant="outline" href="{{ route('bookings.show', $booking) }}">Kembali</x-buttons.btn>

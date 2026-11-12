@@ -83,7 +83,7 @@ class FinalisasiHeaderSidebarShiftTest extends TestCase
         $response->assertSee('id="header-realtime-clock"', false);
         $response->assertSee('id="realtime-clock-time"', false);
         $response->assertSee('id="realtime-clock-date"', false);
-        $response->assertSee('id="menu-search-input"', false);
+        $response->assertDontSee('id="menu-search-input"', false);
         $response->assertSee('Dedi Kurniawan');
         $response->assertDontSee('KARYAWAN');
     }
@@ -112,7 +112,7 @@ class FinalisasiHeaderSidebarShiftTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('id="header-realtime-clock"', false);
-        $response->assertSee('id="menu-search-input"', false);
+        $response->assertDontSee('id="menu-search-input"', false);
         $response->assertSee('Manager Toko');
         $response->assertDontSee('MANAJER');
     }

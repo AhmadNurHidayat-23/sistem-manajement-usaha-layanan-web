@@ -98,14 +98,13 @@ class SidebarHeaderRedesignTest extends TestCase
         $response->assertSee('Keluar');
         $response->assertDontSee('sidebar-user-info', false);
 
-        // 2. Header checks
+        // 2. Header checks: Hanya jam/tanggal, notifikasi, dan profil (tanpa menu search)
         $response->assertSee('id="header-realtime-clock"', false);
-        $response->assertSee('id="menu-search-wrapper"', false);
-        $response->assertSee('id="menu-search-input"', false);
-        $response->assertSee('placeholder="Cari menu..."', false);
-        $response->assertSee('rounded-full', false);
+        $response->assertDontSee('id="menu-search-wrapper"', false);
+        $response->assertDontSee('id="menu-search-input"', false);
+        $response->assertDontSee('placeholder="Cari menu..."', false);
         $response->assertDontSee('id="menu-search-dropdown"', false);
-        $response->assertSee('id="menu-search-feedback"', false);
+        $response->assertDontSee('id="menu-search-feedback"', false);
         $response->assertSee('id="notification-bell-btn"', false);
         $response->assertSee('id="header-profile-menu"', false);
         $response->assertSee('Bambang Owner');
@@ -114,11 +113,6 @@ class SidebarHeaderRedesignTest extends TestCase
         $content = $response->getContent();
         $this->assertStringNotContainsString('OWNER</x-badges.badge>', $content);
         $this->assertStringNotContainsString('<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-[#062072] text-white border-transparent">OWNER</span>', $content);
-
-        // Search menus contain owner links
-        $response->assertSee(route('branches.index'), false);
-        $response->assertSee(route('catalog.services.index'), false);
-        $response->assertSee(route('reports.index'), false);
     }
 
     public function test_manager_sidebar_and_header_match_redesign(): void
@@ -131,15 +125,11 @@ class SidebarHeaderRedesignTest extends TestCase
         $response->assertSee('sidebar-logout-btn', false);
         $response->assertDontSee('sidebar-user-info', false);
 
-        // Header
+        // Header: Jam/tanggal, notifikasi, profil tanpa menu search
         $response->assertSee('id="header-realtime-clock"', false);
-        $response->assertSee('id="menu-search-input"', false);
+        $response->assertDontSee('id="menu-search-input"', false);
         $response->assertSee('id="notification-bell-btn"', false);
         $response->assertSee('Siti Manager');
-
-        // Search menus contain manager links
-        $response->assertSee(route('employees.shifts.index'), false);
-        $response->assertSee(route('inventori.index'), false);
     }
 
     public function test_cashier_sidebar_and_header_match_redesign(): void
@@ -152,16 +142,11 @@ class SidebarHeaderRedesignTest extends TestCase
         $response->assertSee('sidebar-logout-btn', false);
         $response->assertDontSee('sidebar-user-info', false);
 
-        // Header
+        // Header: Jam/tanggal, notifikasi, profil tanpa menu search
         $response->assertSee('id="header-realtime-clock"', false);
-        $response->assertSee('id="menu-search-input"', false);
+        $response->assertDontSee('id="menu-search-input"', false);
         $response->assertSee('id="notification-bell-btn"', false);
         $response->assertSee('Dewi Kasir');
-
-        // Search menus contain cashier links
-        $response->assertSee(route('pos.index'), false);
-        $response->assertSee(route('pos.transactions.index'), false);
-        $response->assertSee(route('members.index'), false);
     }
 
     public function test_employee_sidebar_and_header_match_redesign(): void
@@ -174,16 +159,11 @@ class SidebarHeaderRedesignTest extends TestCase
         $response->assertSee('sidebar-logout-btn', false);
         $response->assertDontSee('sidebar-user-info', false);
 
-        // Header
+        // Header: Jam/tanggal, notifikasi, profil tanpa menu search
         $response->assertSee('id="header-realtime-clock"', false);
-        $response->assertSee('id="menu-search-input"', false);
+        $response->assertDontSee('id="menu-search-input"', false);
         $response->assertSee('id="notification-bell-btn"', false);
         $response->assertSee('Joko Karyawan');
-
-        // Search menus contain employee links
-        $response->assertSee(route('queue.index'), false);
-        $response->assertSee(route('employees.my-shifts'), false);
-        $response->assertSee(route('employees.my-commissions'), false);
     }
 
     public function test_customer_view_and_navigation_remain_unchanged(): void

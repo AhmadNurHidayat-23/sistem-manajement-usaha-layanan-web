@@ -28,7 +28,7 @@
                         {{ $report['is_combined'] ? 'KONSOLIDASI SELURUH CABANG' : strtoupper($report['selected_branch']?->name ?? 'CABANG') }}
                     </div>
                     <div class="period-info">
-                        Periode: <strong>{{ $report['formatted_start_date'] }} — {{ $report['formatted_end_date'] }}</strong>
+                        Periode: <strong>{{ $report['formatted_period_label'] ?? ($report['formatted_start_date'] . ' — ' . $report['formatted_end_date']) }}</strong>
                     </div>
                 </td>
             </tr>

@@ -1,7 +1,7 @@
 @php
     $isEmployee = auth()->user()?->role?->name === 'employee';
 @endphp
-@extends('layouts.app', ['title' => $isEmployee ? 'Detail Tugas | SIMAUL' : 'Detail Booking #' . $booking->id . ' | SIMAUL'])
+@extends('layouts.app', ['title' => $isEmployee ? 'Detail Tugas | SIMAUL' : 'Detail Booking | SIMAUL'])
 
 @section('content')
 <div class="w-full space-y-5">
@@ -12,7 +12,7 @@
                 <h2 class="text-xl font-bold text-[#101828] m-0">Detail Tugas</h2>
                 <p class="text-xs text-[#667085] mt-1 m-0">Pekerjaan yang ditugaskan kepada Anda &bull; Terakhir diperbarui {{ $booking->updated_at->diffForHumans() }}</p>
             @else
-                <h3 class="text-xl font-bold text-[#101828] m-0">Detail Booking #{{ $booking->id }}</h3>
+                <h3 class="text-xl font-bold text-[#101828] m-0">Detail Booking</h3>
                 <p class="text-xs text-[#667085] mt-1 m-0">Dibuat {{ $booking->created_at->diffForHumans() }}</p>
             @endif
         </div>
@@ -61,6 +61,9 @@
                             ['Jam',         \Carbon\Carbon::parse($booking->booking_time)->format('H:i') . ' WIB'],
                             ['Catatan',     $booking->notes ?? '-'],
                         ];
+                        if ($booking->cancellation_reason) {
+                            $rows[] = ['Alasan Pembatalan', $booking->cancellation_reason];
+                        }
                     @endphp
                     @foreach($rows as [$label, $value])
                     <div class="py-3 flex justify-between gap-4">

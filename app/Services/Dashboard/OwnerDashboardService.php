@@ -25,12 +25,14 @@ class OwnerDashboardService
         $today = Carbon::today();
         $endOfDay = $today->copy()->endOfDay();
 
-        // Ringkasan metrik (1 agregasi gabungan)
-        $totalActiveBranches = Branch::where('is_active', true)->count();
+        // Cabang & ringkasan metrik
+        $branches = Branch::orderBy('name')->get();
+        $totalActiveBranches = $branches->where('is_active', true)->count();
         $trxSummary = Transaction::where('status', StatusTransaksi::Paid)
-            ->selectRaw('COALESCE(SUM(total), 0) as total_omzet, COUNT(*) as total_count')
+            ->selectRaw('COALESCE(SUM(total), 0) as total_omzet, COALESCE(SUM(discount), 0) as total_discount, COUNT(*) as total_count')
             ->first();
         $totalOmzet = (float) ($trxSummary?->total_omzet ?? 0);
+        $totalDiscount = (float) ($trxSummary?->total_discount ?? 0);
         $totalTransactions = (int) ($trxSummary?->total_count ?? 0);
         $totalBookings = Booking::count();
 
@@ -47,7 +49,6 @@ class OwnerDashboardService
         $omzetTrend = $this->buildDailyTrend($trendMetrics, $trendStartDate, $today);
 
         // Performa per cabang
-        $branches = Branch::orderBy('name')->get();
         $branchMetrics = Transaction::query()
             ->where('status', StatusTransaksi::Paid)
             ->selectRaw('branch_id, count(*) as total_count, sum(total) as sum_total')
@@ -92,7 +93,7 @@ class OwnerDashboardService
         $topEmployees = $this->getTopEmployees(5);
 
         // Efektivitas promo
-        $promoEffectiveness = $this->getPromoEffectiveness();
+        $promoEffectiveness = $this->getPromoEffectiveness($totalDiscount);
 
         // Transaksi terbaru (Latest 7)
         $recentTransactions = Transaction::with(['branch', 'cashier', 'payments'])
@@ -230,7 +231,7 @@ class OwnerDashboardService
         }
 
         if (count($employeeStats) < $limit) {
-            $activeEmps = Employee::with('branch')->where('status', 'active')->limit($limit)->get();
+            $activeEmps = Employee::with('branch:id,name,address')->where('status', 'active')->limit($limit)->get(['id', 'name', 'branch_id']);
             foreach ($activeEmps as $emp) {
                 if (! isset($employeeStats[$emp->id])) {
                     $employeeStats[$emp->id] = [
@@ -255,10 +256,10 @@ class OwnerDashboardService
      *
      * @return array{total_usages: int, total_discount_given: float, top_promotions: array<int, array<string, mixed>>}
      */
-    protected function getPromoEffectiveness(): array
+    protected function getPromoEffectiveness(?float $totalDiscountGiven = null): array
     {
         $totalUsages = PromotionUsage::count();
-        $totalDiscountGiven = (float) Transaction::where('status', StatusTransaksi::Paid)->sum('discount');
+        $totalDiscountGiven ??= (float) Transaction::where('status', StatusTransaksi::Paid)->sum('discount');
 
         $topPromotions = PromotionUsage::query()
             ->join('promotions', 'promotion_usages.promotion_id', '=', 'promotions.id')

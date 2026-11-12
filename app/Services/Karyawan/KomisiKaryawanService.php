@@ -169,11 +169,22 @@ class KomisiKaryawanService
             $query->where('employee_id', $employeeId);
         }
 
-        $pending = (float) (clone $query)->where('status', CommissionStatus::Pending->value)->sum('commission_amount');
-        $approved = (float) (clone $query)->where('status', CommissionStatus::Approved->value)->sum('commission_amount');
-        $paid = (float) (clone $query)->where('status', CommissionStatus::Paid->value)->sum('commission_amount');
+        $stats = (clone $query)->selectRaw('
+            COALESCE(SUM(CASE WHEN status = ? THEN commission_amount ELSE 0 END), 0) as pending_sum,
+            COALESCE(SUM(CASE WHEN status = ? THEN commission_amount ELSE 0 END), 0) as approved_sum,
+            COALESCE(SUM(CASE WHEN status = ? THEN commission_amount ELSE 0 END), 0) as paid_sum,
+            COUNT(*) as total_count
+        ', [
+            CommissionStatus::Pending->value,
+            CommissionStatus::Approved->value,
+            CommissionStatus::Paid->value,
+        ])->first();
+
+        $pending = (float) ($stats?->pending_sum ?? 0);
+        $approved = (float) ($stats?->approved_sum ?? 0);
+        $paid = (float) ($stats?->paid_sum ?? 0);
         $total = $pending + $approved + $paid;
-        $count = (clone $query)->count();
+        $count = (int) ($stats?->total_count ?? 0);
 
         return [
             'pending' => $pending,

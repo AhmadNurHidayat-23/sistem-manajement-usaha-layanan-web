@@ -3,6 +3,8 @@
 namespace App\Http\Requests\BookingAntrian;
 
 use App\Models\Branch;
+use App\Models\Employee;
+use App\Models\Service;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreBookingRequest extends FormRequest
@@ -35,6 +37,26 @@ class StoreBookingRequest extends FormRequest
                 $branch = Branch::find($branchId);
                 if ($branch && ! in_array($branch->service_mode, ['appointment', 'both'], true)) {
                     $validator->errors()->add('branch_id', 'Cabang yang dipilih tidak melayani booking janji temu (appointment).');
+                }
+            }
+
+            $employeeId = $this->input('employee_id');
+            if ($branchId && $employeeId) {
+                $employee = Employee::find($employeeId);
+                $isAssigned = $employee && (
+                    (int) $employee->branch_id === (int) $branchId
+                    || $employee->shifts()->where('branch_id', $branchId)->exists()
+                );
+                if (! $employee || ! $isAssigned || $employee->status !== 'active') {
+                    $validator->errors()->add('employee_id', 'Petugas yang dipilih tidak bertugas pada cabang ini.');
+                }
+            }
+
+            $serviceId = $this->input('service_id');
+            if ($branchId && $serviceId) {
+                $service = Service::find($serviceId);
+                if (! $service || (int) $service->branch_id !== (int) $branchId) {
+                    $validator->errors()->add('service_id', 'Layanan yang dipilih tidak tersedia pada cabang ini.');
                 }
             }
         });

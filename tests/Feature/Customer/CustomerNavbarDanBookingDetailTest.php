@@ -121,7 +121,8 @@ class CustomerNavbarDanBookingDetailTest extends TestCase
         $response = $this->actingAs($this->customer)->get(route('customer.booking.show', $booking));
 
         $response->assertOk();
-        $response->assertSee('Detail Janji Temu #'.$booking->id);
+        $response->assertSee('Detail Janji Temu');
+        $response->assertDontSee('Janji Temu #');
         $response->assertSee('Kembali ke Janji Temu');
         $response->assertSee('Jadwal Pelaksanaan');
         $response->assertSee('Layanan Utama');
@@ -135,7 +136,56 @@ class CustomerNavbarDanBookingDetailTest extends TestCase
         $response->assertSee('Batalkan Janji Temu?');
         $response->assertSee('Ya, Batalkan');
         $response->assertSee('Kembali');
+        $response->assertSee('Pilih Alasan Pembatalan');
+        $response->assertSee('Jadwal mendadak');
+        $response->assertSee('Salah memilih cabang');
+        $response->assertSee('Salah memilih tanggal atau jam');
+        $response->assertSee('Tidak dapat hadir');
+        $response->assertSee('Tidak jadi menggunakan layanan');
+        $response->assertSee('Alasan lainnya');
+        $response->assertSee('id="other_cancellation_reason"', false);
         $response->assertSee(route('customer.booking.cancel', $booking));
+    }
+
+    public function test_booking_cancel_requires_reason(): void
+    {
+        $nextDate = date('Y-m-d', strtotime('+3 days'));
+        $booking = Booking::create([
+            'user_id' => $this->customer->id,
+            'branch_id' => $this->branch->id,
+            'service_id' => $this->service->id,
+            'booking_date' => $nextDate,
+            'booking_time' => '10:00',
+            'status' => BookingStatus::Confirmed,
+        ]);
+
+        $response = $this->actingAs($this->customer)
+            ->patch(route('customer.booking.cancel', $booking), []);
+
+        $response->assertSessionHasErrors(['cancellation_reason']);
+        $this->assertSame(BookingStatus::Confirmed, $booking->fresh()->status);
+    }
+
+    public function test_booking_cancel_with_other_reason_requires_text(): void
+    {
+        $nextDate = date('Y-m-d', strtotime('+3 days'));
+        $booking = Booking::create([
+            'user_id' => $this->customer->id,
+            'branch_id' => $this->branch->id,
+            'service_id' => $this->service->id,
+            'booking_date' => $nextDate,
+            'booking_time' => '10:00',
+            'status' => BookingStatus::Confirmed,
+        ]);
+
+        $response = $this->actingAs($this->customer)
+            ->patch(route('customer.booking.cancel', $booking), [
+                'cancellation_reason' => 'Alasan lainnya',
+                'other_cancellation_reason' => '',
+            ]);
+
+        $response->assertSessionHasErrors(['other_cancellation_reason']);
+        $this->assertSame(BookingStatus::Confirmed, $booking->fresh()->status);
     }
 
     public function test_booking_cancel_action_cancels_booking_and_redirects_with_success_message(): void
@@ -151,12 +201,51 @@ class CustomerNavbarDanBookingDetailTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->customer)
-            ->patch(route('customer.booking.cancel', $booking));
+            ->patch(route('customer.booking.cancel', $booking), [
+                'cancellation_reason' => 'Salah memilih tanggal atau jam',
+            ]);
 
-        $response->assertRedirect(route('customer.booking.index'));
-        $response->assertSessionHas('success', 'Booking berhasil dibatalkan.');
+        $response->assertRedirect(route('customer.booking.show', $booking));
+        $response->assertSessionHas('success', 'Janji temu berhasil dibatalkan.');
 
-        $this->assertSame(BookingStatus::Cancelled, $booking->fresh()->status);
+        $freshBooking = $booking->fresh();
+        $this->assertSame(BookingStatus::Cancelled, $freshBooking->status);
+        $this->assertSame('Salah memilih tanggal atau jam', $freshBooking->cancellation_reason);
+
+        // Periksa tampilan halaman detail menampilkan alasan pembatalan
+        $showResponse = $this->actingAs($this->customer)->get(route('customer.booking.show', $booking));
+        $showResponse->assertOk();
+        $showResponse->assertSee('Janji Temu Dibatalkan');
+        $showResponse->assertSee('Salah memilih tanggal atau jam');
+    }
+
+    public function test_booking_cancel_with_custom_other_reason_saves_and_displays_text(): void
+    {
+        $nextDate = date('Y-m-d', strtotime('+3 days'));
+        $booking = Booking::create([
+            'user_id' => $this->customer->id,
+            'branch_id' => $this->branch->id,
+            'service_id' => $this->service->id,
+            'booking_date' => $nextDate,
+            'booking_time' => '10:00',
+            'status' => BookingStatus::Confirmed,
+        ]);
+
+        $customReason = 'Kendaraan sedang dalam perbaikan mendesak di bengkel lain';
+        $response = $this->actingAs($this->customer)
+            ->patch(route('customer.booking.cancel', $booking), [
+                'cancellation_reason' => 'Alasan lainnya',
+                'other_cancellation_reason' => $customReason,
+            ]);
+
+        $response->assertRedirect(route('customer.booking.show', $booking));
+        $freshBooking = $booking->fresh();
+        $this->assertSame(BookingStatus::Cancelled, $freshBooking->status);
+        $this->assertSame($customReason, $freshBooking->cancellation_reason);
+
+        $showResponse = $this->actingAs($this->customer)->get(route('customer.booking.show', $booking));
+        $showResponse->assertOk();
+        $showResponse->assertSee($customReason);
     }
 
     public function test_cancelled_booking_does_not_show_cancel_button_or_modal(): void

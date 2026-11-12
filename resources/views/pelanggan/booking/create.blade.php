@@ -124,10 +124,25 @@
                             <span class="w-3 h-3 rounded bg-rose-50 border border-rose-300 inline-block"></span>
                             <span class="text-rose-700 font-medium">Penuh</span>
                         </div>
-                        <div class="flex items-center gap-1.5" title="Waktu telah lewat atau di luar jadwal kerja">
+                        <div class="flex items-center gap-1.5" title="Petugas libur atau tidak bertugas pada jam ini">
+                            <span class="w-3 h-3 rounded bg-amber-50 border border-amber-300 inline-block"></span>
+                            <span class="text-amber-800 font-medium">Petugas Libur</span>
+                        </div>
+                        <div class="flex items-center gap-1.5" title="Waktu telah lewat atau di luar jam operasional">
                             <span class="w-3 h-3 rounded bg-slate-100 border border-slate-300 inline-block"></span>
                             <span class="text-slate-500">Lewat / Tutup</span>
                         </div>
+                    </div>
+                </div>
+
+                {{-- Alert Petugas Libur / Tidak Memiliki Shift --}}
+                <div id="employee-off-warning" class="hidden p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs sm:text-sm flex items-start gap-3">
+                    <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                        <p class="font-semibold text-amber-900 m-0">Petugas Libur / Tidak Bertugas</p>
+                        <p id="employee-off-message" class="mt-0.5 mb-0 text-amber-800">Petugas yang dipilih tidak memiliki jadwal kerja pada tanggal ini. Silakan pilih tanggal lain atau petugas lainnya.</p>
                     </div>
                 </div>
 
@@ -139,7 +154,7 @@
                     Memeriksa ketersediaan jam janji temu...
                 </div>
 
-                <div id="slots-container" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 sm:gap-2.5"></div>
+                <div id="slots-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-2.5"></div>
                 <p id="no-slots" class="hidden text-xs text-[#667085] mt-2 py-3 px-4 bg-slate-50 border border-slate-200 rounded-xl m-0 text-center">
                     Tidak ada slot waktu yang tersedia pada tanggal ini. Silakan pilih tanggal atau petugas lain.
                 </p>
@@ -187,9 +202,42 @@ document.addEventListener('DOMContentLoaded', function() {
     const dateWarning = document.getElementById('date-warning');
     const selectedPreview = document.getElementById('selected-slot-preview');
     const selectedTimeSpan = document.getElementById('selected-slot-time');
+    const employeeOffWarning = document.getElementById('employee-off-warning');
+    const employeeOffMessage = document.getElementById('employee-off-message');
 
     let operatingDays = null;
     const dayNames = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
+
+    function updateEmployees(branchId, serviceId = '', preferredEmployeeId = '') {
+        if (!branchId) {
+            employeeSelect.innerHTML = '<option value="">— Siapa saja tersedia —</option>';
+            return Promise.resolve();
+        }
+
+        const params = new URLSearchParams({ branch_id: branchId });
+        if (serviceId) params.append('service_id', serviceId);
+
+        return fetch(`{{ route('customer.booking.branch-data') }}?${params}`)
+            .then(r => r.json())
+            .then(data => {
+                const prev = preferredEmployeeId || employeeSelect.value;
+                employeeSelect.innerHTML = '<option value="">— Siapa saja tersedia —</option>';
+                let matched = false;
+                (data.employees || []).forEach(e => {
+                    const opt = document.createElement('option');
+                    opt.value = e.id;
+                    opt.textContent = e.name;
+                    if (prev && String(prev) === String(e.id)) {
+                        opt.selected = true;
+                        matched = true;
+                    }
+                    employeeSelect.appendChild(opt);
+                });
+                if (!matched) {
+                    employeeSelect.value = '';
+                }
+            });
+    }
 
     // Branch change
     branchSelect.addEventListener('change', function() {
@@ -197,8 +245,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const sections = ['service-section', 'employee-section', 'date-section', 'notes-section'];
         sections.forEach(s => document.getElementById(s).classList.toggle('hidden', !branchId));
 
+        serviceSelect.value = '';
+        employeeSelect.value = '';
+        clearSlots();
+
         if (!branchId) {
-            clearSlots();
             return;
         }
 
@@ -210,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Update services
                 serviceSelect.innerHTML = '<option value="">— Pilih layanan —</option>';
-                data.services.forEach(s => {
+                (data.services || []).forEach(s => {
                     const opt = document.createElement('option');
                     opt.value = s.id;
                     opt.dataset.duration = s.duration;
@@ -221,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Update employees
                 employeeSelect.innerHTML = '<option value="">— Siapa saja tersedia —</option>';
-                data.employees.forEach(e => {
+                (data.employees || []).forEach(e => {
                     const opt = document.createElement('option');
                     opt.value = e.id;
                     opt.textContent = e.name;
@@ -233,6 +284,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     validateDateAndLoadSlots();
                 }
             });
+    });
+
+    // Service change: perbarui daftar petugas yang relevan & reload slot
+    serviceSelect.addEventListener('change', function() {
+        const branchId = branchSelect.value;
+        const serviceId = this.value;
+        if (branchId) {
+            updateEmployees(branchId, serviceId, employeeSelect.value).then(() => {
+                loadSlots();
+            });
+        } else {
+            loadSlots();
+        }
+    });
+
+    // Employee change
+    employeeSelect.addEventListener('change', function() {
+        loadSlots();
     });
 
     // Date change
@@ -260,10 +329,6 @@ document.addEventListener('DOMContentLoaded', function() {
         loadSlots();
     }
 
-    // Service/employee change: reload slots
-    serviceSelect.addEventListener('change', loadSlots);
-    employeeSelect.addEventListener('change', loadSlots);
-
     function loadSlots() {
         const branchId = branchSelect.value;
         const date = dateInput.value;
@@ -272,6 +337,7 @@ document.addEventListener('DOMContentLoaded', function() {
         timeSection.classList.remove('hidden');
         slotsLoading.classList.remove('hidden');
         noSlots.classList.add('hidden');
+        if (employeeOffWarning) employeeOffWarning.classList.add('hidden');
         slotsContainer.innerHTML = '';
         
         // Simpan waktu yang sebelumnya dipilih untuk dicocokkan kembali jika masih valid
@@ -291,11 +357,31 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(r => r.json())
             .then(res => {
                 slotsLoading.classList.add('hidden');
-                
+
+                if (res.is_open === false) {
+                    dateWarning.textContent = res.message || 'Cabang tidak beroperasi pada hari tersebut.';
+                    dateWarning.classList.remove('hidden');
+                    noSlots.textContent = 'Cabang tutup pada tanggal ini.';
+                    noSlots.classList.remove('hidden');
+                    return;
+                } else {
+                    dateWarning.classList.add('hidden');
+                }
+
+                if (res.employee_off_duty && employeeSelect.value) {
+                    if (employeeOffWarning) {
+                        if (employeeOffMessage) {
+                            employeeOffMessage.textContent = res.employee_message || 'Petugas yang dipilih tidak memiliki jadwal kerja pada tanggal ini. Silakan pilih tanggal lain atau petugas lainnya.';
+                        }
+                        employeeOffWarning.classList.remove('hidden');
+                    }
+                }
+
                 // Normalisasi respons array atau objek { is_open, slots }
                 const rawSlots = Array.isArray(res) ? res : (res.slots || []);
 
                 if (rawSlots.length === 0) {
+                    noSlots.textContent = 'Tidak ada slot waktu yang tersedia pada tanggal ini. Silakan pilih tanggal atau petugas lain.';
                     noSlots.classList.remove('hidden');
                     return;
                 }
@@ -303,45 +389,70 @@ document.addEventListener('DOMContentLoaded', function() {
                 let slotToRestore = null;
 
                 rawSlots.forEach(item => {
-                    // Mendukung string jam biasa (fallback) maupun objek status lengkap
                     const isObj = (typeof item === 'object' && item !== null);
                     const time = isObj ? item.time : item;
                     const status = isObj ? item.status : 'available';
+                    const reason = isObj ? (item.reason || '') : '';
+                    const message = isObj ? (item.message || '') : '';
+                    const isAvailable = isObj ? (item.is_available ?? (status === 'available')) : (status === 'available');
 
                     const btn = document.createElement('button');
                     btn.type = 'button';
 
                     const unselectedBtnClass = 'slot-btn group relative flex flex-col items-center justify-center py-2.5 px-2 rounded-xl text-xs font-semibold border border-[#D0D5DD] bg-white text-[#101828] hover:border-[#062072] hover:bg-[#F5F8FC] hover:shadow-xs transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#062072]/40 shadow-2xs';
-                    const selectedBtnClass = 'slot-btn is-selected group relative flex flex-col items-center justify-center py-2.5 px-2 rounded-xl text-xs font-semibold border border-[#062072] bg-[#062072] text-white hover:bg-[#04184F] hover:border-[#04184F] hover:text-white transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#062072]/40 shadow-sm ring-2 ring-[#062072]/20';
 
-                    if (status === 'full') {
-                        // 1. JAM PENUH: Card merah lembut, teks merah, disabled (tidak bisa diklik)
+                    if (!isAvailable) {
                         btn.disabled = true;
                         btn.tabIndex = -1;
-                        btn.className = 'relative flex flex-col items-center justify-center py-2.5 px-2 rounded-xl text-xs font-semibold border border-rose-200 text-rose-700 bg-rose-50 cursor-not-allowed select-none opacity-95 transition-all shadow-2xs';
-                        btn.title = `Jam ${time} sudah penuh dipesan`;
-                        btn.innerHTML = `
-                            <span class="text-sm font-bold tracking-tight text-rose-700">${time}</span>
-                            <span class="text-[10px] text-rose-600 font-semibold mt-0.5 flex items-center gap-0.5">
-                                <svg class="w-2.5 h-2.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                                </svg>
-                                Penuh
-                            </span>
-                        `;
-                    } else if (status === 'past' || status === 'outside_shift') {
-                        // 2. JAM LEWAT / DI LUAR JADWAL: Tampil abu-abu, disabled
-                        btn.disabled = true;
-                        btn.tabIndex = -1;
-                        btn.className = 'relative flex flex-col items-center justify-center py-2.5 px-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-500 bg-slate-100 cursor-not-allowed select-none transition-all';
-                        const labelText = status === 'past' ? 'Lewat' : 'Tutup';
-                        btn.title = isObj && item.message ? item.message : `Jam ${time} ${labelText.toLowerCase()}`;
-                        btn.innerHTML = `
-                            <span class="text-sm font-bold tracking-tight text-slate-500">${time}</span>
-                            <span class="text-[10px] text-slate-500 font-medium mt-0.5">${labelText}</span>
-                        `;
+
+                        if (reason === 'capacity_full' || (status === 'full' && reason !== 'employee_conflict')) {
+                            // 1. Jadwal Penuh
+                            btn.className = 'relative flex flex-col items-center justify-center py-2.5 px-2 rounded-xl text-xs font-semibold border border-rose-200 text-rose-700 bg-rose-50 cursor-not-allowed select-none opacity-95 transition-all shadow-2xs';
+                            btn.title = `Jam ${time} penuh dipesan`;
+                            btn.innerHTML = `
+                                <span class="text-sm font-bold tracking-tight text-rose-700">${time}</span>
+                                <span class="text-[10px] text-rose-600 font-semibold mt-0.5 flex items-center gap-0.5">
+                                    <svg class="w-2.5 h-2.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Penuh
+                                </span>
+                            `;
+                        } else if (reason === 'employee_no_shift') {
+                            // 2. Petugas Libur
+                            btn.className = 'relative flex flex-col items-center justify-center py-2.5 px-2 rounded-xl text-xs font-semibold border border-amber-200 text-amber-900 bg-amber-50/70 cursor-not-allowed select-none transition-all shadow-2xs';
+                            btn.title = message || `Petugas libur pada jam ${time}`;
+                            btn.innerHTML = `
+                                <span class="text-sm font-bold tracking-tight text-amber-900">${time}</span>
+                                <span class="text-[10px] text-amber-700 font-semibold mt-0.5 text-center leading-tight">Petugas Libur</span>
+                            `;
+                        } else if (reason === 'employee_conflict' || reason === 'outside_employee_shift' || reason === 'employee_wrong_branch') {
+                            // 3. Petugas Tidak Tersedia (Bentrok atau di luar shift)
+                            btn.className = 'relative flex flex-col items-center justify-center py-2.5 px-2 rounded-xl text-xs font-semibold border border-amber-200 text-amber-900 bg-amber-50/70 cursor-not-allowed select-none transition-all shadow-2xs';
+                            btn.title = message || `Petugas tidak tersedia pada jam ${time}`;
+                            btn.innerHTML = `
+                                <span class="text-sm font-bold tracking-tight text-amber-900">${time}</span>
+                                <span class="text-[9px] text-amber-700 font-semibold mt-0.5 text-center leading-tight">Petugas Tidak Tersedia</span>
+                            `;
+                        } else if (reason === 'past' || status === 'past') {
+                            // 4. Waktu Sudah Berlalu
+                            btn.className = 'relative flex flex-col items-center justify-center py-2.5 px-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-500 bg-slate-100 cursor-not-allowed select-none transition-all';
+                            btn.title = `Jam ${time} sudah lewat`;
+                            btn.innerHTML = `
+                                <span class="text-sm font-bold tracking-tight text-slate-400">${time}</span>
+                                <span class="text-[10px] text-slate-500 font-medium mt-0.5">Lewat</span>
+                            `;
+                        } else {
+                            // 5. Di Luar Jam Operasional Cabang
+                            btn.className = 'relative flex flex-col items-center justify-center py-2.5 px-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-500 bg-slate-100 cursor-not-allowed select-none transition-all';
+                            btn.title = message || `Jam ${time} di luar jam operasional`;
+                            btn.innerHTML = `
+                                <span class="text-sm font-bold tracking-tight text-slate-400">${time}</span>
+                                <span class="text-[9px] text-slate-500 font-medium mt-0.5 text-center leading-tight">Di Luar Jam Operasional</span>
+                            `;
+                        }
                     } else {
-                        // 3. JAM TERSEDIA: Normal putih, hover navy cerah dengan teks navy, focus ring kontras
+                        // 6. JAM TERSEDIA: Normal putih, hover navy cerah dengan teks navy, focus ring kontras
                         btn.className = unselectedBtnClass;
                         btn.dataset.time = time;
                         btn.setAttribute('aria-pressed', 'false');
@@ -421,6 +532,7 @@ document.addEventListener('DOMContentLoaded', function() {
         slotsContainer.innerHTML = '';
         timeInput.value = '';
         if (selectedPreview) selectedPreview.classList.add('hidden');
+        if (employeeOffWarning) employeeOffWarning.classList.add('hidden');
         submitBtn.disabled = true;
     }
 

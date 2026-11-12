@@ -35,7 +35,7 @@
             <button type="submit"
                 class="h-10 px-3.5 bg-[#062072] hover:bg-[#04184F] text-white rounded-lg text-[13px] font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs whitespace-nowrap">
                 <x-icons.icon name="search" class="w-3.5 h-3.5 shrink-0" />
-                <span>Filter</span>
+                <span>Cari</span>
             </button>
             <a href="{{ route('ulasan.index') }}"
                 class="h-10 w-10 bg-white border border-[#E4E7EC] hover:bg-[#F5F8FC] text-[#667085] hover:text-[#101828] rounded-lg transition-colors flex items-center justify-center cursor-pointer shadow-2xs shrink-0"

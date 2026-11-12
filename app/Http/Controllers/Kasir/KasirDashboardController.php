@@ -24,7 +24,7 @@ class KasirDashboardController extends Controller
         $accessibleBranches = $this->kasirService->getAccessibleBranches($user);
 
         $selectedBranchId = $request->input('branch_id');
-        $activeBranch = $this->kasirService->getActiveBranchForUser($user, $selectedBranchId ? (int) $selectedBranchId : null);
+        $activeBranch = $this->kasirService->getActiveBranchForUser($user, $selectedBranchId ? (int) $selectedBranchId : null, $accessibleBranches);
 
         $activeShift = null;
         $shiftSummary = null;
