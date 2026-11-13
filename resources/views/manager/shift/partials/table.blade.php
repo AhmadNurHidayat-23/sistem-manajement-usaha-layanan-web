@@ -104,6 +104,21 @@
                                                 Absen
                                             </button>
                                         </form>
+                                        <button type="button"
+                                                data-action="edit-shift"
+                                                data-payload="{{ json_encode([
+                                                    'id' => $shift->id,
+                                                    'employee_name' => $shift->employee->name,
+                                                    'branch_name' => $shift->branch->display_name,
+                                                    'shift_date' => $shift->shift_date instanceof \DateTimeInterface ? $shift->shift_date->format('Y-m-d') : substr((string) $shift->shift_date, 0, 10),
+                                                    'start_time' => substr((string) $shift->start_time, 0, 5),
+                                                    'end_time' => substr((string) $shift->end_time, 0, 5),
+                                                    'status' => $shift->status->value ?? (string) $shift->status,
+                                                ]) }}"
+                                                class="p-1 text-slate-400 hover:text-[#062072] transition-colors cursor-pointer rounded hover:bg-slate-100"
+                                                title="Edit Jadwal Shift">
+                                            <x-icons.icon name="edit" class="w-3.5 h-3.5" />
+                                        </button>
                                         <form method="POST" action="{{ route('employees.shifts.destroy', $shift) }}" class="inline m-0" onsubmit="return confirm('Hapus shift ini?');">
                                             @csrf
                                             @method('DELETE')

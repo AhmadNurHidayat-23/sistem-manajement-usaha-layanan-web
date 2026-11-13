@@ -30,12 +30,10 @@
 
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label for="modal_start_time" class="block text-xs font-semibold text-[#101828] mb-1">Jam Mulai <span class="text-rose-500">*</span></label>
-                    <input type="time" id="modal_start_time" name="start_time" value="08:00" required class="w-full px-3 py-2 bg-white border border-[#E4E7EC] rounded-lg text-xs text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#062072]">
+                    <x-forms.time-picker id="modal_start_time" name="start_time" label="Jam Mulai" value="08:00" :required="true" />
                 </div>
                 <div>
-                    <label for="modal_end_time" class="block text-xs font-semibold text-[#101828] mb-1">Jam Selesai <span class="text-rose-500">*</span></label>
-                    <input type="time" id="modal_end_time" name="end_time" value="16:00" required class="w-full px-3 py-2 bg-white border border-[#E4E7EC] rounded-lg text-xs text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#062072]">
+                    <x-forms.time-picker id="modal_end_time" name="end_time" label="Jam Selesai" value="16:00" :required="true" />
                 </div>
             </div>
             <p class="text-[11px] text-[#667085] -mt-2 m-0">Ketentuan: Durasi satu shift kerja maksimal 8 jam.</p>
@@ -55,8 +53,63 @@
                 <button type="button" data-modal-close="modal-create-shift" class="px-3 py-1.5 border border-[#E4E7EC] rounded-lg text-xs font-semibold text-[#667085] hover:bg-slate-50 cursor-pointer">
                     Batal
                 </button>
-                <button type="submit" class="px-3 py-1.5 bg-[#062072] text-white rounded-lg text-xs font-semibold hover:bg-[#0B3A9E] cursor-pointer">
+                <button type="submit" class="px-3 py-1.5 bg-[#062072] text-white rounded-lg text-xs font-semibold hover:bg-[#04184F] cursor-pointer">
                     Jadwalkan Shift
+                </button>
+            </div>
+        </form>
+    </x-modals.modal>
+
+    <!-- Modal Edit Shift -->
+    <x-modals.modal id="modal-edit-shift" title="Edit Jadwal Shift" subtitle="Perbarui jam kerja dan status kehadiran staf" maxWidth="max-w-md">
+        <form id="form-edit-shift" method="POST" action="" class="space-y-4">
+            @csrf
+            @method('PUT')
+
+            <!-- Info Staf & Cabang -->
+            <div class="p-3 bg-[#F8FAFC] border border-[#E4E7EC] rounded-xl flex items-center justify-between">
+                <div>
+                    <span class="text-[11px] font-medium text-[#667085] block">Nama Karyawan:</span>
+                    <span id="edit_shift_employee_name" class="text-xs font-bold text-[#101828]">-</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-[11px] font-medium text-[#667085] block">Cabang:</span>
+                    <span id="edit_shift_branch_name" class="text-xs font-semibold text-[#062072]">-</span>
+                </div>
+            </div>
+
+            <div>
+                <label for="edit_shift_date" class="block text-xs font-semibold text-[#101828] mb-1">Tanggal Shift <span class="text-rose-500">*</span></label>
+                <input type="date" id="edit_shift_date" name="shift_date" required class="w-full px-3 py-2 bg-white border border-[#E4E7EC] rounded-lg text-xs text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#062072]">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <x-forms.time-picker id="edit_shift_start_time" name="start_time" label="Jam Mulai" value="08:00" :required="true" />
+                </div>
+                <div>
+                    <x-forms.time-picker id="edit_shift_end_time" name="end_time" label="Jam Selesai" value="16:00" :required="true" />
+                </div>
+            </div>
+            <p class="text-[11px] text-[#667085] -mt-2 m-0">Ketentuan: Durasi satu shift kerja maksimal 8 jam.</p>
+
+            <div>
+                <label for="edit_shift_status" class="block text-xs font-semibold text-[#101828] mb-1">Status Kehadiran</label>
+                <select id="edit_shift_status" name="status" class="w-full px-3 py-2 bg-white border border-[#E4E7EC] rounded-lg text-xs text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#062072]">
+                    <option value="scheduled">Terjadwal</option>
+                    <option value="present">Hadir</option>
+                    <option value="late">Terlambat</option>
+                    <option value="absent">Absen</option>
+                    <option value="off">Libur</option>
+                </select>
+            </div>
+
+            <div class="pt-3 border-t border-[#E4E7EC] flex items-center justify-end gap-2">
+                <button type="button" data-modal-close="modal-edit-shift" class="px-3 py-1.5 border border-[#E4E7EC] rounded-lg text-xs font-semibold text-[#667085] hover:bg-slate-50 cursor-pointer">
+                    Batal
+                </button>
+                <button type="submit" class="px-3 py-1.5 bg-[#062072] text-white rounded-lg text-xs font-semibold hover:bg-[#04184F] cursor-pointer">
+                    Simpan Perubahan
                 </button>
             </div>
         </form>

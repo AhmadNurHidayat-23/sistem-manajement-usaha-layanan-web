@@ -28,14 +28,13 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label for="shift_start_time" class="block text-xs font-semibold text-[#101828] mb-1">Jam Mulai <span class="text-rose-500">*</span></label>
-                        <input type="time" id="shift_start_time" name="start_time" value="08:00" required class="w-full px-3 py-2 bg-white border border-[#E4E7EC] rounded-lg text-xs text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#062072]">
+                        <x-forms.time-picker id="shift_start_time" name="start_time" label="Jam Mulai" value="08:00" :required="true" />
                     </div>
                     <div>
-                        <label for="shift_end_time" class="block text-xs font-semibold text-[#101828] mb-1">Jam Selesai <span class="text-rose-500">*</span></label>
-                        <input type="time" id="shift_end_time" name="end_time" value="17:00" required class="w-full px-3 py-2 bg-white border border-[#E4E7EC] rounded-lg text-xs text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#062072]">
+                        <x-forms.time-picker id="shift_end_time" name="end_time" label="Jam Selesai" value="16:00" :required="true" />
                     </div>
                 </div>
+                <p class="text-[11px] text-[#667085] -mt-2 m-0">Ketentuan: Durasi satu shift kerja maksimal 8 jam.</p>
 
                 <div>
                     <label for="shift_status" class="block text-xs font-semibold text-[#101828] mb-1">Status Kehadiran Awal</label>

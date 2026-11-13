@@ -7,8 +7,8 @@
 ])
 
 <div id="{{ $id }}" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="{{ $id }}-title" data-backdrop-close>
-    <div class="relative w-full {{ $maxWidth }} bg-white rounded-2xl shadow-2xl border border-[#E7ECF3] overflow-hidden">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-[#E7ECF3] bg-white sticky top-0 z-10">
+    <div class="relative w-full {{ $maxWidth }} bg-white rounded-2xl shadow-2xl border border-[#E7ECF3]">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-[#E7ECF3] bg-white rounded-t-2xl sticky top-0 z-10">
             <div>
                 @if ($title)
                     <h3 id="{{ $id }}-title" class="text-base sm:text-lg font-bold text-[#101828] m-0">{{ $title }}</h3>
@@ -29,7 +29,7 @@
         </div>
 
         @if ($actions)
-            <div class="px-6 py-3 bg-[#F5F8FC] border-t border-[#E4E7EC] flex justify-end gap-3">
+            <div class="px-6 py-3 bg-[#F5F8FC] border-t border-[#E4E7EC] rounded-b-2xl flex justify-end gap-3">
                 {{ $actions }}
             </div>
         @endif

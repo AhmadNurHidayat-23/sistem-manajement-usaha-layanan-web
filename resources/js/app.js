@@ -1,5 +1,6 @@
 import { initCustomSelects } from './components/custom-select.js';
 import { initCustomDatePickers } from './components/custom-date-picker.js';
+import { initCustomTimePickers, closeAllTimePickers } from './components/custom-time-picker.js';
 import { initModalListeners } from './components/modal.js';
 import { initStarRating } from './components/star-rating.js';
 import { initCustomerNavbar } from './customer/navbar.js';
@@ -23,6 +24,7 @@ import { initNotificationBell } from './modules/notifications/bell-poll.js';
 import { initBranchModalListeners } from './modules/cabang/branch-modal.js';
 import { initUserModalListeners } from './modules/users/user-modal.js';
 import { initEmployeeModalListeners } from './modules/karyawan/employee-modal.js';
+import { initShiftModalListeners } from './modules/karyawan/shift-modal.js';
 import { initInventoryModalListeners } from './modules/inventori/inventory-modal.js';
 import { initServiceModalListeners } from './modules/katalog/service-modal.js';
 import { initReceiptWaHandlers } from './modules/kasir-pos/receipt.js';
@@ -31,6 +33,8 @@ import './landing/carousel.js';
 // Expose fungsi ke window untuk aksesibilitas global dan inline handler
 window.initCustomSelects = initCustomSelects;
 window.initCustomDatePickers = initCustomDatePickers;
+window.initCustomTimePickers = initCustomTimePickers;
+window.closeAllTimePickers = closeAllTimePickers;
 window.initCustomerNavbar = initCustomerNavbar;
 window.initCustomerDashboard = initCustomerDashboard;
 window.initStarRating = initStarRating;
@@ -43,11 +47,13 @@ window.initReportFilter = initReportFilter;
 window.initReceiptWaHandlers = initReceiptWaHandlers;
 window.initProfileDropdown = initProfileDropdown;
 window.initNavProgress = initNavProgress;
+window.initShiftModalListeners = initShiftModalListeners;
 
 export function initApp(root = document) {
     initNavProgress();
     initCustomSelects(root);
     initCustomDatePickers(root);
+    initCustomTimePickers(root);
     initModalListeners(root);
     initCustomerNavbar();
     initCustomerDashboard(root);
@@ -68,6 +74,7 @@ export function initApp(root = document) {
     initBranchModalListeners(root);
     initUserModalListeners(root);
     initEmployeeModalListeners(root);
+    initShiftModalListeners(root);
     initInventoryModalListeners(root);
     initServiceModalListeners(root);
     initReceiptWaHandlers(root);
@@ -109,11 +116,11 @@ if (typeof document !== 'undefined') {
                 if (mutation.type === 'childList') {
                     for (const node of mutation.addedNodes) {
                         if (node.nodeType === 1) {
-                            if (node.matches?.('.custom-select-container, .custom-date-container, .custom-date-panel') ||
-                                node.closest?.('.custom-select-container, .custom-date-container')) {
+                            if (node.matches?.('.custom-select-container, .custom-date-container, .custom-date-panel, .custom-time-container, .custom-time-panel') ||
+                                node.closest?.('.custom-select-container, .custom-date-container, .custom-time-container')) {
                                 continue;
                             }
-                            if (node.tagName === 'SELECT' || node.tagName === 'INPUT' || node.querySelector?.('select, input[type="date"], [data-modal-open]')) {
+                            if (node.tagName === 'SELECT' || node.tagName === 'INPUT' || node.querySelector?.('select, input[type="date"], input[type="time"], input[data-custom-time-picker], [data-modal-open], [data-action="edit-shift"]')) {
                                 pendingRoots.add(node);
                             }
                         }
@@ -129,10 +136,12 @@ if (typeof document !== 'undefined') {
                             if (document.body.contains(rootEl)) {
                                 initCustomSelects(rootEl);
                                 initCustomDatePickers(rootEl);
+                                initCustomTimePickers(rootEl);
                                 initModalListeners(rootEl);
                                 initBranchModalListeners(rootEl);
                                 initUserModalListeners(rootEl);
                                 initEmployeeModalListeners(rootEl);
+                                initShiftModalListeners(rootEl);
                                 initInventoryModalListeners(rootEl);
                                 initServiceModalListeners(rootEl);
                             }
