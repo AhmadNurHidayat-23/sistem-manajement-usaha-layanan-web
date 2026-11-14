@@ -17,7 +17,7 @@
                     <th class="py-2 px-3">Cabang</th>
                     <th class="py-2 px-3">Kasir Bertugas</th>
                     <th class="py-2 px-3 text-center">Metode Bayar</th>
-                    <th class="py-2 px-3 text-right">Total Transaksi</th>
+                    <th class="py-2 px-3 text-left">Total Transaksi</th>
                     <th class="py-2 px-3">Waktu Transaksi</th>
                     <th class="py-2 px-3 text-center">Status</th>
                 </tr>
@@ -37,7 +37,7 @@
                                 {{ $trx->payments->first()?->payment_method ?? 'Cash' }}
                             </span>
                         </td>
-                        <td class="py-2.5 px-3 text-right font-semibold text-[#101828] whitespace-nowrap">
+                        <td class="py-2.5 px-3 text-left font-semibold text-emerald-600 whitespace-nowrap">
                             Rp {{ number_format($trx->total, 0, ',', '.') }}
                         </td>
                         <td class="py-2.5 px-3 text-[#667085] text-xs whitespace-nowrap">

@@ -43,10 +43,13 @@
             <div class="sidebar-section-header px-3 pt-1.5 pb-1 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#667085]">
                 Utama
             </div>
+            @php
+                $isDashboardActive = request()->routeIs('manager.dashboard') || request()->routeIs('bookings.*') || request()->is('bookings*');
+            @endphp
             <a href="{{ route('manager.dashboard') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 relative focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#062072] {{ request()->routeIs('manager.dashboard') ? 'bg-[#062072] text-white font-semibold shadow-xs' : 'text-[#344054] hover:text-[#062072] hover:bg-[#EBF2FE]' }}"
+               class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 relative focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#062072] {{ $isDashboardActive ? 'bg-[#062072] text-white font-semibold shadow-xs' : 'text-[#344054] hover:text-[#062072] hover:bg-[#EBF2FE]' }}"
                title="Dashboard">
-                <x-icons.icon name="dashboard" class="w-4.5 h-4.5 shrink-0 {{ request()->routeIs('manager.dashboard') ? 'text-white' : 'text-[#667085]' }}" />
+                <x-icons.icon name="dashboard" class="w-4.5 h-4.5 shrink-0 {{ $isDashboardActive ? 'text-white' : 'text-[#667085]' }}" />
                 <span class="sidebar-label truncate">Dashboard</span>
                 <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-[#101828] text-white text-xs rounded-md whitespace-nowrap z-50 shadow-lg border border-white/10 pointer-events-none">Dashboard</span>
             </a>

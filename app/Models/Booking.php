@@ -53,4 +53,9 @@ class Booking extends Model
     {
         return $this->hasOne(Transaction::class);
     }
+
+    public function getBookingCodeAttribute(): string
+    {
+        return (string) ($this->attributes['booking_code'] ?? ('#'.$this->id));
+    }
 }

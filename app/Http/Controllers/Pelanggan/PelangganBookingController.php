@@ -47,7 +47,7 @@ class PelangganBookingController extends Controller
             : collect();
 
         $employees = ! empty($selectedBranchId)
-            ? $this->bookingService->getBranchEmployees((int) $selectedBranchId, ! empty($selectedServiceId) ? (int) $selectedServiceId : null)
+            ? $this->bookingService->getBranchEmployees((int) $selectedBranchId)
             : collect();
 
         $selectedBranch = $selectedBranchId ? Branch::find($selectedBranchId) : null;
@@ -74,7 +74,7 @@ class PelangganBookingController extends Controller
         }
 
         $services = $this->bookingService->getActiveServices((int) $branchId);
-        $employees = $this->bookingService->getBranchEmployees((int) $branchId, $serviceId ? (int) $serviceId : null);
+        $employees = $this->bookingService->getBranchEmployees((int) $branchId);
 
         $branch = Branch::find($branchId);
 

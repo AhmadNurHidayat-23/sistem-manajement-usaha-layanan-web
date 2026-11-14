@@ -318,7 +318,7 @@ class PemilihanPetugasDanSlotBookingTest extends TestCase
     }
 
     /**
-     * 10, 11, 12. Booking berhasil dibuat dengan status awal Pending.
+     * 10, 11, 12. Booking berhasil dibuat langsung terjadwal (Confirmed) tanpa menunggu konfirmasi manual.
      */
     public function test_booking_created_successfully_with_initial_pending_status(): void
     {
@@ -335,7 +335,7 @@ class PemilihanPetugasDanSlotBookingTest extends TestCase
         $this->assertNotNull($booking);
         $response->assertRedirect(route('customer.booking.show', $booking));
 
-        $this->assertEquals(BookingStatus::Pending, $booking->status);
+        $this->assertEquals(BookingStatus::Confirmed, $booking->status);
         $this->assertEquals($this->branch1->id, $booking->branch_id);
         $this->assertEquals($this->service30Min->id, $booking->service_id);
         $this->assertEquals($this->employee1Branch1->id, $booking->employee_id);
@@ -362,9 +362,9 @@ class PemilihanPetugasDanSlotBookingTest extends TestCase
     }
 
     /**
-     * Filter keahlian (skills): jika ada aturan keahlian yang cocok, hanya petugas berkualifikasi yang dimunculkan.
+     * Dropdown petugas menampilkan SEMUA karyawan cabang terpilih tanpa memfilter berdasarkan skill/layanan.
      */
-    public function test_branch_employees_filtered_by_skills_when_rules_exist(): void
+    public function test_branch_employees_shows_all_active_branch_employees_regardless_of_service(): void
     {
         EmployeeSkill::create([
             'employee_id' => $this->employee2Branch1->id,
@@ -381,9 +381,11 @@ class PemilihanPetugasDanSlotBookingTest extends TestCase
         $response->assertOk();
         $employeeIds = collect($response->json('employees'))->pluck('id')->all();
 
-        // Hanya Gilang yang punya skill Cukur & Rapikan Jenggot
+        // Seluruh karyawan cabang 1 muncul terlepas dari layanan yang dipilih
+        $this->assertContains($this->employee1Branch1->id, $employeeIds);
         $this->assertContains($this->employee2Branch1->id, $employeeIds);
-        $this->assertNotContains($this->employee1Branch1->id, $employeeIds);
+        // Karyawan cabang 2 tetap tidak muncul
+        $this->assertNotContains($this->employeeBranch2->id, $employeeIds);
     }
 
     /**
@@ -452,5 +454,72 @@ class PemilihanPetugasDanSlotBookingTest extends TestCase
 
         $response->assertRedirect(route('customer.booking.create'));
         $response->assertSessionHasErrors(['service_id']);
+    }
+
+    /**
+     * Halaman create booking memuat bagian waktu booking tersedia, indikator status, dan placeholder petugas.
+     */
+    public function test_halaman_create_booking_menampilkan_bagian_waktu_booking_tersedia_dan_semua_indikator_status(): void
+    {
+        $response = $this->actingAs($this->customer)->get(route('customer.booking.create', ['branch_id' => $this->branch1->id]));
+
+        $response->assertOk();
+        $response->assertSee('Waktu Booking Tersedia');
+        $response->assertSee('Tersedia');
+        $response->assertSee('Dipilih');
+        $response->assertSee('Penuh');
+        $response->assertSee('Petugas Libur');
+        $response->assertSee('Lewat / Tutup');
+        $response->assertSee('no-date-prompt', false);
+        $response->assertSee('data-clearable="true"', false);
+        $response->assertSee('data-placeholder="true"', false);
+        $response->assertSee('Pilih Petugas');
+    }
+
+    /**
+     * Slot booking tanpa memilih petugas tetap menampilkan ketersediaan jam berbasis kapasitas cabang.
+     */
+    public function test_slots_available_tanpa_memilih_petugas_menampilkan_ketersediaan_cabang(): void
+    {
+        $response = $this->actingAs($this->customer)->getJson(
+            route('customer.booking.available-slots', [
+                'branch_id' => $this->branch1->id,
+                'date' => $this->testDate,
+                'service_id' => $this->service30Min->id,
+            ])
+        );
+
+        $response->assertOk();
+        $response->assertJson(['is_open' => true, 'employee_off_duty' => false]);
+
+        $slots = $response->json('slots');
+        $slot1000 = collect($slots)->firstWhere('time', '10:00');
+
+        $this->assertNotNull($slot1000);
+        $this->assertEquals('available', $slot1000['status']);
+        $this->assertTrue($slot1000['is_available']);
+    }
+
+    /**
+     * Pelanggan dapat membuat janji temu tanpa memilih petugas (petugas opsional).
+     */
+    public function test_booking_sukses_tanpa_memilih_petugas(): void
+    {
+        $response = $this->actingAs($this->customer)->post(route('customer.booking.store'), [
+            'branch_id' => $this->branch1->id,
+            'service_id' => $this->service30Min->id,
+            'booking_date' => $this->testDate,
+            'booking_time' => '11:00',
+            'notes' => 'Tanpa pilih petugas spesifik',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('bookings', [
+            'user_id' => $this->customer->id,
+            'branch_id' => $this->branch1->id,
+            'service_id' => $this->service30Min->id,
+            'employee_id' => null,
+            'booking_time' => '11:00',
+        ]);
     }
 }

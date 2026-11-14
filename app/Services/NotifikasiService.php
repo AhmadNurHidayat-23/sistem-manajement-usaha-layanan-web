@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Enums\BookingStatus;
+use App\Jobs\KirimNotifikasiWhatsAppJob;
 use App\Models\Booking;
 use App\Models\NotificationLog;
 use App\Models\Order;
@@ -91,7 +93,7 @@ class NotifikasiService
      */
     public function notifikasiBookingBaru(Booking $booking): ?NotificationLog
     {
-        $booking->loadMissing(['user', 'service', 'branch']);
+        $booking->loadMissing(['user', 'service', 'branch', 'details.service']);
 
         $phone = $booking->user?->phone;
 
@@ -99,20 +101,41 @@ class NotifikasiService
             return null;
         }
 
-        $tanggal = Carbon::parse($booking->booking_date)->format('d M Y');
-        $waktu = $booking->booking_time;
+        $namaPelanggan = $booking->user?->name ?? 'Pelanggan';
+        $kodeBooking = $booking->booking_code;
+        $tanggal = $this->formatTanggalIndo($booking->booking_date);
+        $waktu = $this->formatWaktuIndo($booking->booking_time);
+        $cabang = $booking->branch?->name ?? 'SIMAUL';
+        $layanan = $this->resolveBookingServices($booking);
 
-        $message = "*BOOKING DIBUAT*\n\n"
-            ."Halo {$booking->user->name},\n\n"
-            ."Booking layanan Anda telah kami terima dan saat ini menunggu konfirmasi.\n\n"
-            ."Kode Booking : {$booking->booking_code}\n"
-            ."Tanggal      : {$tanggal}\n"
-            ."Waktu        : {$waktu}\n"
-            ."Cabang       : {$booking->branch->name}\n"
-            ."Layanan      : {$booking->service->name}\n"
-            ."Status       : Menunggu Konfirmasi\n\n"
-            ."Kami akan menginformasikan kembali setelah booking dikonfirmasi.\n\n"
-            .'Terima kasih telah menggunakan SIMAUL.';
+        $isConfirmed = $booking->status === BookingStatus::Confirmed;
+
+        if ($isConfirmed) {
+            $message = "*BOOKING TERKONFIRMASI*\n\n"
+                ."Halo {$namaPelanggan},\n\n"
+                ."Booking layanan Anda berhasil dibuat dan telah dikonfirmasi secara otomatis.\n\n"
+                ."*Detail Booking*\n\n"
+                ."Kode Booking : {$kodeBooking}\n"
+                ."Tanggal : {$tanggal}\n"
+                ."Waktu : {$waktu} WIB\n"
+                ."Cabang : {$cabang}\n"
+                ."Layanan : {$layanan}\n\n"
+                ."Silakan datang sesuai jadwal booking yang telah ditentukan.\n\n"
+                .'Terima kasih telah menggunakan SIMAUL.';
+        } else {
+            $message = "*BOOKING DIBUAT*\n\n"
+                ."Halo {$namaPelanggan},\n\n"
+                ."Booking layanan Anda telah kami terima dan saat ini menunggu konfirmasi.\n\n"
+                ."*Detail Booking*\n\n"
+                ."Kode Booking : {$kodeBooking}\n"
+                ."Tanggal : {$tanggal}\n"
+                ."Waktu : {$waktu} WIB\n"
+                ."Cabang : {$cabang}\n"
+                ."Layanan : {$layanan}\n"
+                ."Status : Menunggu Konfirmasi\n\n"
+                ."Kami akan menginformasikan kembali setelah booking dikonfirmasi.\n\n"
+                .'Terima kasih telah menggunakan SIMAUL.';
+        }
 
         return $this->kirim(
             user: $booking->user,
@@ -128,7 +151,7 @@ class NotifikasiService
      */
     public function notifikasiBookingDikonfirmasi(Booking $booking): ?NotificationLog
     {
-        $booking->loadMissing(['user', 'service', 'branch', 'employee']);
+        $booking->loadMissing(['user', 'service', 'branch', 'details.service']);
 
         $phone = $booking->user?->phone;
 
@@ -136,20 +159,24 @@ class NotifikasiService
             return null;
         }
 
-        $tanggal = Carbon::parse($booking->booking_date)->format('d M Y');
-        $waktu = $booking->booking_time;
-        $petugas = $booking->employee ? "Petugas      : {$booking->employee->name}\n" : '';
+        $namaPelanggan = $booking->user?->name ?? 'Pelanggan';
+        $kodeBooking = $booking->booking_code;
+        $tanggal = $this->formatTanggalIndo($booking->booking_date);
+        $waktu = $this->formatWaktuIndo($booking->booking_time);
+        $cabang = $booking->branch?->name ?? 'SIMAUL';
+        $layanan = $this->resolveBookingServices($booking);
 
         $message = "*BOOKING DIKONFIRMASI*\n\n"
-            ."Halo {$booking->user->name},\n\n"
-            ."Booking Anda telah dikonfirmasi.\n\n"
-            ."Kode Booking : {$booking->booking_code}\n"
-            ."Tanggal      : {$tanggal}\n"
-            ."Waktu        : {$waktu}\n"
-            ."Cabang       : {$booking->branch->name}\n"
-            ."Layanan      : {$booking->service->name}\n"
-            ."{$petugas}\n"
-            ."Silakan hadir sesuai jadwal yang telah ditentukan.\n\n"
+            ."Halo {$namaPelanggan},\n\n"
+            ."Booking Anda berhasil dikonfirmasi.\n\n"
+            ."*Detail Booking*\n\n"
+            ."Kode Booking : {$kodeBooking}\n"
+            ."Tanggal : {$tanggal}\n"
+            ."Waktu : {$waktu} WIB\n"
+            ."Cabang : {$cabang}\n"
+            ."Layanan : {$layanan}\n"
+            ."Status : Terkonfirmasi\n\n"
+            ."Silakan datang sesuai jadwal booking yang telah ditentukan.\n\n"
             .'Terima kasih telah menggunakan SIMAUL.';
 
         return $this->kirim(
@@ -166,7 +193,7 @@ class NotifikasiService
      */
     public function notifikasiStatusBooking(Booking $booking): ?NotificationLog
     {
-        $booking->loadMissing(['user', 'service', 'branch']);
+        $booking->loadMissing(['user', 'service', 'branch', 'details.service']);
 
         $phone = $booking->user?->phone;
 
@@ -174,7 +201,16 @@ class NotifikasiService
             return null;
         }
 
-        $judul = match ($booking->status->value) {
+        $namaPelanggan = $booking->user?->name ?? 'Pelanggan';
+        $kodeBooking = $booking->booking_code;
+        $tanggal = $this->formatTanggalIndo($booking->booking_date);
+        $waktu = $this->formatWaktuIndo($booking->booking_time);
+        $cabang = $booking->branch?->name ?? 'SIMAUL';
+        $layanan = $this->resolveBookingServices($booking);
+
+        $statusValue = $booking->status instanceof \BackedEnum ? $booking->status->value : (string) ($booking->status ?? '');
+
+        $judul = match ($statusValue) {
             'confirmed' => '*BOOKING DIKONFIRMASI*',
             'in_progress' => '*BOOKING SEDANG DIKERJAKAN*',
             'completed' => '*BOOKING SELESAI*',
@@ -182,34 +218,37 @@ class NotifikasiService
             default => '*UPDATE STATUS BOOKING*',
         };
 
-        $statusLabel = match ($booking->status->value) {
-            'confirmed' => 'Dikonfirmasi',
-            'in_progress' => 'Sedang Dikerjakan',
+        $statusLabel = match ($statusValue) {
+            'confirmed' => 'Terkonfirmasi',
+            'in_progress' => 'Dikerjakan',
             'completed' => 'Selesai',
             'cancelled' => 'Dibatalkan',
-            default => ucfirst($booking->status->value),
+            default => ucfirst($statusValue),
         };
 
-        $statusDesc = match ($booking->status->value) {
-            'confirmed' => 'Booking Anda telah dikonfirmasi.',
-            'in_progress' => 'Layanan booking Anda saat ini sedang dikerjakan oleh tim kami.',
-            'completed' => 'Layanan booking Anda telah selesai dikerjakan.',
+        $statusDesc = match ($statusValue) {
+            'confirmed' => 'Booking Anda berhasil dikonfirmasi.',
+            'in_progress' => 'Layanan booking Anda sedang dikerjakan.',
+            'completed' => 'Layanan booking Anda telah selesai.',
             'cancelled' => 'Booking Anda telah dibatalkan.',
             default => 'Status booking Anda telah diperbarui.',
         };
 
-        $tanggal = Carbon::parse($booking->booking_date)->format('d M Y');
-        $waktu = $booking->booking_time;
+        $instruksiLanjutan = $statusValue === 'confirmed'
+            ? "Silakan datang sesuai jadwal booking yang telah ditentukan.\n\n"
+            : '';
 
         $message = "{$judul}\n\n"
-            ."Halo {$booking->user->name},\n\n"
+            ."Halo {$namaPelanggan},\n\n"
             ."{$statusDesc}\n\n"
-            ."Kode Booking : {$booking->booking_code}\n"
-            ."Tanggal      : {$tanggal}\n"
-            ."Waktu        : {$waktu}\n"
-            ."Cabang       : {$booking->branch->name}\n"
-            ."Layanan      : {$booking->service->name}\n"
-            ."Status       : {$statusLabel}\n\n"
+            ."*Detail Booking*\n\n"
+            ."Kode Booking : {$kodeBooking}\n"
+            ."Tanggal : {$tanggal}\n"
+            ."Waktu : {$waktu} WIB\n"
+            ."Cabang : {$cabang}\n"
+            ."Layanan : {$layanan}\n"
+            ."Status : {$statusLabel}\n\n"
+            ."{$instruksiLanjutan}"
             .'Terima kasih telah menggunakan SIMAUL.';
 
         return $this->kirim(
@@ -226,7 +265,7 @@ class NotifikasiService
      */
     public function pengingatBooking(Booking $booking): ?NotificationLog
     {
-        $booking->loadMissing(['user', 'service', 'branch']);
+        $booking->loadMissing(['user', 'service', 'branch', 'details.service']);
 
         $phone = $booking->user?->phone;
 
@@ -234,17 +273,22 @@ class NotifikasiService
             return null;
         }
 
-        $tanggal = Carbon::parse($booking->booking_date)->format('d M Y');
-        $waktu = $booking->booking_time;
+        $namaPelanggan = $booking->user?->name ?? 'Pelanggan';
+        $kodeBooking = $booking->booking_code;
+        $tanggal = $this->formatTanggalIndo($booking->booking_date);
+        $waktu = $this->formatWaktuIndo($booking->booking_time);
+        $cabang = $booking->branch?->name ?? 'SIMAUL';
+        $layanan = $this->resolveBookingServices($booking);
 
         $message = "*PENGINGAT JADWAL BOOKING*\n\n"
-            ."Halo {$booking->user->name},\n\n"
+            ."Halo {$namaPelanggan},\n\n"
             ."Ini adalah pengingat untuk jadwal booking layanan Anda.\n\n"
-            ."Kode Booking : {$booking->booking_code}\n"
-            ."Tanggal      : {$tanggal}\n"
-            ."Waktu        : {$waktu}\n"
-            ."Cabang       : {$booking->branch->name}\n"
-            ."Layanan      : {$booking->service->name}\n\n"
+            ."*Detail Booking*\n\n"
+            ."Kode Booking : {$kodeBooking}\n"
+            ."Tanggal : {$tanggal}\n"
+            ."Waktu : {$waktu} WIB\n"
+            ."Cabang : {$cabang}\n"
+            ."Layanan : {$layanan}\n\n"
             ."Harap hadir tepat waktu sesuai jadwal yang telah ditentukan.\n\n"
             .'Terima kasih telah menggunakan SIMAUL.';
 
@@ -266,7 +310,7 @@ class NotifikasiService
      */
     public function notifikasiOrderBaru(Order $order): ?NotificationLog
     {
-        $order->loadMissing(['user', 'service', 'branch']);
+        $order->loadMissing(['user', 'service', 'branch', 'details.service']);
 
         $phone = $order->user?->phone;
 
@@ -274,19 +318,23 @@ class NotifikasiService
             return null;
         }
 
-        $finishText = $order->estimated_finish_at
-            ? Carbon::parse($order->estimated_finish_at)->format('d M Y H:i')
-            : 'Menyesuaikan antrean';
+        $namaPelanggan = $order->user?->name ?? 'Pelanggan';
+        $layanan = $this->resolveOrderServices($order);
+        $cabang = $order->branch?->name ?? 'SIMAUL';
+        $statusValue = $order->status instanceof \BackedEnum ? $order->status->value : (string) ($order->status ?? '');
+        $statusLabel = $statusValue === 'pending' ? 'Menunggu' : 'Diterima';
+        $statusDesc = $statusValue === 'pending'
+            ? 'Pesanan Anda telah tercatat dan sedang menunggu antrean layanan.'
+            : 'Pesanan Anda telah diterima dan akan diproses sesuai antrean layanan.';
 
-        $message = "*PESANAN DIBUAT*\n\n"
-            ."Halo {$order->user->name},\n\n"
-            ."Pesanan layanan Anda telah kami terima dan masuk dalam antrean pengerjaan.\n\n"
-            ."No. Pesanan      : #{$order->id}\n"
-            ."Layanan          : {$order->service->name}\n"
-            ."Cabang           : {$order->branch->name}\n"
-            ."Estimasi Selesai : {$finishText}\n"
-            ."Status           : Diterima\n\n"
-            ."Kami akan menginformasikan kembali jika pesanan telah siap diambil.\n\n"
+        $message = "*UPDATE STATUS PESANAN*\n\n"
+            ."Halo {$namaPelanggan},\n\n"
+            ."{$statusDesc}\n\n"
+            ."*Detail Pesanan*\n\n"
+            ."No. Pesanan : #{$order->id}\n"
+            ."Layanan : {$layanan}\n"
+            ."Cabang : {$cabang}\n"
+            ."Status : {$statusLabel}\n\n"
             .'Terima kasih telah menggunakan SIMAUL.';
 
         return $this->kirim(
@@ -303,7 +351,7 @@ class NotifikasiService
      */
     public function notifikasiStatusOrder(Order $order): ?NotificationLog
     {
-        $order->loadMissing(['user', 'service', 'branch']);
+        $order->loadMissing(['user', 'service', 'branch', 'details.service']);
 
         $phone = $order->user?->phone;
 
@@ -311,41 +359,43 @@ class NotifikasiService
             return null;
         }
 
-        $judul = match ($order->status->value) {
-            'received' => '*PESANAN DITERIMA*',
-            'processing' => '*PESANAN SEDANG DIKERJAKAN*',
-            'ready' => '*PESANAN SIAP DIAMBIL*',
-            'completed' => '*PESANAN SELESAI*',
-            'cancelled' => '*PESANAN DIBATALKAN*',
-            default => '*UPDATE STATUS PESANAN*',
-        };
+        $namaPelanggan = $order->user?->name ?? 'Pelanggan';
+        $layanan = $this->resolveOrderServices($order);
+        $cabang = $order->branch?->name ?? 'SIMAUL';
+        $isAntar = (bool) $order->pickup_option;
 
-        $statusLabel = match ($order->status->value) {
-            'pending' => 'Menunggu Konfirmasi',
+        $statusValue = $order->status instanceof \BackedEnum ? $order->status->value : (string) ($order->status ?? '');
+
+        $statusLabel = match ($statusValue) {
+            'pending' => 'Menunggu',
             'received' => 'Diterima',
-            'processing' => 'Sedang Dikerjakan',
-            'ready' => 'Siap Diambil',
-            'completed' => 'Selesai',
+            'processing' => 'Dikerjakan',
+            'ready' => $isAntar ? 'Siap Diantar' : 'Siap Diambil',
+            'completed' => $isAntar ? 'Telah Diantar' : 'Telah Diambil',
             'cancelled' => 'Dibatalkan',
-            default => ucfirst($order->status->value),
+            default => ucfirst($statusValue),
         };
 
-        $statusDesc = match ($order->status->value) {
-            'ready' => 'Pesanan Anda telah selesai dikerjakan dan siap untuk diambil.',
-            'processing' => 'Pesanan Anda saat ini sedang dalam proses pengerjaan oleh tim kami.',
-            'completed' => 'Pesanan Anda telah selesai dan telah diserahkan.',
+        $statusDesc = match ($statusValue) {
+            'pending' => 'Pesanan Anda telah tercatat dan sedang menunggu antrean layanan.',
+            'received' => 'Pesanan Anda telah diterima dan akan diproses sesuai antrean layanan.',
+            'processing' => 'Pesanan Anda sedang dalam proses pengerjaan.',
+            'ready' => $isAntar
+                ? 'Pesanan Anda telah selesai dan siap diantar.'
+                : 'Pesanan Anda telah selesai dan siap diambil.',
+            'completed' => 'Pesanan Anda telah berhasil diserahkan.',
             'cancelled' => 'Pesanan Anda telah dibatalkan.',
-            'received' => 'Pesanan Anda telah diterima oleh cabang kami.',
             default => 'Status pesanan Anda telah diperbarui.',
         };
 
-        $message = "{$judul}\n\n"
-            ."Halo {$order->user->name},\n\n"
+        $message = "*UPDATE STATUS PESANAN*\n\n"
+            ."Halo {$namaPelanggan},\n\n"
             ."{$statusDesc}\n\n"
+            ."*Detail Pesanan*\n\n"
             ."No. Pesanan : #{$order->id}\n"
-            ."Layanan     : {$order->service->name}\n"
-            ."Cabang      : {$order->branch->name}\n"
-            ."Status      : {$statusLabel}\n\n"
+            ."Layanan : {$layanan}\n"
+            ."Cabang : {$cabang}\n"
+            ."Status : {$statusLabel}\n\n"
             .'Terima kasih telah menggunakan SIMAUL.';
 
         return $this->kirim(
@@ -417,7 +467,7 @@ class NotifikasiService
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
-     * Kirim pesan dan catat log.
+     * Kirim pesan dan catat log dengan pencegahan duplikasi dan opsi queue.
      */
     private function kirim(
         ?User $user,
@@ -426,6 +476,34 @@ class NotifikasiService
         string $message,
         ?object $notifiable = null,
     ): NotificationLog {
+        $normalizedPhone = WhatsAppService::normalizeIndonesianPhone($phone) ?: $phone;
+
+        // ── Deduplikasi pesan (Idempotency) ──────────────────────────────────
+        // Mencegah pengiriman berulang untuk entitas yang sama dalam jendela waktu 2 menit
+        $dedupQuery = NotificationLog::where('channel', 'whatsapp')
+            ->where('type', $type)
+            ->where(function ($q) use ($phone, $normalizedPhone) {
+                $q->where('recipient', $phone)
+                    ->orWhere('recipient', $normalizedPhone);
+            })
+            ->where('created_at', '>=', now()->subMinutes(2))
+            ->whereIn('status', ['sent', 'pending']);
+
+        if ($notifiable && isset($notifiable->id)) {
+            $dedupQuery->where('notifiable_type', get_class($notifiable))
+                ->where('notifiable_id', $notifiable->id)
+                ->where('message', $message);
+        } else {
+            $dedupQuery->where('message', $message);
+        }
+
+        $existing = $dedupQuery->latest('id')->first();
+        if ($existing) {
+            Log::info("[Notifikasi] Mencegah duplikasi pesan WhatsApp [{$type}] ke [".WhatsAppService::maskPhone($normalizedPhone).']');
+
+            return $existing;
+        }
+
         $log = new NotificationLog([
             'user_id' => $user?->id,
             'channel' => 'whatsapp',
@@ -436,12 +514,27 @@ class NotifikasiService
             'created_at' => now(),
         ]);
 
-        if ($notifiable) {
+        if ($notifiable && isset($notifiable->id)) {
             $log->notifiable_type = get_class($notifiable);
             $log->notifiable_id = $notifiable->id;
         }
 
         $log->save();
+
+        // ── Mode Queue vs Sinkron ───────────────────────────────────────────
+        if (config('services.whatsapp.queue', false)) {
+            KirimNotifikasiWhatsAppJob::dispatch(
+                $user?->id,
+                $phone,
+                $type,
+                $message,
+                $notifiable ? get_class($notifiable) : null,
+                $notifiable?->id,
+                $log->id,
+            );
+
+            return $log;
+        }
 
         try {
             $result = $this->whatsApp->send($phone, $message);
@@ -456,7 +549,7 @@ class NotifikasiService
 
             Log::error('[Notifikasi] WhatsApp send failed', [
                 'type' => $type,
-                'phone' => $phone,
+                'phone' => WhatsAppService::maskPhone($phone),
                 'error' => $e->getMessage(),
             ]);
         }
@@ -464,5 +557,78 @@ class NotifikasiService
         $log->save();
 
         return $log;
+    }
+
+    /**
+     * Format tanggal dalam bahasa Indonesia (contoh: 15 November 2026).
+     */
+    private function formatTanggalIndo(mixed $date): string
+    {
+        if (! $date) {
+            return '-';
+        }
+
+        return Carbon::parse($date)->locale('id')->translatedFormat('d F Y');
+    }
+
+    /**
+     * Format jam (contoh: 10:00).
+     */
+    private function formatWaktuIndo(mixed $time): string
+    {
+        if (! $time) {
+            return '-';
+        }
+
+        if ($time instanceof \DateTimeInterface) {
+            return $time->format('H:i');
+        }
+
+        $parts = explode(':', (string) $time);
+        if (count($parts) >= 2) {
+            return sprintf('%02d:%02d', (int) $parts[0], (int) $parts[1]);
+        }
+
+        return (string) $time;
+    }
+
+    /**
+     * Ambil nama layanan booking (mendukung multi-layanan).
+     */
+    private function resolveBookingServices(Booking $booking): string
+    {
+        $booking->loadMissing(['service', 'details.service']);
+
+        $services = $booking->details
+            ->map(fn ($detail) => $detail->service?->name)
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($services->isNotEmpty()) {
+            return $services->implode(', ');
+        }
+
+        return $booking->service?->name ?? 'Layanan SIMAUL';
+    }
+
+    /**
+     * Ambil nama layanan pesanan drop-off (mendukung multi-layanan).
+     */
+    private function resolveOrderServices(Order $order): string
+    {
+        $order->loadMissing(['service', 'details.service']);
+
+        $services = $order->details
+            ->map(fn ($detail) => $detail->service?->name)
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($services->isNotEmpty()) {
+            return $services->implode(', ');
+        }
+
+        return $order->service?->name ?? 'Layanan SIMAUL';
     }
 }

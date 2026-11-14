@@ -7,6 +7,7 @@ const {
   default: makeWASocket,
   DisconnectReason,
   useMultiFileAuthState,
+  makeCacheableSignalKeyStore,
 } = require('@whiskeysockets/baileys');
 
 const app = express();
@@ -14,10 +15,87 @@ const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
 
+// Tangani error parsing JSON agar tidak menyebabkan server crash
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({ success: false, error: 'Format JSON request tidak valid.' });
+  }
+  next(err);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('[Baileys:Process] Uncaught exception:', err?.message || err);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('[Baileys:Process] Unhandled rejection:', reason);
+});
+
 // State koneksi gateway
 let sock = null;
 let isConnected = false;
 let latestQr = null;
+
+/**
+ * In-Memory Outgoing Message Cache dengan batas kapasitas & TTL kedaluwarsa.
+ * Diperlukan untuk memenuhi retry receipt (Signal protocol) agar penerima tidak
+ * mengalami 'Waiting for this message. This may take a while.'
+ */
+class OutgoingMessageCache {
+  constructor(maxItems = 2000, ttlMs = 24 * 60 * 60 * 1000) {
+    this.maxItems = maxItems;
+    this.ttlMs = ttlMs;
+    this.store = new Map();
+  }
+
+  set(key, message) {
+    if (!key || !message) return;
+    if (this.store.size >= this.maxItems) {
+      const oldestKey = this.store.keys().next().value;
+      this.store.delete(oldestKey);
+    }
+    this.store.set(key, { message, timestamp: Date.now() });
+  }
+
+  get(key) {
+    if (!key) return undefined;
+    const entry = this.store.get(key);
+    if (!entry) return undefined;
+    if (Date.now() - entry.timestamp > this.ttlMs) {
+      this.store.delete(key);
+      return undefined;
+    }
+    return entry.message;
+  }
+
+  has(key) {
+    return this.get(key) !== undefined;
+  }
+
+  size() {
+    return this.store.size;
+  }
+}
+
+const messageCache = new OutgoingMessageCache(2000, 24 * 60 * 60 * 1000);
+
+/**
+ * Masking nomor telepon untuk logging yang aman (tanpa membocorkan nomor pelanggan)
+ */
+function maskPhone(phone) {
+  if (!phone) return '-';
+  const str = String(phone).replace(/\D/g, '');
+  if (str.length <= 6) return '******';
+  return str.slice(0, 4) + '****' + str.slice(-3);
+}
+
+/**
+ * Masking JID WhatsApp (contoh: 62812****890@s.whatsapp.net)
+ */
+function maskJid(jid) {
+  if (!jid) return '-';
+  const [user, domain] = String(jid).split('@');
+  return `${maskPhone(user)}@${domain || 's.whatsapp.net'}`;
+}
 
 /**
  * Normalisasi nomor telepon ke format internasional 62xxx
@@ -48,6 +126,7 @@ app.get('/health', (req, res) => {
     status: isConnected ? 'connected' : 'disconnected',
     connected: isConnected,
     hasQr: Boolean(latestQr),
+    cacheSize: messageCache.size(),
   });
 });
 
@@ -171,13 +250,23 @@ app.post('/send-message', async (req, res) => {
     const result = await sock.sendMessage(jid, { text: String(message) });
     const messageId = result?.key?.id || null;
 
+    if (messageId && result?.message) {
+      // Simpan langsung struktur pesan asli ke cache untuk memenuhi retry request penerima
+      messageCache.set(messageId, result.message);
+      if (result.key?.remoteJid) {
+        messageCache.set(`${result.key.remoteJid}:${messageId}`, result.message);
+      }
+    }
+
+    console.log(`[Baileys] Pesan berhasil dikirim ke ${maskPhone(normalized)} (ID: ${messageId || 'unknown'})`);
+
     return res.json({
       success: true,
       messageId: messageId,
       phone: normalized,
     });
   } catch (error) {
-    console.error('[Baileys] Gagal mengirim pesan:', error?.message);
+    console.error(`[Baileys] Gagal mengirim pesan ke ${maskPhone(normalized)}:`, error?.message);
     return res.status(500).json({
       success: false,
       error: error?.message || 'Gagal mengirim pesan via WhatsApp',
@@ -197,14 +286,49 @@ async function connectToWhatsApp() {
   try {
     const { state, saveCreds } = await useMultiFileAuthState(sessionDir);
 
+    const logger = pino({ level: 'warn' });
+
     sock = makeWASocket({
-      auth: state,
+      auth: {
+        creds: state.creds,
+        keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'silent' })),
+      },
       printQRInTerminal: false,
-      logger: pino({ level: 'silent' }),
+      logger: logger,
       browser: ['SIMAUL Gateway', 'Chrome', '1.0.0'],
+      /**
+       * Callback getMessage untuk memulihkan pesan saat penerima mengirimkan retry receipt.
+       * Mengatasi masalah 'Waiting for this message. This may take a while.'
+       */
+      getMessage: async (key) => {
+        if (!key) return undefined;
+        const msg = (key.id ? messageCache.get(key.id) : undefined) ||
+                    (key.remoteJid && key.id ? messageCache.get(`${key.remoteJid}:${key.id}`) : undefined);
+        if (msg) {
+          console.log(`[Baileys:Retry] getMessage HIT untuk ID: ${key.id} (JID: ${maskJid(key.remoteJid)})`);
+          return msg;
+        }
+        console.warn(`[Baileys:Retry] getMessage MISS untuk ID: ${key.id} (JID: ${maskJid(key.remoteJid)})`);
+        return undefined;
+      },
     });
 
     sock.ev.on('creds.update', saveCreds);
+
+    // Tangkap juga event messages.upsert sebagai lapisan redundansi penyimpanan pesan
+    sock.ev.on('messages.upsert', async ({ messages }) => {
+      for (const msg of messages) {
+        const id = msg?.key?.id;
+        if (id && msg?.message) {
+          if (!messageCache.has(id)) {
+            messageCache.set(id, msg.message);
+            if (msg.key?.remoteJid) {
+              messageCache.set(`${msg.key.remoteJid}:${id}`, msg.message);
+            }
+          }
+        }
+      }
+    });
 
     sock.ev.on('connection.update', (update) => {
       const { connection, lastDisconnect, qr } = update;
@@ -230,11 +354,8 @@ async function connectToWhatsApp() {
           console.log('[Baileys] Menghubungkan ulang dalam 5 detik...');
           setTimeout(connectToWhatsApp, 5000);
         } else {
-          console.log('[Baileys] Sesi telah logout. Membersihkan sesi lama...');
-          try {
-            fs.rmSync(sessionDir, { recursive: true, force: true });
-          } catch (e) {}
-          setTimeout(connectToWhatsApp, 3000);
+          console.warn('[Baileys] Sesi telah logout dari perangkat WhatsApp. Silakan hubungi admin atau buka /qr untuk tautkan ulang.');
+          setTimeout(connectToWhatsApp, 5000);
         }
       } else if (connection === 'open') {
         isConnected = true;

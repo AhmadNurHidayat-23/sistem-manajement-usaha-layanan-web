@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Services\BookingAntrian\BookingService;
 use App\Services\MembershipPromo\MemberService;
 use App\Services\MembershipPromo\PromoService;
+use App\Services\NotifikasiService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -217,6 +218,8 @@ class CustomerMobileController extends Controller
 
             /** @var Booking $booking */
             [$booking, $transaction] = $result;
+
+            rescue(fn () => app(NotifikasiService::class)->notifikasiBookingBaru($booking->fresh()));
 
             return response()->json([
                 'success' => true,
@@ -442,6 +445,8 @@ class CustomerMobileController extends Controller
             'price' => (float) $service->price,
             'subtotal' => $subtotal,
         ]);
+
+        rescue(fn () => app(NotifikasiService::class)->notifikasiOrderBaru($order->fresh()));
 
         return response()->json([
             'success' => true,

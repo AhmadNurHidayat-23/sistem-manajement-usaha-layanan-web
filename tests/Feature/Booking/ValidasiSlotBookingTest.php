@@ -119,7 +119,7 @@ class ValidasiSlotBookingTest extends TestCase
         $this->assertEquals($this->employee->id, $booking->employee_id);
         $this->assertEquals($targetDate, $booking->booking_date->toDateString());
         $this->assertEquals('10:00', substr($booking->booking_time, 0, 5));
-        $this->assertEquals(BookingStatus::Pending, $booking->status);
+        $this->assertEquals(BookingStatus::Confirmed, $booking->status);
     }
 
     public function test_booking_validates_slot_capacity_and_prevents_clash(): void

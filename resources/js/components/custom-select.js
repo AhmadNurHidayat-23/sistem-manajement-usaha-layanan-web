@@ -20,10 +20,19 @@ function enhanceSelect(select) {
         }
     });
 
+    const isClearable = select.hasAttribute('data-clearable') || select.id === 'employee_id';
+
     // Render struktur trigger & menu overlay
     wrapper.innerHTML = `
         <button type="button" class="custom-select-trigger w-full h-11 px-3.5 bg-white border border-[#D0D5DD] rounded-lg text-[13px] text-[#101828] flex items-center justify-between gap-2 focus:outline-none focus:border-[#062072] focus:ring-1 focus:ring-[#062072] transition-colors cursor-pointer select-none ${select.disabled ? 'opacity-60 cursor-not-allowed bg-slate-50' : ''}" aria-haspopup="listbox" aria-expanded="false" ${select.disabled ? 'disabled' : ''}>
             <span class="custom-select-label truncate text-left flex-1"></span>
+            ${isClearable ? `
+                <span class="custom-select-clear-btn p-1 text-[#98A2B3] hover:text-rose-500 rounded-full transition-colors hidden cursor-pointer" title="Kosongkan pilihan" aria-label="Kosongkan pilihan">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </span>
+            ` : ''}
             <svg class="w-4 h-4 text-[#667085] shrink-0 transition-transform duration-200 custom-select-chevron" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
             </svg>
@@ -34,6 +43,7 @@ function enhanceSelect(select) {
     const trigger = wrapper.querySelector('.custom-select-trigger');
     const labelSpan = wrapper.querySelector('.custom-select-label');
     const chevronSvg = wrapper.querySelector('.custom-select-chevron');
+    const clearBtn = wrapper.querySelector('.custom-select-clear-btn');
     const menu = wrapper.querySelector('.custom-select-menu');
 
     let highlightedIndex = -1;
@@ -42,25 +52,65 @@ function enhanceSelect(select) {
     function renderOptions() {
         const options = Array.from(select.options);
         const selected = select.selectedOptions[0] || options[0];
+        const isPlaceholder = !selected || selected.value === '' || selected.hidden || selected.dataset.placeholder === 'true' || selected.disabled;
+
         labelSpan.textContent = selected ? selected.text : 'Pilih...';
 
-        menu.innerHTML = options.map((opt, idx) => `
-            <div class="custom-select-option h-[38px] px-4 py-2 flex items-center justify-between text-[13px] text-[#101828] cursor-pointer transition-colors hover:bg-[#F5F8FC] ${opt.selected ? 'bg-[#DCE8FF] text-[#062072] font-medium' : ''} ${opt.disabled ? 'opacity-40 cursor-not-allowed pointer-events-none' : ''}"
-                 data-index="${idx}" data-value="${opt.value}" role="option" ${opt.selected ? 'aria-selected="true"' : ''}>
-                <span class="truncate">${opt.text}</span>
-                ${opt.selected ? `
-                    <svg class="w-4 h-4 text-[#062072] shrink-0 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                ` : ''}
-            </div>
-        `).join('');
+        if (isPlaceholder) {
+            labelSpan.classList.add('text-[#98A2B3]');
+            labelSpan.classList.remove('text-[#101828]');
+            if (clearBtn) clearBtn.classList.add('hidden');
+        } else {
+            labelSpan.classList.remove('text-[#98A2B3]');
+            labelSpan.classList.add('text-[#101828]');
+            if (clearBtn) clearBtn.classList.remove('hidden');
+        }
+
+        // Hapus sepenuhnya item placeholder dari menu dropdown agar hanya nama opsi riil yang tampil
+        const menuOptions = options.filter(opt => !opt.hidden && opt.dataset.placeholder !== 'true');
+
+        menu.innerHTML = menuOptions.map((opt) => {
+            const originalIndex = options.indexOf(opt);
+            const isOptSelected = opt.selected && opt.value !== '';
+            return `
+                <div class="custom-select-option h-[38px] px-4 py-2 flex items-center justify-between text-[13px] text-[#101828] cursor-pointer transition-colors hover:bg-[#F5F8FC] ${isOptSelected ? 'bg-[#DCE8FF] text-[#062072] font-medium' : ''} ${opt.disabled ? 'opacity-40 cursor-not-allowed pointer-events-none' : ''}"
+                     data-index="${originalIndex}" data-value="${opt.value}" role="option" ${isOptSelected ? 'aria-selected="true"' : ''}>
+                    <span class="truncate">${opt.text}</span>
+                    ${isOptSelected ? `
+                        <svg class="w-4 h-4 text-[#062072] shrink-0 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
 
         menu.querySelectorAll('.custom-select-option:not(.pointer-events-none)').forEach(item => {
             item.addEventListener('click', (e) => {
                 e.stopPropagation();
                 selectOption(parseInt(item.dataset.index, 10));
             });
+        });
+    }
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            const placeholderOpt = Array.from(select.options).find(opt => opt.value === '' || opt.dataset.placeholder === 'true');
+            if (placeholderOpt) {
+                placeholderOpt.selected = true;
+            } else {
+                select.selectedIndex = -1;
+            }
+            select.value = '';
+            renderOptions();
+            closeMenu();
+
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+            select.dispatchEvent(new Event('input', { bubbles: true }));
+            if (typeof select.onchange === 'function') select.onchange();
+            trigger.focus();
         });
     }
 
@@ -112,7 +162,9 @@ function enhanceSelect(select) {
         chevronSvg.classList.add('rotate-180');
 
         const active = menu.querySelector('[aria-selected="true"]');
-        highlightedIndex = active ? parseInt(active.dataset.index, 10) : 0;
+        const optionsElements = Array.from(menu.querySelectorAll('.custom-select-option'));
+        const activeIdx = optionsElements.indexOf(active);
+        highlightedIndex = activeIdx >= 0 ? activeIdx : 0;
         active?.scrollIntoView({ block: 'nearest' });
         updateHighlight();
     }
@@ -153,7 +205,10 @@ function enhanceSelect(select) {
     // Navigasi keyboard
     trigger.addEventListener('keydown', (e) => {
         const isOpen = !menu.classList.contains('hidden');
-        const count = select.options.length;
+        const optionsElements = Array.from(menu.querySelectorAll('.custom-select-option'));
+        const count = optionsElements.length;
+
+        if (count === 0) return;
 
         if (e.key === 'ArrowDown') {
             e.preventDefault();
@@ -163,7 +218,12 @@ function enhanceSelect(select) {
             !isOpen ? openMenu() : (highlightedIndex = (highlightedIndex - 1 + count) % count, updateHighlight());
         } else if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            !isOpen ? openMenu() : (highlightedIndex >= 0 && selectOption(highlightedIndex));
+            if (!isOpen) {
+                openMenu();
+            } else if (highlightedIndex >= 0 && optionsElements[highlightedIndex]) {
+                const targetIdx = parseInt(optionsElements[highlightedIndex].dataset.index, 10);
+                selectOption(targetIdx);
+            }
         } else if (e.key === 'Escape' || e.key === 'Tab') {
             if (isOpen) closeMenu();
         }

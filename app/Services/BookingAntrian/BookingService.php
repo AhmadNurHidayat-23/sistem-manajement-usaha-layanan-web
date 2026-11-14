@@ -130,7 +130,7 @@ class BookingService
                 'employee_id' => $data['employee_id'] ?? null,
                 'booking_date' => $data['booking_date'],
                 'booking_time' => $data['booking_time'],
-                'status' => BookingStatus::Pending,
+                'status' => BookingStatus::Confirmed,
                 'notes' => $data['notes'] ?? null,
             ]);
 
@@ -405,6 +405,40 @@ class BookingService
     // ─── HELPERS ──────────────────────────────────────────────────────────────
 
     /**
+     * Daftar cabang aktif yang dapat diakses oleh user.
+     */
+    public function getAccessibleBranches(User $user, ?string $serviceMode = null): Collection
+    {
+        $roleName = $user->role?->name;
+
+        if ($roleName === 'owner') {
+            return $this->getActiveBranches($serviceMode);
+        }
+
+        if ($roleName === 'manager') {
+            $query = $user->branches()->where('is_active', true)->orderBy('name');
+            if ($serviceMode) {
+                $query->whereIn('service_mode', [$serviceMode, 'both']);
+            }
+            $branches = $query->get();
+
+            if ($branches->isEmpty() && $user->employee?->branch) {
+                return collect([$user->employee->branch]);
+            }
+
+            return $branches;
+        }
+
+        if ($roleName === 'employee') {
+            $branch = $user->employee?->branch;
+
+            return $branch ? collect([$branch]) : collect();
+        }
+
+        return $this->getActiveBranches($serviceMode);
+    }
+
+    /**
      * Daftar cabang aktif.
      */
     public function getActiveBranches(?string $serviceMode = null): Collection
@@ -438,39 +472,66 @@ class BookingService
      * Daftar karyawan cabang.
      */
     /**
-     * Dapatkan daftar karyawan aktif pada cabang tertentu.
-     * Dapat difilter berdasarkan keahlian (skills) yang sesuai dengan layanan jika ada.
+     * Dapatkan daftar seluruh karyawan aktif pada cabang tertentu.
+     * Menampilkan SEMUA karyawan aktif terdaftar pada cabang terpilih tanpa memfilter berdasarkan skill/layanan.
      */
     public function getBranchEmployees(int $branchId, ?int $serviceId = null): Collection
     {
-        $employees = Employee::with('skills')
-            ->where(function ($q) use ($branchId) {
-                $q->where('branch_id', $branchId)
-                    ->orWhereHas('shifts', fn ($sq) => $sq->where('branch_id', $branchId));
-            })
+        return Employee::where(function ($q) use ($branchId) {
+            $q->where('branch_id', $branchId)
+                ->orWhereHas('shifts', fn ($sq) => $sq->where('branch_id', $branchId));
+        })
             ->where('status', 'active')
             ->orderBy('name')
             ->get();
+    }
 
-        if ($serviceId) {
-            $service = Service::find($serviceId);
-            if ($service) {
-                $serviceNameLower = mb_strtolower(trim($service->name));
-                $matchingEmployees = $employees->filter(function ($emp) use ($serviceNameLower) {
-                    return $emp->skills->contains(function ($skill) use ($serviceNameLower) {
-                        $skillLower = mb_strtolower(trim($skill->skill_name));
+    /**
+     * Cek apakah keahlian karyawan cocok dengan layanan yang diminta.
+     */
+    public function skillMatchesService(string $skillName, string $serviceName): bool
+    {
+        $skill = mb_strtolower(trim($skillName));
+        $service = mb_strtolower(trim($serviceName));
 
-                        return str_contains($serviceNameLower, $skillLower) || str_contains($skillLower, $serviceNameLower);
-                    });
-                });
+        // 1. Exact or direct substring match
+        if (str_contains($service, $skill) || str_contains($skill, $service)) {
+            return true;
+        }
 
-                if ($matchingEmployees->isNotEmpty()) {
-                    return $matchingEmployees->values();
+        // 2. Keyword groups & synonyms (ID/EN) for Barbershop, Laundry, Auto Care
+        $synonymGroups = [
+            'potong_rambut' => ['potong rambut', 'haircut', 'potong', 'pangkas'],
+            'cukur_jenggot' => ['cukur', 'jenggot', 'kumis', 'shaving', 'beard'],
+            'kulit_kepala' => ['kulit kepala', 'scalp', 'keratin scalp', 'dandruff'],
+            'pewarnaan' => ['pewarnaan', 'coloring', 'bleaching', 'highlight', 'warna rambut'],
+            'grooming' => ['grooming', 'full grooming'],
+            'sepatu_tas' => ['sepatu', 'tas', 'sneakers'],
+            'setrika_cuci' => ['setrika', 'cuci kering', 'dry clean', 'laundry'],
+            'cuci_mobil' => ['cuci mobil', 'car wash', 'fogging'],
+            'detailing' => ['detailing', 'paint correction', 'exterior polishing', 'interior steam'],
+            'coating' => ['coating', 'nano ceramic'],
+            'helm' => ['helm'],
+        ];
+
+        foreach ($synonymGroups as $group) {
+            $serviceHas = false;
+            foreach ($group as $kw) {
+                if (str_contains($service, $kw)) {
+                    $serviceHas = true;
+                    break;
+                }
+            }
+            if ($serviceHas) {
+                foreach ($group as $kw) {
+                    if (str_contains($skill, $kw)) {
+                        return true;
+                    }
                 }
             }
         }
 
-        return $employees;
+        return false;
     }
 
     /**

@@ -8,14 +8,16 @@
             <h3 class="text-xl font-bold text-[#101828] m-0">Booking Appointment</h3>
             <p class="text-xs text-[#667085] mt-1 m-0">Kelola jadwal appointment layanan.</p>
         </div>
-        @can('create', App\Models\Booking::class)
-        <x-buttons.btn variant="primary" href="{{ route('bookings.create') }}" id="btn-buat-booking">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Buat Booking
-        </x-buttons.btn>
-        @endcan
+        @if(auth()->user()?->role?->name !== 'manager')
+            @can('create', App\Models\Booking::class)
+            <x-buttons.btn variant="primary" href="{{ route('bookings.create') }}" id="btn-buat-booking">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Buat Booking
+            </x-buttons.btn>
+            @endcan
+        @endif
     </div>
 
     {{-- Flash --}}
@@ -78,9 +80,16 @@
         </form>
     </x-cards.card>
 
+    @php
+        $isManager = auth()->user()?->role?->name === 'manager';
+        $tableHeaders = $isManager
+            ? ['Tanggal & Jam', 'Pelanggan', 'Cabang', 'Layanan', 'Pegawai', 'Status']
+            : ['Tanggal & Jam', 'Pelanggan', 'Cabang', 'Layanan', 'Pegawai', 'Status', 'Aksi'];
+    @endphp
+
     {{-- Table --}}
     <div class="space-y-4">
-        <x-tables.table :headers="['Tanggal & Jam', 'Pelanggan', 'Cabang', 'Layanan', 'Pegawai', 'Status', 'Aksi']">
+        <x-tables.table :headers="$tableHeaders">
             @forelse($bookings as $booking)
             <tr class="hover:bg-[#F5F8FC]/50 transition-colors">
                 <td class="px-3 py-2.5 whitespace-nowrap">
@@ -94,6 +103,7 @@
                 <td class="px-3 py-2.5 whitespace-nowrap">
                     <x-badges.status :status="$booking->status" />
                 </td>
+                @if(! $isManager)
                 <td class="px-3 py-2.5 whitespace-nowrap">
                     <div class="flex items-center gap-1.5">
                         <x-buttons.btn variant="outline" href="{{ route('bookings.show', $booking) }}" size="sm">Detail</x-buttons.btn>
@@ -104,10 +114,11 @@
                         @endcan
                     </div>
                 </td>
+                @endif
             </tr>
             @empty
             <tr>
-                <td colspan="7" class="px-6 py-10 text-center text-[#667085]">
+                <td colspan="{{ $isManager ? 6 : 7 }}" class="px-6 py-10 text-center text-[#667085]">
                     <svg class="w-10 h-10 mx-auto mb-2 text-[#E4E7EC]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>

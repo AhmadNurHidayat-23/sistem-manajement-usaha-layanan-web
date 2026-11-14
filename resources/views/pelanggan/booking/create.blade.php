@@ -73,9 +73,9 @@
             {{-- Petugas (opsional) --}}
             <div id="employee-section" class="{{ empty($selectedBranchId) ? 'hidden' : '' }}">
                 <label for="employee_id" class="block text-sm font-semibold text-[#101828] mb-2">Petugas <span class="text-xs text-[#667085] font-normal">(opsional)</span></label>
-                <select name="employee_id" id="employee_id"
-                    class="w-full px-4 py-3 rounded-xl border border-[#E4E7EC] text-sm text-[#101828] focus:ring-2 focus:ring-[#062072]/20 focus:border-[#062072] outline-none transition-all bg-white">
-                    <option value="">— Siapa saja tersedia —</option>
+                <select name="employee_id" id="employee_id" data-clearable="true"
+                    class="w-full px-4 py-3 rounded-xl border border-[#E4E7EC] text-sm text-[#101828] focus:ring-2 focus:ring-[#062072]/20 focus:border-[#062072] outline-none transition-all bg-white cursor-pointer">
+                    <option value="" disabled {{ old('employee_id') ? '' : 'selected' }} hidden data-placeholder="true">Pilih Petugas</option>
                     @foreach($employees as $emp)
                         <option value="{{ $emp->id }}" {{ old('employee_id') == $emp->id ? 'selected' : '' }}>
                             {{ $emp->name }}
@@ -95,7 +95,7 @@
             </div>
 
             {{-- Jam --}}
-            <div id="time-section" class="hidden space-y-3">
+            <div id="time-section" class="{{ empty($selectedBranchId) ? 'hidden' : '' }} space-y-3">
                 <div class="flex items-center justify-between">
                     <label for="booking_time" class="block text-sm font-semibold text-[#101828]">Waktu Booking Tersedia</label>
                     <span id="selected-slot-preview" class="hidden text-xs font-semibold text-[#062072] bg-[#DCE8FF]/60 px-2.5 py-1 rounded-full border border-[#062072]/20">
@@ -154,6 +154,10 @@
                     Memeriksa ketersediaan jam janji temu...
                 </div>
 
+                <p id="no-date-prompt" class="{{ old('booking_date') ? 'hidden' : '' }} text-xs text-[#667085] mt-2 py-3 px-4 bg-slate-50 border border-slate-200 rounded-xl m-0 text-center">
+                    Silakan pilih tanggal booking terlebih dahulu untuk melihat ketersediaan jam.
+                </p>
+
                 <div id="slots-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-2.5"></div>
                 <p id="no-slots" class="hidden text-xs text-[#667085] mt-2 py-3 px-4 bg-slate-50 border border-slate-200 rounded-xl m-0 text-center">
                     Tidak ada slot waktu yang tersedia pada tanggal ini. Silakan pilih tanggal atau petugas lain.
@@ -196,6 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const slotsContainer = document.getElementById('slots-container');
     const slotsLoading = document.getElementById('slots-loading');
     const noSlots = document.getElementById('no-slots');
+    const noDatePrompt = document.getElementById('no-date-prompt');
     const timeSection = document.getElementById('time-section');
     const timeInput = document.getElementById('booking_time_input');
     const submitBtn = document.getElementById('submitBtn');
@@ -205,12 +210,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const employeeOffWarning = document.getElementById('employee-off-warning');
     const employeeOffMessage = document.getElementById('employee-off-message');
 
-    let operatingDays = null;
+    let operatingDays = @json($selectedBranch?->operating_days ?? null);
     const dayNames = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
 
     function updateEmployees(branchId, serviceId = '', preferredEmployeeId = '') {
         if (!branchId) {
-            employeeSelect.innerHTML = '<option value="">— Siapa saja tersedia —</option>';
+            employeeSelect.innerHTML = '<option value="" disabled selected hidden data-placeholder="true">Pilih Petugas</option>';
+            employeeSelect.dispatchEvent(new Event('render-custom-select'));
             return Promise.resolve();
         }
 
@@ -221,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(r => r.json())
             .then(data => {
                 const prev = preferredEmployeeId || employeeSelect.value;
-                employeeSelect.innerHTML = '<option value="">— Siapa saja tersedia —</option>';
+                employeeSelect.innerHTML = '<option value="" disabled selected hidden data-placeholder="true">Pilih Petugas</option>';
                 let matched = false;
                 (data.employees || []).forEach(e => {
                     const opt = document.createElement('option');
@@ -236,20 +242,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!matched) {
                     employeeSelect.value = '';
                 }
+                employeeSelect.dispatchEvent(new Event('render-custom-select'));
             });
     }
 
     // Branch change
     branchSelect.addEventListener('change', function() {
         const branchId = this.value;
-        const sections = ['service-section', 'employee-section', 'date-section', 'notes-section'];
-        sections.forEach(s => document.getElementById(s).classList.toggle('hidden', !branchId));
+        const sections = ['service-section', 'employee-section', 'date-section', 'time-section', 'notes-section'];
+        sections.forEach(s => {
+            const el = document.getElementById(s);
+            if (el) el.classList.toggle('hidden', !branchId);
+        });
 
         serviceSelect.value = '';
         employeeSelect.value = '';
         clearSlots();
 
         if (!branchId) {
+            operatingDays = null;
             return;
         }
 
@@ -269,15 +280,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     opt.textContent = `${s.name} — Rp ${new Intl.NumberFormat('id-ID').format(s.price)} — ${s.duration_formatted}`;
                     serviceSelect.appendChild(opt);
                 });
+                serviceSelect.dispatchEvent(new Event('render-custom-select'));
 
                 // Update employees
-                employeeSelect.innerHTML = '<option value="">— Siapa saja tersedia —</option>';
+                employeeSelect.innerHTML = '<option value="" disabled selected hidden data-placeholder="true">Pilih Petugas</option>';
                 (data.employees || []).forEach(e => {
                     const opt = document.createElement('option');
                     opt.value = e.id;
                     opt.textContent = e.name;
                     employeeSelect.appendChild(opt);
                 });
+                employeeSelect.dispatchEvent(new Event('render-custom-select'));
 
                 clearSlots();
                 if (dateInput.value) {
@@ -286,27 +299,28 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
 
-    // Service change: perbarui daftar petugas yang relevan & reload slot
+    // Service change: perbarui slot ketersediaan (pilihan layanan tidak mengurangi daftar petugas cabang)
     serviceSelect.addEventListener('change', function() {
-        const branchId = branchSelect.value;
-        const serviceId = this.value;
-        if (branchId) {
-            updateEmployees(branchId, serviceId, employeeSelect.value).then(() => {
-                loadSlots();
-            });
-        } else {
+        if (branchSelect.value && dateInput.value) {
             loadSlots();
         }
     });
 
     // Employee change
     employeeSelect.addEventListener('change', function() {
-        loadSlots();
+        if (branchSelect.value && dateInput.value) {
+            loadSlots();
+        }
     });
 
     // Date change
     dateInput.addEventListener('change', function() {
         validateDateAndLoadSlots();
+    });
+    dateInput.addEventListener('input', function() {
+        if (this.value && this.value.length === 10) {
+            validateDateAndLoadSlots();
+        }
     });
 
     function validateDateAndLoadSlots() {
@@ -316,13 +330,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (operatingDays && operatingDays.length > 0) {
-            const date = new Date(dateInput.value);
-            const dayName = dayNames[date.getDay()];
-            if (!operatingDays.map(d => d.toLowerCase()).includes(dayName)) {
-                dateWarning.textContent = 'Cabang tidak beroperasi pada hari ini. Silakan pilih hari lain.';
-                dateWarning.classList.remove('hidden');
-                clearSlots();
-                return;
+            const parts = dateInput.value.split('-').map(Number);
+            if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+                const date = new Date(parts[0], parts[1] - 1, parts[2]);
+                const dayName = dayNames[date.getDay()];
+                if (!operatingDays.map(d => String(d).toLowerCase()).includes(dayName)) {
+                    dateWarning.textContent = 'Cabang tidak beroperasi pada hari ini. Silakan pilih hari lain.';
+                    dateWarning.classList.remove('hidden');
+                    if (noDatePrompt) noDatePrompt.classList.add('hidden');
+                    noSlots.textContent = 'Cabang tutup pada tanggal ini. Silakan pilih hari lain.';
+                    noSlots.classList.remove('hidden');
+                    slotsContainer.innerHTML = '';
+                    timeInput.value = '';
+                    if (selectedPreview) selectedPreview.classList.add('hidden');
+                    updateSubmitState();
+                    return;
+                }
             }
         }
         dateWarning.classList.add('hidden');
@@ -332,9 +355,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadSlots() {
         const branchId = branchSelect.value;
         const date = dateInput.value;
-        if (!branchId || !date) return;
+        if (!branchId || !date) {
+            clearSlots();
+            return;
+        }
 
         timeSection.classList.remove('hidden');
+        if (noDatePrompt) noDatePrompt.classList.add('hidden');
         slotsLoading.classList.remove('hidden');
         noSlots.classList.add('hidden');
         if (employeeOffWarning) employeeOffWarning.classList.add('hidden');
@@ -528,12 +555,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function clearSlots() {
-        timeSection.classList.add('hidden');
+        if (noDatePrompt) {
+            noDatePrompt.classList.toggle('hidden', Boolean(dateInput.value));
+        }
+        if (noSlots) noSlots.classList.add('hidden');
+        if (slotsLoading) slotsLoading.classList.add('hidden');
         slotsContainer.innerHTML = '';
         timeInput.value = '';
         if (selectedPreview) selectedPreview.classList.add('hidden');
         if (employeeOffWarning) employeeOffWarning.classList.add('hidden');
-        submitBtn.disabled = true;
+        updateSubmitState();
     }
 
     function updateSubmitState() {
@@ -542,7 +573,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Auto load jika cabang dan tanggal sudah terpilih (misal old input atau parameter URL)
     if (branchSelect.value && dateInput.value) {
-        loadSlots();
+        validateDateAndLoadSlots();
     }
 });
 </script>

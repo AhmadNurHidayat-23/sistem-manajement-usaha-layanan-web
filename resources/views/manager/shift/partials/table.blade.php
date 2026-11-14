@@ -21,7 +21,7 @@
                         <th class="px-4 py-3">Jam Kerja</th>
                         <th class="px-4 py-3">Status Kehadiran</th>
                         @if (! ($isSelfView ?? false))
-                            <th class="px-4 py-3 text-right">Update Kehadiran & Aksi</th>
+                            <th class="px-4 py-3 text-center whitespace-nowrap w-[240px]">Update Kehadiran & Aksi</th>
                         @endif
                     </tr>
                 </thead>
@@ -78,54 +78,64 @@
 
                             <!-- Actions -->
                             @if (! ($isSelfView ?? false))
-                                <td class="px-4 py-3 text-right">
-                                    <div class="inline-flex items-center gap-1">
-                                        <form method="POST" action="{{ route('employees.shifts.status', $shift) }}" class="inline m-0">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="status" value="present">
-                                            <button type="submit" title="Tandai Hadir" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded text-[10px] font-semibold transition-colors">
-                                                Hadir
+                                <td class="px-4 py-3 text-center whitespace-nowrap">
+                                    <div class="inline-flex items-center justify-center gap-1.5">
+                                        <!-- Attendance Status Update Buttons -->
+                                        <div class="inline-flex items-center gap-1">
+                                            <form method="POST" action="{{ route('employees.shifts.status', $shift) }}" class="inline m-0">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="status" value="present">
+                                                <button type="submit" title="Tandai Hadir" class="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded text-[11px] font-semibold transition-colors cursor-pointer border border-emerald-200/60 shadow-2xs">
+                                                    Hadir
+                                                </button>
+                                            </form>
+                                            <form method="POST" action="{{ route('employees.shifts.status', $shift) }}" class="inline m-0">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="status" value="late">
+                                                <button type="submit" title="Tandai Terlambat" class="px-2 py-0.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded text-[11px] font-semibold transition-colors cursor-pointer border border-amber-200/60 shadow-2xs">
+                                                    Telat
+                                                </button>
+                                            </form>
+                                            <form method="POST" action="{{ route('employees.shifts.status', $shift) }}" class="inline m-0">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="status" value="absent">
+                                                <button type="submit" title="Tandai Absen" class="px-2 py-0.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded text-[11px] font-semibold transition-colors cursor-pointer border border-rose-200/60 shadow-2xs">
+                                                    Absen
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                        <!-- Divider -->
+                                        <span class="w-px h-3.5 bg-[#E4E7EC] mx-0.5" aria-hidden="true"></span>
+
+                                        <!-- Row Action Icons -->
+                                        <div class="inline-flex items-center gap-1">
+                                            <button type="button"
+                                                    data-action="edit-shift"
+                                                    data-payload="{{ json_encode([
+                                                        'id' => $shift->id,
+                                                        'employee_name' => $shift->employee->name,
+                                                        'branch_name' => $shift->branch->display_name,
+                                                        'shift_date' => $shift->shift_date instanceof \DateTimeInterface ? $shift->shift_date->format('Y-m-d') : substr((string) $shift->shift_date, 0, 10),
+                                                        'start_time' => substr((string) $shift->start_time, 0, 5),
+                                                        'end_time' => substr((string) $shift->end_time, 0, 5),
+                                                        'status' => $shift->status->value ?? (string) $shift->status,
+                                                    ]) }}"
+                                                    class="p-1 text-slate-400 hover:text-[#062072] hover:bg-slate-100 transition-colors cursor-pointer rounded"
+                                                    title="Edit Jadwal Shift">
+                                                <x-icons.icon name="edit" class="w-3.5 h-3.5" />
                                             </button>
-                                        </form>
-                                        <form method="POST" action="{{ route('employees.shifts.status', $shift) }}" class="inline m-0">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="status" value="late">
-                                            <button type="submit" title="Tandai Terlambat" class="px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded text-[10px] font-semibold transition-colors">
-                                                Telat
-                                            </button>
-                                        </form>
-                                        <form method="POST" action="{{ route('employees.shifts.status', $shift) }}" class="inline m-0">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="status" value="absent">
-                                            <button type="submit" title="Tandai Absen" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded text-[10px] font-semibold transition-colors">
-                                                Absen
-                                            </button>
-                                        </form>
-                                        <button type="button"
-                                                data-action="edit-shift"
-                                                data-payload="{{ json_encode([
-                                                    'id' => $shift->id,
-                                                    'employee_name' => $shift->employee->name,
-                                                    'branch_name' => $shift->branch->display_name,
-                                                    'shift_date' => $shift->shift_date instanceof \DateTimeInterface ? $shift->shift_date->format('Y-m-d') : substr((string) $shift->shift_date, 0, 10),
-                                                    'start_time' => substr((string) $shift->start_time, 0, 5),
-                                                    'end_time' => substr((string) $shift->end_time, 0, 5),
-                                                    'status' => $shift->status->value ?? (string) $shift->status,
-                                                ]) }}"
-                                                class="p-1 text-slate-400 hover:text-[#062072] transition-colors cursor-pointer rounded hover:bg-slate-100"
-                                                title="Edit Jadwal Shift">
-                                            <x-icons.icon name="edit" class="w-3.5 h-3.5" />
-                                        </button>
-                                        <form method="POST" action="{{ route('employees.shifts.destroy', $shift) }}" class="inline m-0" onsubmit="return confirm('Hapus shift ini?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="p-1 text-slate-400 hover:text-rose-600 transition-colors" title="Hapus Shift">
-                                                <x-icons.icon name="trash" class="w-3.5 h-3.5" />
-                                            </button>
-                                        </form>
+                                            <form method="POST" action="{{ route('employees.shifts.destroy', $shift) }}" class="inline m-0" onsubmit="return confirm('Hapus shift ini?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer rounded" title="Hapus Shift">
+                                                    <x-icons.icon name="trash" class="w-3.5 h-3.5" />
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
                                 </td>
                             @endif

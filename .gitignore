@@ -27,6 +27,8 @@ Homestead.yaml
 Thumbs.db
 /whatsapp-gateway/node_modules
 /whatsapp-gateway/sessions
+/whatsapp-gateway/sessions*
+/whatsapp-gateway/sessions_backup*
 /whatsapp-gateway/.env*
 *.bak
 *.tmp

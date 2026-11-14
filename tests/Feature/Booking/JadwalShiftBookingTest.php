@@ -26,7 +26,7 @@ class JadwalShiftBookingTest extends ShiftBookingTestCase
         $response->assertRedirect(route('bookings.show', $booking));
         $this->assertEquals($this->employee->id, $booking->employee_id);
         $this->assertEquals('10:00', substr((string) $booking->booking_time, 0, 5));
-        $this->assertEquals(BookingStatus::Pending, $booking->status);
+        $this->assertEquals(BookingStatus::Confirmed, $booking->status);
     }
 
     public function test_booking_ditolak_jika_dimulai_sebelum_shift_kerja_petugas(): void

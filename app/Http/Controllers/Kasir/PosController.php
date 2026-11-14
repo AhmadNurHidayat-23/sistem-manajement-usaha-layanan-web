@@ -12,6 +12,7 @@ use App\Models\Transaction;
 use App\Services\BookingAntrian\StatusPekerjaanService;
 use App\Services\KasirPOS\KasirService;
 use App\Services\KasirPOS\TransaksiService;
+use App\Services\NotifikasiService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -137,6 +138,8 @@ class PosController extends Controller
         try {
             $statusService = app(StatusPekerjaanService::class);
             $statusService->updateBookingStatus($user, $booking, BookingStatus::Confirmed->value);
+
+            rescue(fn () => app(NotifikasiService::class)->notifikasiBookingDikonfirmasi($booking->fresh()));
 
             $msg = "Booking #{$booking->id} berhasil diverifikasi (Check-in). Status kini Dikonfirmasi.";
 

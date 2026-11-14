@@ -31,6 +31,14 @@
         </div>
     </div>
 
+    {{-- Flash Notifications --}}
+    @if (session('success'))
+        <x-alerts.alert type="success" :message="session('success')" />
+    @endif
+    @if (session('error'))
+        <x-alerts.alert type="danger" :message="session('error')" />
+    @endif
+
     @if (! $employee)
         <x-cards.card class="p-8 text-center">
             <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-500 mx-auto flex items-center justify-center mb-3">

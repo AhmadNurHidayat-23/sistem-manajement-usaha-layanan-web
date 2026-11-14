@@ -27,7 +27,7 @@ class BookingController extends Controller
     {
         $filters = $request->only(['status', 'branch_id', 'date']);
         $bookings = $this->bookingService->getBookingsForUser($request->user(), $filters);
-        $branches = $this->bookingService->getActiveBranches();
+        $branches = $this->bookingService->getAccessibleBranches($request->user());
 
         return view('manager.booking.index', compact('bookings', 'branches', 'filters'));
     }

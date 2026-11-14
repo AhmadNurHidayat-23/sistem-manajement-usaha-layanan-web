@@ -41,6 +41,10 @@ return [
         'driver' => env('WHATSAPP_DRIVER', 'log'),
         'baileys_url' => env('BAILEYS_URL', 'http://127.0.0.1:3001'),
 
+        // Mode pengujian: alihkan nomor tujuan ke nomor uji jika diset
+        'test_number' => env('WHATSAPP_TEST_NUMBER'),
+        'queue' => (bool) env('WHATSAPP_QUEUE', false),
+
         // Fonnte.com
         'fonnte_token' => env('WHATSAPP_FONNTE_TOKEN'),
 

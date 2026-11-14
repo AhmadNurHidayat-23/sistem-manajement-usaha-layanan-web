@@ -25,6 +25,26 @@
                 </thead>
                 <tbody class="divide-y divide-[#E4E7EC]">
                     @foreach ($todayTasks as $task)
+                        @php
+                            $statusVal = $task['status'] instanceof \BackedEnum ? $task['status']->value : (string) $task['status'];
+                            $isAppointment = ($task['type'] ?? '') === 'Appointment';
+
+                            $canStart = $isAppointment
+                                ? ($statusVal === \App\Enums\BookingStatus::Confirmed->value)
+                                : ($statusVal === \App\Enums\StatusPesanan::Received->value);
+
+                            $canComplete = $isAppointment
+                                ? ($statusVal === \App\Enums\BookingStatus::InProgress->value)
+                                : ($statusVal === \App\Enums\StatusPesanan::Processing->value);
+
+                            $actionUrl = $isAppointment
+                                ? route('bookings.update-status', $task['id'])
+                                : route('orders.update-status', $task['id']);
+
+                            $nextStatus = $canStart
+                                ? ($isAppointment ? \App\Enums\BookingStatus::InProgress->value : \App\Enums\StatusPesanan::Processing->value)
+                                : ($isAppointment ? \App\Enums\BookingStatus::Completed->value : \App\Enums\StatusPesanan::Completed->value);
+                        @endphp
                         <tr class="hover:bg-[#F5F8FC]/50 transition-colors">
                             <td class="px-3 py-2.5 font-medium whitespace-nowrap text-[#062072]">
                                 {{ $task['time'] }}
@@ -46,10 +66,32 @@
                                     {{ method_exists($task['status'], 'label') ? $task['status']->label() : ucfirst($task['status']->value ?? (string) $task['status']) }}
                                 </span>
                             </td>
-                            <td class="px-3 py-2.5 text-right">
-                                <a href="{{ $task['detail_url'] }}" class="inline-flex items-center text-xs font-semibold text-[#062072] hover:text-[#0B3A9E] hover:underline">
-                                    Detail
-                                </a>
+                            <td class="px-3 py-2.5 text-right whitespace-nowrap">
+                                <div class="inline-flex items-center justify-end gap-1.5 flex-wrap sm:flex-nowrap">
+                                    @if ($canStart)
+                                        <form method="POST" action="{{ $actionUrl }}" class="inline m-0" onsubmit="return confirm('Mulai pengerjaan untuk tugas ini?')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="{{ $nextStatus }}">
+                                            <button type="submit" class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-md bg-[#062072] text-white hover:bg-[#04184F] transition-colors cursor-pointer shadow-2xs">
+                                                Mulai Pengerjaan
+                                            </button>
+                                        </form>
+                                    @elseif ($canComplete)
+                                        <form method="POST" action="{{ $actionUrl }}" class="inline m-0" onsubmit="return confirm('Tandai pekerjaan ini telah selesai?')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="{{ $nextStatus }}">
+                                            <button type="submit" class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-600 text-white hover:bg-emerald-700 transition-colors cursor-pointer shadow-2xs">
+                                                Selesaikan
+                                            </button>
+                                        </form>
+                                    @endif
+
+                                    <a href="{{ $task['detail_url'] }}" class="inline-flex items-center px-2 py-1 text-xs font-semibold text-[#062072] hover:text-[#0B3A9E] hover:underline">
+                                        Detail
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
