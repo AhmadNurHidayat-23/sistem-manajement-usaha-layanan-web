@@ -11,6 +11,7 @@ use App\Services\KasirPOS\KasirService;
 use App\Services\KasirPOS\TransaksiService;
 use App\Services\NotifikasiService;
 use App\Services\WhatsAppService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -40,7 +41,7 @@ class TransaksiController extends Controller
     /**
      * Simpan transaction from POS terminal baru.
      */
-    public function store(StoreTransaksiRequest $request): RedirectResponse
+    public function store(StoreTransaksiRequest $request): RedirectResponse|JsonResponse
     {
         $transaction = $this->transaksiService->createTransaction(
             $request->user(),
@@ -51,6 +52,38 @@ class TransaksiController extends Controller
 
         // Periksa apakah metode pembayaran gateway (QRIS / VA / E-Wallet) dan belum Paid
         $latestPayment = $transaction->payments()->latest()->first();
+
+        // Dukungan respons JSON untuk modal pembayaran langsung di Dashboard Kasir
+        if ($request->wantsJson()) {
+            $isGateway = (bool) ($latestPayment && $latestPayment->isGatewayMethod() && ! $latestPayment->isPaid());
+            $redirectUrl = null;
+            $paymentUrl = null;
+
+            if ($isGateway) {
+                if ($latestPayment->payment_method !== 'qris') {
+                    $redirectUrl = $latestPayment->gateway_payload['redirect_url'] ?? null;
+                }
+                $paymentUrl = route('kasir.pembayaran', $transaction);
+            } else {
+                rescue(fn () => $this->notifikasiService->kirimStrukTransaksi($transaction));
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Transaksi '{$transaction->transaction_code}' berhasil diproses.",
+                'transaction' => [
+                    'id' => $transaction->id,
+                    'code' => $transaction->transaction_code,
+                    'total' => (float) $transaction->total,
+                    'status' => $transaction->status->value,
+                    'receipt_url' => route('pos.transactions.receipt', $transaction),
+                ],
+                'is_gateway' => $isGateway,
+                'payment_method' => $latestPayment?->payment_method,
+                'payment_url' => $paymentUrl,
+                'redirect_url' => $redirectUrl,
+            ]);
+        }
 
         if ($latestPayment && $latestPayment->isGatewayMethod() && ! $latestPayment->isPaid()) {
             // KHUSUS QRIS: QR tampil langsung di SIMAUL, jangan redirect ke Midtrans Snap

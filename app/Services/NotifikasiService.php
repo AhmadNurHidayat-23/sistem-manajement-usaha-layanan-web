@@ -347,6 +347,44 @@ class NotifikasiService
     }
 
     /**
+     * Notifikasi rincian tagihan setelah penimbangan laundry kiloan dikonfirmasi kasir.
+     */
+    public function notifikasiTagihanLaundry(Order $order): ?NotificationLog
+    {
+        $order->loadMissing(['user', 'service', 'branch']);
+
+        $phone = $order->user?->phone;
+        if (! $phone) {
+            return null;
+        }
+
+        $namaPelanggan = $order->user?->name ?? 'Pelanggan';
+        $layanan = $order->service?->name ?? 'Laundry Kiloan';
+        $berat = rtrim(rtrim(number_format((float) ($order->actual_weight ?? 0), 2, ',', '.'), '0'), ',');
+        $hargaPerKg = 'Rp '.number_format((float) ($order->service?->price ?? 0), 0, ',', '.');
+        $totalTagihan = 'Rp '.number_format((float) ($order->total_amount ?? $order->calculateBill()), 0, ',', '.');
+
+        $message = "*RINCIAN TAGIHAN LAUNDRY*\n\n"
+            ."Halo {$namaPelanggan},\n\n"
+            ."Pesanan laundry Anda telah diterima dan selesai ditimbang.\n\n"
+            ."No. Pesanan: #{$order->id}\n"
+            ."Layanan: {$layanan}\n"
+            ."Berat Aktual: {$berat} kg\n"
+            ."Harga per Kg: {$hargaPerKg}\n"
+            ."Total Tagihan: *{$totalTagihan}*\n\n"
+            ."Pesanan Anda akan segera dikerjakan. Pembayaran dapat dilakukan setelah pekerjaan selesai.\n\n"
+            .'Terima kasih telah menggunakan layanan kami.';
+
+        return $this->kirim(
+            user: $order->user,
+            phone: $phone,
+            type: "laundry_weighed_{$order->id}_{$order->actual_weight}",
+            message: $message,
+            notifiable: $order,
+        );
+    }
+
+    /**
      * Notifikasi perubahan status pesanan.
      */
     public function notifikasiStatusOrder(Order $order): ?NotificationLog

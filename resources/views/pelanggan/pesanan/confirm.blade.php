@@ -146,12 +146,11 @@
             <input type="hidden" name="pickup_option" value="{{ $data['pickup_option'] ?? 0 }}">
             <input type="hidden" name="notes" value="{{ $data['notes'] ?? '' }}">
             <button type="submit" id="btn-submit-order"
-                class="inline-flex items-center gap-2 px-6 py-2.5 bg-[#062072] hover:bg-[#04184F] text-white rounded-lg text-sm font-semibold transition-colors cursor-pointer shadow-sm border-0"
-                onclick="this.disabled=true; this.form.submit();">
+                class="inline-flex items-center gap-2 px-6 py-2.5 bg-[#062072] hover:bg-[#04184F] text-white rounded-lg text-sm font-semibold transition-colors cursor-pointer shadow-sm border-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
-                Konfirmasi & Kirim Pesanan
+                Pesan Sekarang
             </button>
         </form>
     </div>

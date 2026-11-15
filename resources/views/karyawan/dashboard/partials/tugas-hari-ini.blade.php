@@ -29,9 +29,14 @@
                             $statusVal = $task['status'] instanceof \BackedEnum ? $task['status']->value : (string) $task['status'];
                             $isAppointment = ($task['type'] ?? '') === 'Appointment';
 
+                            $isWaitingWeigh = ! $isAppointment
+                                && $statusVal === \App\Enums\StatusPesanan::Received->value
+                                && ($task['is_weight_based'] ?? false)
+                                && ! ($task['is_weighed'] ?? false);
+
                             $canStart = $isAppointment
                                 ? ($statusVal === \App\Enums\BookingStatus::Confirmed->value)
-                                : ($statusVal === \App\Enums\StatusPesanan::Received->value);
+                                : ($statusVal === \App\Enums\StatusPesanan::Received->value && ! $isWaitingWeigh);
 
                             $canComplete = $isAppointment
                                 ? ($statusVal === \App\Enums\BookingStatus::InProgress->value)
@@ -69,23 +74,17 @@
                             <td class="px-3 py-2.5 text-right whitespace-nowrap">
                                 <div class="inline-flex items-center justify-end gap-1.5 flex-wrap sm:flex-nowrap">
                                     @if ($canStart)
-                                        <form method="POST" action="{{ $actionUrl }}" class="inline m-0" onsubmit="return confirm('Mulai pengerjaan untuk tugas ini?')">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="status" value="{{ $nextStatus }}">
-                                            <button type="submit" class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-md bg-[#062072] text-white hover:bg-[#04184F] transition-colors cursor-pointer shadow-2xs">
-                                                Mulai Pengerjaan
-                                            </button>
-                                        </form>
+                                        <button type="button"
+                                            onclick="openTaskConfirmModal('start', '{{ $actionUrl }}', '{{ $nextStatus }}', '{{ addslashes($task['service_name']) }}', '{{ addslashes($task['customer_name']) }}')"
+                                            class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-md bg-[#062072] text-white hover:bg-[#04184F] transition-colors cursor-pointer shadow-2xs">
+                                            Mulai Pengerjaan
+                                        </button>
                                     @elseif ($canComplete)
-                                        <form method="POST" action="{{ $actionUrl }}" class="inline m-0" onsubmit="return confirm('Tandai pekerjaan ini telah selesai?')">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="status" value="{{ $nextStatus }}">
-                                            <button type="submit" class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-600 text-white hover:bg-emerald-700 transition-colors cursor-pointer shadow-2xs">
-                                                Selesaikan
-                                            </button>
-                                        </form>
+                                        <button type="button"
+                                            onclick="openTaskConfirmModal('complete', '{{ $actionUrl }}', '{{ $nextStatus }}', '{{ addslashes($task['service_name']) }}', '{{ addslashes($task['customer_name']) }}')"
+                                            class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-600 text-white hover:bg-emerald-700 transition-colors cursor-pointer shadow-2xs">
+                                            Selesaikan
+                                        </button>
                                     @endif
 
                                     <a href="{{ $task['detail_url'] }}" class="inline-flex items-center px-2 py-1 text-xs font-semibold text-[#062072] hover:text-[#0B3A9E] hover:underline">

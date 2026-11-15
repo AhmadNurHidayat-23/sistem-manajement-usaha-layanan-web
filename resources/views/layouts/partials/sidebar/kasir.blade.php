@@ -72,10 +72,10 @@
             </div>
             <a href="{{ route('pos.index') }}"
                class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 relative focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#062072] {{ $isPosActive ? 'bg-[#062072] text-white font-semibold shadow-xs' : 'text-[#344054] hover:text-[#062072] hover:bg-[#EBF2FE]' }}"
-               title="Terminal POS">
+               title="Katalog Layanan">
                 <x-icons.icon name="cart" class="w-4.5 h-4.5 shrink-0 {{ $isPosActive ? 'text-white' : 'text-[#667085]' }}" />
-                <span class="sidebar-label truncate">Terminal POS</span>
-                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-[#101828] text-white text-xs rounded-md whitespace-nowrap z-50 shadow-lg border border-white/10 pointer-events-none">Terminal POS</span>
+                <span class="sidebar-label truncate">Katalog Layanan</span>
+                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-[#101828] text-white text-xs rounded-md whitespace-nowrap z-50 shadow-lg border border-white/10 pointer-events-none">Katalog Layanan</span>
             </a>
             <a href="{{ route('pos.transactions.index') }}"
                class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 relative focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#062072] {{ $isTransactionsActive ? 'bg-[#062072] text-white font-semibold shadow-xs' : 'text-[#344054] hover:text-[#062072] hover:bg-[#EBF2FE]' }}"

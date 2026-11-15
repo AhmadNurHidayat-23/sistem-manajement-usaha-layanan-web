@@ -22,4 +22,13 @@
 
 <!-- Modal registrasi member cepat -->
 @include('kasir.member.partials.modal-register')
+
+<!-- Modal pembayaran langsung kasir -->
+@include('kasir.pembayaran.partials.modal-pembayaran')
+
+<!-- Modal input berat laundry kiloan -->
+@include('kasir.dashboard.partials.modal-input-berat')
+
+<!-- Modal terima pesanan drop-off -->
+@include('kasir.dashboard.partials.modal-terima-pesanan')
 @endsection

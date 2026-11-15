@@ -30,10 +30,11 @@
     @endforeach
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Kolom Kiri: Informasi Pesanan, Layanan Tambahan, Pembayaran -->
+        <!-- Kolom Kiri: Informasi Pesanan, Layanan Tambahan, Penyerahan, Pembayaran -->
         <div class="lg:col-span-2 space-y-5">
             @include('pelanggan.pesanan.partials.info-pesanan')
             @include('pelanggan.pesanan.partials.layanan-tambahan')
+            @include('pelanggan.pesanan.partials.pilihan-penyerahan')
             @include('pelanggan.pesanan.partials.info-pembayaran')
         </div>
 

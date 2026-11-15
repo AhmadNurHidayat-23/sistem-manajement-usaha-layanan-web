@@ -134,7 +134,7 @@ class KasirPembayaranUrlDanUiTest extends TestCase
         $respWaiting = $this->actingAs($this->kasirBarbershop)
             ->get(route('kasir.pembayaran.waiting', $transaction->transaction_code));
         $respWaiting->assertOk();
-        $respWaiting->assertSee('Terminal POS');
+        $respWaiting->assertSee('Katalog Layanan');
         $this->assertStringContainsString('bg-[#062072] text-white', $respWaiting->getContent());
 
         // 2. Pilih / Ganti Metode Pembayaran

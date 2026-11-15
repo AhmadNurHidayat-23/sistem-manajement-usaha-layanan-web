@@ -1,15 +1,15 @@
-<!-- Satu Tabel: Pembayaran yang Perlu Ditangani -->
+<!-- Satu Tabel: Pesanan yang Perlu Ditangani -->
 <div class="bg-white border border-[#E4E7EC] rounded-xl shadow-2xs overflow-hidden" id="dashboard-payment-card" data-service-mode="{{ $activeBranch?->service_mode ?? 'both' }}">
     <!-- Header Tabel dan Filter Mode Layanan -->
     <div class="p-4 sm:p-5 border-b border-[#E4E7EC] flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
             <h3 class="text-base sm:text-lg font-bold text-[#101828] m-0 flex items-center gap-2">
                 <svg class="w-5 h-5 text-[#062072] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                 </svg>
-                Pembayaran yang Perlu Ditangani
+                Pesanan yang Perlu Ditangani
             </h3>
-            <p class="text-xs text-[#667085] mt-1 m-0">Daftar transaksi pelanggan yang masih memiliki tagihan.</p>
+            <p class="text-xs text-[#667085] mt-1 m-0">Daftar pesanan dan transaksi pelanggan yang perlu ditangani kasir.</p>
         </div>
 
         <div class="flex items-center gap-2 shrink-0">
@@ -46,7 +46,7 @@
         </div>
     </div>
 
-    <!-- Tabel Pembayaran -->
+    <!-- Tabel Pesanan & Pembayaran -->
     <div class="overflow-x-auto">
         <table class="w-full text-left text-xs border-collapse" id="payment-table">
             <thead>
@@ -55,13 +55,14 @@
                     <th class="px-4 py-3 sm:px-5">Pelanggan</th>
                     <th class="px-4 py-3 sm:px-5">Layanan</th>
                     <th class="px-4 py-3 sm:px-5">Jenis</th>
-                    <th class="px-4 py-3 sm:px-5">Pembayaran</th>
+                    <th class="px-4 py-3 sm:px-5">Status</th>
+                    <th class="px-4 py-3 sm:px-5">Tagihan</th>
                     <th class="px-4 py-3 sm:px-5 text-right">Aksi</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-[#E4E7EC]" id="payment-tbody">
                 @foreach ($pendingPayments as $item)
-                    <tr class="payment-row hover:bg-[#F5F8FC]/60 transition-colors" data-type="{{ $item['type'] }}">
+                    <tr class="payment-row hover:bg-[#F5F8FC]/60 transition-colors" data-type="{{ $item['type'] }}" id="payment-row-{{ $item['type'] }}-{{ $item['id'] }}">
                         <td class="px-4 py-3.5 sm:px-5 font-semibold text-[#101828] whitespace-nowrap tabular-nums">
                             {{ $item['time'] ?? '-' }}
                         </td>
@@ -83,18 +84,78 @@
                             @endif
                         </td>
                         <td class="px-4 py-3.5 sm:px-5 whitespace-nowrap">
-                            <span class="font-semibold text-[#101828] tabular-nums block">
-                                Rp {{ number_format($item['remaining_amount'], 0, ',', '.') }}
-                            </span>
-                            <span class="text-[11px] font-medium text-amber-600 block">
-                                {{ $item['payment_status_label'] }}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold {{ $item['status_badge_class'] ?? 'bg-gray-100 text-gray-700' }}">
+                                {{ $item['display_status'] ?? '-' }}
                             </span>
                         </td>
+                        <td class="px-4 py-3.5 sm:px-5 whitespace-nowrap">
+                            <span class="font-semibold text-[#101828] tabular-nums block">
+                                Rp {{ number_format($item['remaining_amount'] ?? $item['total_amount'] ?? 0, 0, ',', '.') }}
+                            </span>
+                            @if (!empty($item['payment_status_label']))
+                                <span class="text-[11px] font-medium {{ ($item['payment_status_label'] === 'Lunas') ? 'text-emerald-600' : 'text-amber-600' }} block">
+                                    {{ $item['payment_status_label'] }}
+                                </span>
+                            @endif
+                        </td>
                         <td class="px-4 py-3.5 sm:px-5 text-right whitespace-nowrap">
-                            <a href="{{ $item['pay_url'] }}"
-                               class="inline-flex items-center justify-center px-3 py-1.5 bg-[#062072] hover:bg-[#0B3A9E] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors whitespace-nowrap">
-                                Bayar di POS
-                            </a>
+                            @if (($item['action_type'] ?? '') === 'terima')
+                                <button type="button"
+                                    data-action="open-receive-modal"
+                                    data-order-id="{{ $item['id'] }}"
+                                    data-customer-name="{{ $item['customer_name'] }}"
+                                    data-service-name="{{ $item['service_name'] }}"
+                                    data-is-weight-based="{{ !empty($item['is_weight_based']) ? '1' : '0' }}"
+                                    data-price-per-kg="{{ $item['price_per_kg'] ?? 0 }}"
+                                    data-branch-id="{{ $activeBranch?->id }}"
+                                    data-submit-url="{{ route('pos.orders.receive', $item['id']) }}"
+                                    class="inline-flex items-center justify-center px-3 py-1.5 bg-[#062072] hover:bg-[#0B3A9E] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors whitespace-nowrap cursor-pointer">
+                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Terima
+                                </button>
+                            @elseif (($item['action_type'] ?? '') === 'input_berat')
+                                <button type="button"
+                                    data-action="open-weight-modal"
+                                    data-order-id="{{ $item['id'] }}"
+                                    data-customer-name="{{ $item['customer_name'] }}"
+                                    data-service-name="{{ $item['service_name'] }}"
+                                    data-price-per-kg="{{ $item['price_per_kg'] ?? 0 }}"
+                                    data-actual-weight="{{ $item['actual_weight'] ?? '' }}"
+                                    data-branch-id="{{ $activeBranch?->id }}"
+                                    data-submit-url="{{ route('pos.orders.weigh', $item['id']) }}"
+                                    class="inline-flex items-center justify-center px-3 py-1.5 bg-[#062072] hover:bg-[#0B3A9E] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors whitespace-nowrap cursor-pointer">
+                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
+                                    </svg>
+                                    Timbang
+                                </button>
+                            @elseif (($item['action_type'] ?? '') === 'detail')
+                                <a href="{{ $item['detail_url'] ?? '#' }}"
+                                    class="inline-flex items-center justify-center px-3 py-1.5 bg-[#F5F8FC] hover:bg-[#E4E7EC] text-[#062072] border border-[#D0D5DD] text-xs font-semibold rounded-lg shadow-2xs transition-colors whitespace-nowrap">
+                                    Lihat
+                                </a>
+                            @elseif (($item['action_type'] ?? '') === 'bayar')
+                                <button type="button"
+                                    data-action="open-payment-modal"
+                                    data-id="{{ $item['id'] }}"
+                                    data-type="{{ $item['type'] }}"
+                                    data-service-id="{{ $item['service_id'] ?? '' }}"
+                                    data-type-label="{{ $item['type_label'] }}"
+                                    data-customer-name="{{ $item['customer_name'] }}"
+                                    data-service-name="{{ $item['service_name'] }}"
+                                    data-total-amount="{{ $item['total_amount'] }}"
+                                    data-paid-amount="{{ $item['paid_amount'] }}"
+                                    data-remaining-amount="{{ $item['remaining_amount'] }}"
+                                    data-branch-id="{{ $activeBranch?->id }}"
+                                    data-branch-name="{{ $activeBranch?->display_name ?? $activeBranch?->name }}"
+                                    class="inline-flex items-center justify-center px-3 py-1.5 bg-[#062072] hover:bg-[#0B3A9E] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors whitespace-nowrap cursor-pointer">
+                                    Bayar
+                                </button>
+                            @else
+                                <span class="text-[#98A2B3] font-semibold text-xs px-2">—</span>
+                            @endif
                         </td>
                     </tr>
                 @endforeach
@@ -105,9 +166,9 @@
     <!-- Empty State -->
     @php
         $emptyMessage = match($currentFilter) {
-            'appointment' => 'Tidak ada pembayaran Appointment yang perlu ditangani.',
-            'drop_off' => 'Tidak ada pembayaran Drop-off yang perlu ditangani.',
-            default => 'Tidak ada pembayaran yang perlu ditangani.',
+            'appointment' => 'Tidak ada pesanan Appointment yang perlu ditangani.',
+            'drop_off' => 'Tidak ada pesanan Drop-off yang perlu ditangani.',
+            default => 'Tidak ada pesanan yang perlu ditangani.',
         };
     @endphp
     <div id="payment-empty-state" class="p-8 text-center {{ $pendingPayments->isEmpty() ? '' : 'hidden' }}">
@@ -117,6 +178,6 @@
             </svg>
         </div>
         <p class="text-xs font-semibold text-[#101828] m-0" id="payment-empty-text">{{ $emptyMessage }}</p>
-        <p class="text-[11px] text-[#667085] mt-1 m-0">Seluruh transaksi saat ini telah diselesaikan atau lunas.</p>
+        <p class="text-[11px] text-[#667085] mt-1 m-0">Seluruh pesanan saat ini telah diselesaikan atau lunas.</p>
     </div>
 </div>

@@ -50,7 +50,7 @@ class HomeController extends Controller
         $userMembership = $request->user()?->membership;
         $availableBranches = Branch::where('is_active', true)
             ->with(['services' => function ($query) {
-                $query->where('is_active', true)->with(['category', 'images']);
+                $query->where('is_active', true)->with('category');
             }])
             ->orderBy('id')
             ->get();

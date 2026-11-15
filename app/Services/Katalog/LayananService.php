@@ -133,18 +133,21 @@ class LayananService
         ];
 
         $branches = Branch::where('is_active', true)->orderBy('id')->get();
+        $allServices = Service::query()
+            ->with(['category', 'branch', 'images'])
+            ->whereIn('branch_id', $branches->pluck('id'))
+            ->where('is_active', true)
+            ->whereHas('category', function (Builder $q) {
+                $q->where('is_active', true);
+            })
+            ->orderBy('id')
+            ->get()
+            ->groupBy('branch_id');
+
         $landingServices = new Collection;
 
         foreach ($branches as $branch) {
-            $branchServices = Service::query()
-                ->with(['category', 'branch', 'images'])
-                ->where('branch_id', $branch->id)
-                ->where('is_active', true)
-                ->whereHas('category', function (Builder $q) {
-                    $q->where('is_active', true);
-                })
-                ->orderBy('id')
-                ->get();
+            $branchServices = $allServices->get($branch->id, collect());
 
             // Prioritaskan 3 layanan representatif per cabang
             $picked = $branchServices->filter(fn ($s) => in_array($s->name, $representativeNames))

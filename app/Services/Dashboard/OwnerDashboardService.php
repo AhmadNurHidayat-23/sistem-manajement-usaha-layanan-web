@@ -169,10 +169,11 @@ class OwnerDashboardService
     protected function getTopServices(int $limit = 5): array
     {
         $details = TransactionDetail::query()
-            ->whereRelation('transaction', 'status', StatusTransaksi::Paid)
+            ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
+            ->where('transactions.status', StatusTransaksi::Paid)
             ->with('service.category')
-            ->selectRaw('service_id, sum(qty) as total_qty, sum(subtotal) as total_revenue')
-            ->groupBy('service_id')
+            ->selectRaw('transaction_details.service_id, sum(transaction_details.qty) as total_qty, sum(transaction_details.subtotal) as total_revenue')
+            ->groupBy('transaction_details.service_id')
             ->orderByDesc('total_revenue')
             ->limit($limit)
             ->get();

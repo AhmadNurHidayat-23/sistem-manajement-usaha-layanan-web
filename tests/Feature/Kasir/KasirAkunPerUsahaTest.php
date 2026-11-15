@@ -46,7 +46,7 @@ class KasirAkunPerUsahaTest extends TestCase
 
             $dashResponse = $this->actingAs($user)->get(route('cashier.dashboard'));
             $dashResponse->assertOk();
-            $dashResponse->assertSee('Terminal POS');
+            $dashResponse->assertSee('Katalog Layanan');
 
             $this->post(route('logout'));
         }

@@ -50,7 +50,8 @@ class KasirHalamanShiftDanNavigasiTest extends TestCase
         $response->assertSee('Penjualan Shift');
         $response->assertSee('Kas Tunai di Laci');
         $response->assertSee(route('pos.shift.index'));
-        $response->assertSee('Bayar di POS');
+        $response->assertSee('Bayar');
+        $response->assertSee('modal-pembayaran-kasir');
 
         // Pastikan tombol Buka Terminal POS dan 4 kartu shortcut tidak ada di Dashboard
         $response->assertDontSee('Buka Terminal POS');
@@ -71,8 +72,8 @@ class KasirHalamanShiftDanNavigasiTest extends TestCase
         $response = $this->actingAs($kasir)->get(route('pos.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('Terminal POS | SIMAUL');
-        $response->assertSee('Terminal POS');
+        $response->assertSee('Katalog Layanan | SIMAUL');
+        $response->assertSee('Katalog Layanan');
         $response->assertSee('Kelola Shift Kasir');
         $response->assertSee(route('pos.shift.index'));
         // Tidak ada form tutup shift modal di terminal POS
@@ -135,10 +136,10 @@ class KasirHalamanShiftDanNavigasiTest extends TestCase
             ->assertSee('Dashboard Kasir | SIMAUL')
             ->assertSee('Dashboard Kasir');
 
-        // POS
+        // POS / Katalog Layanan
         $this->actingAs($kasir)->get(route('pos.index'))
-            ->assertSee('Terminal POS | SIMAUL')
-            ->assertSee('Terminal POS');
+            ->assertSee('Katalog Layanan | SIMAUL')
+            ->assertSee('Katalog Layanan');
 
         // Shift
         $this->actingAs($kasir)->get(route('pos.shift.index'))

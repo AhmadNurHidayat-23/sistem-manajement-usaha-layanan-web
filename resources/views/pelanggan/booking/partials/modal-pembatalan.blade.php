@@ -1,6 +1,6 @@
 {{-- Dialog Konfirmasi Pembatalan Janji Temu --}}
 @if(in_array($booking->status->value, ['pending', 'confirmed']))
-<x-modals.modal id="modal-cancel-booking" maxWidth="max-w-lg">
+<x-modals.modal id="modal-cancel-booking" maxWidth="max-w-lg" data-has-errors="{{ ($errors->has('cancellation_reason') || $errors->has('other_cancellation_reason')) ? 'true' : 'false' }}">
     <div class="max-h-[80vh] overflow-y-auto pr-1 -mr-1">
         <form id="form-cancel-booking" action="{{ route('customer.booking.cancel', $booking) }}" method="POST" class="space-y-4 m-0" novalidate>
             @csrf

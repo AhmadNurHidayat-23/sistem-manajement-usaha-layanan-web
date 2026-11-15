@@ -1,14 +1,30 @@
 /**
- * Modul transaksi kasir POS: pengelolaan keranjang, pencarian katalog,
- * voucher diskon, dan kalkulasi pembayaran.
+ * Modul Katalog Layanan & Interaksi POS SIMAUL
+ * Menangani pemilihan tipe transaksi, pemuatan booking/drop-off, filter katalog,
+ * dan sinkronisasi dengan modal keranjang & pembayaran terpadu.
  */
 
-let cart = [];
-let activeSource = 'direct';
+import {
+    addCartItem,
+    setCartItems,
+    getCartItems,
+    clearCartItems,
+    calculateTotals,
+    formatRupiah,
+    setAvailableCatalog
+} from './payment-cart.js';
 
-export function formatRupiah(num) {
-    return 'Rp ' + Number(num).toLocaleString('id-ID');
-}
+import { openPosDirectPayment } from './payment-modal.js';
+
+let activeSource = 'direct';
+let currentSourceMeta = {
+    bookingId: '',
+    orderId: '',
+    customerName: 'Pelanggan Umum',
+    customerPhone: '',
+    type: 'direct',
+    typeLabel: 'Walk-in'
+};
 
 export function selectSource(source) {
     activeSource = source;
@@ -21,196 +37,150 @@ export function selectSource(source) {
 
     [tabDirect, tabBooking, tabOrder].forEach(el => {
         if (el) {
-            el.className = 'py-2 px-3 rounded-md text-center text-[#667085] hover:text-[#101828] transition-all flex items-center justify-center gap-1.5';
+            el.className = 'py-2 px-3 rounded-md text-center text-[#667085] hover:text-[#101828] transition-all flex items-center justify-center gap-1.5 cursor-pointer';
         }
     });
 
-    const verBanner = document.getElementById('booking-verification-banner');
-    const confBanner = document.getElementById('booking-confirmed-banner');
-
     if (source === 'direct') {
-        if (tabDirect) tabDirect.className = 'py-2 px-3 rounded-md text-center font-bold bg-white text-[#062072] shadow-sm transition-all flex items-center justify-center gap-1.5';
-        if (badge) badge.innerText = 'Transaksi Langsung';
+        if (tabDirect) tabDirect.className = 'py-2 px-3 rounded-md text-center font-bold bg-white text-[#062072] shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer';
+        if (badge) badge.innerText = 'Transaksi Langsung (Walk-in)';
         bookingContainer?.classList.add('hidden');
         orderContainer?.classList.add('hidden');
-        if (verBanner) verBanner.classList.add('hidden');
-        if (confBanner) confBanner.classList.add('hidden');
-        const bInput = document.getElementById('booking_id');
-        const oInput = document.getElementById('order_id');
-        if (bInput) bInput.value = '';
-        if (oInput) oInput.value = '';
+        currentSourceMeta = { bookingId: '', orderId: '', customerName: 'Pelanggan Umum', customerPhone: '', type: 'direct', typeLabel: 'Walk-in' };
     } else if (source === 'booking') {
-        if (tabBooking) tabBooking.className = 'py-2 px-3 rounded-md text-center font-bold bg-white text-[#062072] shadow-sm transition-all flex items-center justify-center gap-1.5';
+        if (tabBooking) tabBooking.className = 'py-2 px-3 rounded-md text-center font-bold bg-white text-[#062072] shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer';
         if (badge) badge.innerText = 'Dari Booking Appointment';
         bookingContainer?.classList.remove('hidden');
         orderContainer?.classList.add('hidden');
-        const oInput = document.getElementById('order_id');
-        if (oInput) oInput.value = '';
     } else if (source === 'order') {
-        if (tabOrder) tabOrder.className = 'py-2 px-3 rounded-md text-center font-bold bg-white text-[#062072] shadow-sm transition-all flex items-center justify-center gap-1.5';
+        if (tabOrder) tabOrder.className = 'py-2 px-3 rounded-md text-center font-bold bg-white text-[#062072] shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer';
         if (badge) badge.innerText = 'Dari Drop-off Pesanan';
         orderContainer?.classList.remove('hidden');
         bookingContainer?.classList.add('hidden');
-        if (verBanner) verBanner.classList.add('hidden');
-        if (confBanner) confBanner.classList.add('hidden');
-        const bInput = document.getElementById('booking_id');
-        if (bInput) bInput.value = '';
     }
 }
 
 export function loadBookingData(bookingId) {
     if (!bookingId) {
-        document.getElementById('booking-verification-banner')?.classList.add('hidden');
-        document.getElementById('booking-confirmed-banner')?.classList.add('hidden');
-        return;
-    }
-    fetch(`/pos/source-data?type=booking&id=${bookingId}`)
-        .then(res => res.json())
-        .then(data => {
-            const bInput = document.getElementById('booking_id');
-            const oInput = document.getElementById('order_id');
-            const cName = document.getElementById('customer_name');
-            const cPhone = document.getElementById('customer_phone');
-            const verBanner = document.getElementById('booking-verification-banner');
-            const confBanner = document.getElementById('booking-confirmed-banner');
-
-            if (bInput) bInput.value = data.id;
-            if (oInput) oInput.value = '';
-            if (cName) cName.value = data.customer_name || '';
-            if (cPhone) cPhone.value = data.customer_phone || '';
-
-            // Handle status verification banner
-            if (data.is_pending_booking || data.status === 'pending') {
-                if (verBanner) verBanner.classList.remove('hidden');
-                if (confBanner) confBanner.classList.add('hidden');
-            } else if (data.status === 'confirmed' || data.status === 'in_progress') {
-                if (verBanner) verBanner.classList.add('hidden');
-                if (confBanner) confBanner.classList.remove('hidden');
-            } else {
-                if (verBanner) verBanner.classList.add('hidden');
-                if (confBanner) confBanner.classList.add('hidden');
-            }
-
-            cart = [];
-            if (data.items && data.items.length > 0) {
-                data.items.forEach(item => {
-                    cart.push({
-                        service_id: item.service_id,
-                        name: item.name,
-                        price: Number(item.price),
-                        qty: Number(item.qty) || 1
-                    });
-                });
-            }
-            renderCart();
-        })
-        .catch(err => console.error(err));
-}
-
-export function checkInCurrentBooking() {
-    const bookingInput = document.getElementById('booking_id');
-    const bookingId = bookingInput ? bookingInput.value : null;
-    if (!bookingId) {
-        alert('Pilih booking terlebih dahulu');
+        document.getElementById('booking-action-bar')?.classList.add('hidden');
         return;
     }
 
-    const btn = document.getElementById('btn-pos-checkin');
-    const originalText = btn ? btn.innerHTML : '';
-    if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Memverifikasi...`;
-    }
-
-    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-        || document.querySelector('input[name="_token"]')?.value;
-
-    fetch(`/pos/bookings/${bookingId}/check-in`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': token
-        }
+    fetch(`/pos/source-data?type=booking&id=${bookingId}`, {
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
     })
     .then(res => res.json())
     .then(data => {
-        if (data.success) {
-            const verBanner = document.getElementById('booking-verification-banner');
-            const confBanner = document.getElementById('booking-confirmed-banner');
-            if (verBanner) verBanner.classList.add('hidden');
-            if (confBanner) confBanner.classList.remove('hidden');
+        currentSourceMeta = {
+            bookingId: data.id,
+            orderId: '',
+            customerName: data.customer_name || 'Pelanggan Booking',
+            customerPhone: data.customer_phone || '',
+            type: 'appointment',
+            typeLabel: 'Appointment'
+        };
 
-            const selectEl = document.getElementById('select_booking_id');
-            if (selectEl) {
-                const opt = selectEl.querySelector(`option[value="${bookingId}"]`);
-                if (opt) {
-                    opt.textContent = opt.textContent.replace('[Belum Diverifikasi]', '[Terverifikasi]');
-                }
-            }
+        if (data.items && data.items.length > 0) {
+            setCartItems(data.items);
         } else {
-            alert(data.message || 'Gagal melakukan check-in booking.');
+            clearCartItems();
         }
+
+        updateHeaderCartBadge();
+        const actionBar = document.getElementById('booking-action-bar');
+        actionBar?.classList.remove('hidden');
     })
-    .catch(err => {
-        console.error(err);
-        alert('Terjadi kesalahan saat memproses check-in.');
-    })
-    .finally(() => {
-        if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-        }
-    });
+    .catch(err => console.error('Gagal memuat booking:', err));
 }
 
 export function loadOrderData(orderId) {
-    if (!orderId) return;
-    fetch(`/pos/source-data?type=order&id=${orderId}`)
-        .then(res => res.json())
-        .then(data => {
-            const oInput = document.getElementById('order_id');
-            const bInput = document.getElementById('booking_id');
-            const cName = document.getElementById('customer_name');
-            const cPhone = document.getElementById('customer_phone');
+    if (!orderId) {
+        document.getElementById('order-action-bar')?.classList.add('hidden');
+        return;
+    }
 
-            if (oInput) oInput.value = data.id;
-            if (bInput) bInput.value = '';
-            if (cName) cName.value = data.customer_name || '';
-            if (cPhone) cPhone.value = data.customer_phone || '';
+    fetch(`/pos/source-data?type=order&id=${orderId}`, {
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(res => res.json())
+    .then(data => {
+        currentSourceMeta = {
+            bookingId: '',
+            orderId: data.id,
+            customerName: data.customer_name || 'Pelanggan Drop-off',
+            customerPhone: data.customer_phone || '',
+            type: 'drop_off',
+            typeLabel: 'Drop-off'
+        };
 
-            cart = [];
-            if (data.items && data.items.length > 0) {
-                data.items.forEach(item => {
-                    cart.push({
-                        service_id: item.service_id,
-                        name: item.name,
-                        price: Number(item.price),
-                        qty: Number(item.qty) || 1
-                    });
-                });
-            }
-            renderCart();
-        })
-        .catch(err => console.error(err));
+        if (data.items && data.items.length > 0) {
+            setCartItems(data.items);
+        } else {
+            clearCartItems();
+        }
+
+        updateHeaderCartBadge();
+        const actionBar = document.getElementById('order-action-bar');
+        actionBar?.classList.remove('hidden');
+    })
+    .catch(err => console.error('Gagal memuat order:', err));
+}
+
+export function addItem(id, name, price) {
+    addCartItem(id, name, price, 1);
+    updateHeaderCartBadge();
+
+    // Visual feedback pada kartu layanan
+    const cardBtn = document.querySelector(`.service-card[data-id="${id}"] button`);
+    if (cardBtn) {
+        cardBtn.classList.add('bg-emerald-600', 'text-white');
+        setTimeout(() => {
+            cardBtn.classList.remove('bg-emerald-600', 'text-white');
+        }, 350);
+    }
+}
+
+export function openCatalogCartModal() {
+    const items = getCartItems();
+    const branchEl = document.querySelector('[data-active-branch-id]');
+    const branchId = branchEl ? branchEl.getAttribute('data-active-branch-id') : '';
+
+    openPosDirectPayment(items, {
+        branchId: branchId,
+        bookingId: currentSourceMeta.bookingId,
+        orderId: currentSourceMeta.orderId,
+        customerName: currentSourceMeta.customerName,
+        customerPhone: currentSourceMeta.customerPhone,
+        type: currentSourceMeta.type,
+        typeLabel: currentSourceMeta.typeLabel
+    });
+}
+
+export function updateHeaderCartBadge() {
+    const totals = calculateTotals();
+    const countBadge = document.getElementById('pos-header-cart-count');
+    const totalEl = document.getElementById('pos-header-cart-total');
+
+    if (countBadge) countBadge.textContent = totals.itemCount;
+    if (totalEl) totalEl.textContent = formatRupiah(totals.remaining);
 }
 
 export function filterServices() {
     const searchEl = document.getElementById('service-search');
-    const query = (searchEl?.value || '').toLowerCase();
+    const query = (searchEl?.value || '').toLowerCase().trim();
     const cards = document.querySelectorAll('.service-card');
     cards.forEach(card => {
         const name = (card.getAttribute('data-name') || '').toLowerCase();
-        card.style.display = name.includes(query) ? 'flex' : 'none';
+        card.style.display = (!query || name.includes(query)) ? 'flex' : 'none';
     });
 }
 
 export function filterCategory(catId) {
     document.querySelectorAll('.cat-btn').forEach(btn => {
         if (btn.getAttribute('data-cat') === String(catId)) {
-            btn.className = 'cat-btn px-2.5 py-1 rounded-md font-semibold bg-[#062072] text-white shrink-0';
+            btn.className = 'cat-btn px-2.5 py-1 rounded-md font-semibold bg-[#062072] text-white shrink-0 cursor-pointer';
         } else {
-            btn.className = 'cat-btn px-2.5 py-1 rounded-md font-medium text-[#667085] hover:bg-[#F5F8FC] hover:text-[#101828] border border-transparent shrink-0';
+            btn.className = 'cat-btn px-2.5 py-1 rounded-md font-medium text-[#667085] hover:bg-[#F5F8FC] hover:text-[#101828] border border-transparent shrink-0 cursor-pointer';
         }
     });
 
@@ -225,249 +195,40 @@ export function filterCategory(catId) {
     });
 }
 
-export function addItem(id, name, price) {
-    const existing = cart.find(i => i.service_id === id);
-    if (existing) {
-        existing.qty += 1;
-    } else {
-        cart.push({
-            service_id: id,
-            name: name,
-            price: Number(price),
-            qty: 1
+export function syncPosFromModalCart() {
+    updateHeaderCartBadge();
+}
+
+// Inisialisasi event listeners katalog
+export function initPosCatalogListeners() {
+    document.getElementById('service-search')?.addEventListener('input', filterServices);
+    document.getElementById('btn-open-cart-checkout')?.addEventListener('click', openCatalogCartModal);
+    document.getElementById('btn-booking-checkout')?.addEventListener('click', openCatalogCartModal);
+    document.getElementById('btn-order-checkout')?.addEventListener('click', openCatalogCartModal);
+
+    // Kumpulkan layanan yang ter-render di katalog untuk caching search modal
+    const services = [];
+    document.querySelectorAll('.service-card').forEach(card => {
+        services.push({
+            id: Number(card.getAttribute('data-id')),
+            name: card.getAttribute('data-name'),
+            price: Number(card.getAttribute('data-price')),
+            category_id: card.getAttribute('data-cat'),
+            category_name: card.querySelector('.category-label')?.textContent?.trim() || 'Layanan'
         });
-    }
-    renderCart();
-}
-
-export function updateQty(id, delta) {
-    const item = cart.find(i => i.service_id === id);
-    if (!item) return;
-    item.qty += delta;
-    if (item.qty <= 0) {
-        cart = cart.filter(i => i.service_id !== id);
-    }
-    renderCart();
-}
-
-export function removeItem(id) {
-    cart = cart.filter(i => i.service_id !== id);
-    renderCart();
-}
-
-export function clearCart() {
-    cart = [];
-    const promoCode = document.getElementById('applied_promo_code');
-    const discount = document.getElementById('applied_discount');
-    const promoStatus = document.getElementById('promo-status');
-    const promoInput = document.getElementById('promo_code_input');
-
-    if (promoCode) promoCode.value = '';
-    if (discount) discount.value = '0';
-    if (promoStatus) promoStatus.className = 'text-[11px] hidden font-semibold';
-    if (promoInput) promoInput.value = '';
-    renderCart();
-}
-
-export function getSubtotal() {
-    return cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-}
-
-export function renderCart() {
-    const container = document.getElementById('cart-container');
-    if (!container) return;
-    container.innerHTML = '';
-
-    if (cart.length === 0) {
-        container.innerHTML = `
-            <div id="empty-cart-msg" class="py-8 text-center text-xs text-[#667085]">
-                Keranjang kosong. Pilih layanan di katalog sebelah kiri.
-            </div>
-        `;
-    } else {
-        cart.forEach((item, index) => {
-            const sub = item.price * item.qty;
-            const row = document.createElement('div');
-            row.className = 'pt-2 flex items-center justify-between gap-2 text-xs';
-            row.innerHTML = `
-                <div class="flex-1 pr-2">
-                    <div class="font-bold text-[#101828] line-clamp-1">${item.name}</div>
-                    <div class="text-[11px] text-[#667085]">${formatRupiah(item.price)}</div>
-                    <input type="hidden" name="items[${index}][service_id]" value="${item.service_id}">
-                    <input type="hidden" name="items[${index}][qty]" value="${item.qty}">
-                    <input type="hidden" name="items[${index}][price]" value="${item.price}">
-                </div>
-                <div class="flex items-center gap-1.5">
-                    <button type="button" onclick="updateQty(${item.service_id}, -1)" class="w-6 h-6 rounded bg-[#F5F8FC] border border-[#E4E7EC] hover:bg-[#E4E7EC] flex items-center justify-center font-bold text-[#101828]">-</button>
-                    <span class="w-5 text-center font-bold text-[#101828]">${item.qty}</span>
-                    <button type="button" onclick="updateQty(${item.service_id}, 1)" class="w-6 h-6 rounded bg-[#F5F8FC] border border-[#E4E7EC] hover:bg-[#E4E7EC] flex items-center justify-center font-bold text-[#101828]">+</button>
-                </div>
-                <div class="w-20 text-right font-bold text-[#062072]">
-                    ${formatRupiah(sub)}
-                </div>
-                <button type="button" onclick="removeItem(${item.service_id})" class="text-[#667085] hover:text-rose-600 transition-colors p-1" title="Hapus">
-                    &times;
-                </button>
-            `;
-            container.appendChild(row);
-        });
-    }
-
-    const subtotal = getSubtotal();
-    const discount = Number(document.getElementById('applied_discount')?.value) || 0;
-    const total = Math.max(0, subtotal - discount);
-
-    const subEl = document.getElementById('summary-subtotal');
-    const discEl = document.getElementById('summary-discount');
-    const totEl = document.getElementById('summary-total');
-
-    if (subEl) subEl.innerText = formatRupiah(subtotal);
-    if (discEl) discEl.innerText = '- ' + formatRupiah(discount);
-    if (totEl) totEl.innerText = formatRupiah(total);
-
-    calculateChange();
-}
-
-export function applyPromoCode() {
-    const code = document.getElementById('promo_code_input')?.value.trim();
-    const subtotal = getSubtotal();
-    const branchEl = document.querySelector('[data-active-branch-id]');
-    const branchId = branchEl ? branchEl.getAttribute('data-active-branch-id') : '';
-    const statusEl = document.getElementById('promo-status');
-
-    if (!code) {
-        if (statusEl) {
-            statusEl.className = 'text-[11px] block font-semibold text-rose-600';
-            statusEl.innerText = 'Silakan ketikkan kode promo terlebih dahulu.';
-        }
-        return;
-    }
-
-    if (subtotal <= 0) {
-        if (statusEl) {
-            statusEl.className = 'text-[11px] block font-semibold text-rose-600';
-            statusEl.innerText = 'Keranjang masih kosong. Tambah item dahulu.';
-        }
-        return;
-    }
-
-    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-    const validateUrl = branchEl?.getAttribute('data-validate-promo-url') || '/promotions/validate';
-
-    fetch(validateUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': token
-        },
-        body: JSON.stringify({
-            code: code,
-            amount: subtotal,
-            branch_id: branchId
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.valid) {
-            const discount = Number(data.discount_amount) || 0;
-            const appliedCode = document.getElementById('applied_promo_code');
-            const appliedDisc = document.getElementById('applied_discount');
-            if (appliedCode) appliedCode.value = code;
-            if (appliedDisc) appliedDisc.value = discount;
-
-            if (statusEl) {
-                statusEl.className = 'text-[11px] block font-semibold text-emerald-600';
-                statusEl.innerText = `Promo ${code} aktif! Hemat ${formatRupiah(discount)}`;
-            }
-        } else {
-            const appliedCode = document.getElementById('applied_promo_code');
-            const appliedDisc = document.getElementById('applied_discount');
-            if (appliedCode) appliedCode.value = '';
-            if (appliedDisc) appliedDisc.value = 0;
-
-            if (statusEl) {
-                statusEl.className = 'text-[11px] block font-semibold text-rose-600';
-                statusEl.innerText = data.message || 'Kode promo tidak valid atau syarat belanja belum tercapai.';
-            }
-        }
-        renderCart();
-    })
-    .catch(err => {
-        console.error(err);
-        if (statusEl) {
-            statusEl.className = 'text-[11px] block font-semibold text-rose-600';
-            statusEl.innerText = 'Gagal memvalidasi kode promo.';
-        }
     });
-}
-
-export function togglePaymentFields(method) {
-    const cashDiv = document.getElementById('cash-fields');
-    const nonCashDiv = document.getElementById('non-cash-fields');
-
-    if (method === 'cash') {
-        cashDiv?.classList.remove('hidden');
-        nonCashDiv?.classList.add('hidden');
-    } else {
-        cashDiv?.classList.add('hidden');
-        nonCashDiv?.classList.remove('hidden');
+    if (services.length > 0) {
+        setAvailableCatalog(services);
     }
 }
 
-export function setExactCash() {
-    const subtotal = getSubtotal();
-    const discount = Number(document.getElementById('applied_discount')?.value) || 0;
-    const total = Math.max(0, subtotal - discount);
-    const cashInput = document.getElementById('cash_received');
-    if (cashInput) {
-        cashInput.value = total;
-    }
-    calculateChange();
-}
-
-export function addCash(amount) {
-    const cashInput = document.getElementById('cash_received');
-    if (!cashInput) return;
-    const current = Number(cashInput.value) || 0;
-    cashInput.value = current + amount;
-    calculateChange();
-}
-
-export function calculateChange() {
-    const subtotal = getSubtotal();
-    const discount = Number(document.getElementById('applied_discount')?.value) || 0;
-    const total = Math.max(0, subtotal - discount);
-    const cashReceived = Number(document.getElementById('cash_received')?.value) || 0;
-    const change = cashReceived - total;
-
-    const changeDisplay = document.getElementById('change-display');
-    if (!changeDisplay) return;
-
-    if (change >= 0) {
-        changeDisplay.className = 'font-bold text-emerald-700 text-sm';
-        changeDisplay.innerText = formatRupiah(change);
-    } else {
-        changeDisplay.className = 'font-bold text-rose-600 text-sm';
-        changeDisplay.innerText = 'Kurang ' + formatRupiah(Math.abs(change));
-    }
-}
-
-// Bind secara global untuk inline event handler Blade
-if (typeof window !== 'undefined') {
-    window.selectSource = selectSource;
-    window.loadBookingData = loadBookingData;
-    window.loadOrderData = loadOrderData;
-    window.filterServices = filterServices;
-    window.filterCategory = filterCategory;
-    window.addItem = addItem;
-    window.updateQty = updateQty;
-    window.removeItem = removeItem;
-    window.clearCart = clearCart;
-    window.applyPromoCode = applyPromoCode;
-    window.togglePaymentFields = togglePaymentFields;
-    window.setExactCash = setExactCash;
-    window.addCash = addCash;
-    window.calculateChange = calculateChange;
-    window.formatRupiah = formatRupiah;
-    window.checkInCurrentBooking = checkInCurrentBooking;
-}
+// Expose global
+window.selectSource = selectSource;
+window.loadBookingData = loadBookingData;
+window.loadOrderData = loadOrderData;
+window.addItem = addItem;
+window.openCatalogCartModal = openCatalogCartModal;
+window.filterServices = filterServices;
+window.filterCategory = filterCategory;
+window.syncPosFromModalCart = syncPosFromModalCart;
+window.initPosCatalogListeners = initPosCatalogListeners;

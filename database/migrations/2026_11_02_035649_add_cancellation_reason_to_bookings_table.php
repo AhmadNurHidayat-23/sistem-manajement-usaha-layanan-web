@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('bookings', function (Blueprint $table) {
-            $table->text('cancellation_reason')->nullable()->after('notes');
+            if (! Schema::hasColumn('bookings', 'cancellation_reason')) {
+                $table->text('cancellation_reason')->nullable()->after('notes');
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('bookings', function (Blueprint $table) {
-            $table->dropColumn('cancellation_reason');
+            if (Schema::hasColumn('bookings', 'cancellation_reason')) {
+                $table->dropColumn('cancellation_reason');
+            }
         });
     }
 };

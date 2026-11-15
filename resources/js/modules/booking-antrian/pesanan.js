@@ -168,6 +168,13 @@ export function initPesananCreate() {
         qtyInput.addEventListener('input', updateServiceFields);
     }
 
+    const submitOrderBtn = document.getElementById('btn-submit-order');
+    if (submitOrderBtn && submitOrderBtn.form) {
+        submitOrderBtn.form.addEventListener('submit', () => {
+            submitOrderBtn.disabled = true;
+        });
+    }
+
     if (typeof window !== 'undefined') {
         window.updateQuantityLabel = updateServiceFields;
         window.filterServicesByBranch = filterServicesByBranch;

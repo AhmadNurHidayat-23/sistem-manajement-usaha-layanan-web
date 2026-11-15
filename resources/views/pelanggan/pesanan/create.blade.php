@@ -200,7 +200,7 @@
                 </a>
                 <button type="submit" id="btn-konfirmasi-order"
                     class="inline-flex items-center px-5 py-2.5 bg-[#062072] hover:bg-[#04184F] text-white rounded-lg text-sm font-semibold transition-colors cursor-pointer shadow-sm border-0">
-                    Lihat Estimasi & Konfirmasi
+                    Pesan
                 </button>
             </div>
         </form>

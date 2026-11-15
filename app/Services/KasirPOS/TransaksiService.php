@@ -97,7 +97,7 @@ class TransaksiService
                     throw ValidationException::withMessages(['items' => 'Layanan tidak ditemukan.']);
                 }
 
-                $qty = max(1, (float) $item['qty']);
+                $qty = max(0.01, (float) $item['qty']);
                 $itemSubtotal = (float) $service->price * $qty;
                 $subtotal += $itemSubtotal;
 
@@ -147,6 +147,13 @@ class TransaksiService
 
             $discount = min($subtotal, max(0, $discount));
             $total = max(0, $subtotal - $discount);
+
+            if ($data['payment_method'] === 'cash' && array_key_exists('cash_received', $data) && $data['cash_received'] !== null && (float) $data['cash_received'] < $total) {
+                throw ValidationException::withMessages([
+                    'cash_received' => 'Nominal uang tunai yang diterima kurang dari total tagihan (Rp '.number_format($total, 0, ',', '.').').',
+                ]);
+            }
+
             $transactionCode = 'TRX-'.now()->format('Ymd').'-'.strtoupper(Str::random(6));
 
             $isGateway = in_array($data['payment_method'], ['qris', 'e_wallet', 'virtual_account'], true);

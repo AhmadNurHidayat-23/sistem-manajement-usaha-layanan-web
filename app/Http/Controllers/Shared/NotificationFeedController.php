@@ -73,7 +73,7 @@ class NotificationFeedController extends Controller
     {
         $user = $request->user();
         if ($user) {
-            $user->unreadNotifications->markAsRead();
+            $user->unreadNotifications()->update(['read_at' => now()]);
             Cache::forget("user_notif_unread_{$user->id}");
         }
 

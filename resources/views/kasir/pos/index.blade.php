@@ -1,18 +1,20 @@
-@extends('layouts.app', ['title' => 'Terminal POS | SIMAUL'])
+@extends('layouts.app', ['title' => 'Katalog Layanan | SIMAUL'])
 
 @section('content')
 <div class="space-y-5" data-active-branch-id="{{ $activeBranch?->id }}" data-validate-promo-url="{{ route('promotions.validate') }}">
-    <!-- Aksi utama dan status shift -->
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <!-- Aksi utama dan navigasi cabang -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-[#E4E7EC]">
         <div>
             <h3 class="text-xl font-bold text-[#101828] m-0 flex items-center gap-2">
-                <x-icons.icon name="cart" class="w-6 h-6 text-[#062072]" />
-                Terminal POS
+                <svg class="w-6 h-6 text-[#062072]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                <span>Katalog Layanan</span>
             </h3>
-            <p class="text-xs text-[#667085] mt-1 m-0">Melayani transaksi langsung, pembayaran booking, dan pesanan drop-off.</p>
+            <p class="text-xs text-[#667085] mt-1 m-0">Katalog layanan aktif cabang untuk melayani transaksi langsung (walk-in), pembayaran booking, dan pesanan drop-off.</p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2.5">
+        <div class="flex flex-wrap items-center gap-3">
             @if ($accessibleBranches->count() > 1)
                 <!-- Pilihan cabang untuk Owner dan Manager -->
                 <form method="GET" action="{{ route('pos.index') }}" class="flex items-center gap-2 m-0">
@@ -29,6 +31,16 @@
                     {{ $activeBranch->display_name }}
                 </span>
             @endif
+
+            {{-- Tombol Pop-up Keranjang & Pembayaran --}}
+            <button type="button" id="btn-open-cart-checkout" class="inline-flex items-center gap-2.5 px-4 py-2 bg-[#062072] hover:bg-[#0B3A9E] text-white text-xs font-bold rounded-lg shadow-sm transition-all cursor-pointer">
+                <svg class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                </svg>
+                <span>Keranjang & Pembayaran</span>
+                <span id="pos-header-cart-count" class="px-2 py-0.5 rounded-full text-[11px] bg-white text-[#062072] font-black">0</span>
+                <span id="pos-header-cart-total" class="font-extrabold border-l border-white/20 pl-2">Rp 0</span>
+            </button>
         </div>
     </div>
 
@@ -38,17 +50,6 @@
     @endif
     @if (session('error'))
         <x-alerts.alert type="danger" :message="session('error')" />
-    @endif
-
-    @if ($errors->any())
-        <div class="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg text-sm">
-            <p class="font-semibold mb-1">Terjadi kesalahan validasi:</p>
-            <ul class="list-disc list-inside space-y-0.5 text-xs">
-                @foreach ($errors->all() as $err)
-                    <li>{{ $err }}</li>
-                @endforeach
-            </ul>
-        </div>
     @endif
 
     <!-- Indikator Ringkas Status Shift Kasir -->
@@ -84,21 +85,19 @@
         </div>
     @endif
 
-    <!-- Tata letak terminal POS -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <!-- Pilihan sumber transaksi dan katalog -->
-        <div class="lg:col-span-7 space-y-4">
-            @include('kasir.pos.partials.source-selector')
-            @include('kasir.pos.partials.catalog')
-        </div>
+    {{-- Tata Letak Katalog Layanan: Luas, Responsif & Mengambil Full Width --}}
+    <div class="space-y-5">
+        <!-- Pilihan sumber transaksi (Walk-in, Booking, Drop-off) -->
+        @include('kasir.pos.partials.source-selector')
 
-        <!-- Keranjang dan pembayaran -->
-        <div class="lg:col-span-5">
-            @include('kasir.pos.partials.cart')
-        </div>
+        <!-- Grid Katalog Layanan -->
+        @include('kasir.pos.partials.catalog')
     </div>
 </div>
 
 <!-- Modal operasional pendaftaran member cepat -->
 @include('kasir.member.partials.modal-register')
+
+<!-- Modal terpadu keranjang & pembayaran kasir -->
+@include('kasir.pembayaran.partials.modal-pembayaran')
 @endsection

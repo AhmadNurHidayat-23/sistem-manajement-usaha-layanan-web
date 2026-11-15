@@ -108,6 +108,10 @@ class StatusPekerjaanService
             throw new AuthorizationException('Karyawan tidak memiliki wewenang untuk membatalkan order.');
         }
 
+        if ($targetStatus === StatusPesanan::Processing->value && $order->isWeightBased() && ! $order->isWeighed()) {
+            throw new InvalidArgumentException('Pesanan laundry kiloan harus ditimbang dan dikonfirmasi kasir terlebih dahulu sebelum pengerjaan dapat dimulai.');
+        }
+
         $changes = ['status' => $targetStatus];
 
         if ($targetStatus === StatusPesanan::Processing->value && is_null($order->estimated_finish_at)) {

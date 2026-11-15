@@ -14,7 +14,7 @@ import { initProfileDropdown } from './internal/profile-dropdown.js';
 import { initLinkPrefetch } from './internal/link-prefetch.js';
 import { initNavProgress } from './internal/nav-progress.js';
 import './modules/kasir-pos/kasir-shift.js';
-import './modules/kasir-pos/pos-transaction.js';
+import { initPosCatalogListeners } from './modules/kasir-pos/pos-transaction.js';
 import './modules/karyawan/employee-skills.js';
 import { initPaymentPolling } from './modules/kasir-pos/payment-polling.js';
 import { initShiftPageListeners, initPosQueryLoader } from './modules/kasir-pos/shift-page.js';
@@ -28,6 +28,15 @@ import { initShiftModalListeners } from './modules/karyawan/shift-modal.js';
 import { initInventoryModalListeners } from './modules/inventori/inventory-modal.js';
 import { initServiceModalListeners } from './modules/katalog/service-modal.js';
 import { initReceiptWaHandlers } from './modules/kasir-pos/receipt.js';
+import { initPaymentModal } from './modules/kasir-pos/payment-modal.js';
+import { initTaskModalListeners } from './modules/karyawan/task-modal.js';
+import { initManagerBookingCancel } from './modules/manager/booking-cancel.js';
+import { initCommissionFormListeners } from './modules/manager/commission-form.js';
+import { initCustomerBookingCancel } from './modules/booking-antrian/customer-booking-cancel.js';
+import { initCustomerBookingCreate } from './modules/booking-antrian/customer-booking-create.js';
+import { initWeightModal } from './modules/kasir-pos/weight-modal.js';
+import { initReceiveModal } from './modules/kasir-pos/receive-modal.js';
+import { initCustomerDelivery } from './modules/booking-antrian/customer-delivery.js';
 import './landing/carousel.js';
 
 // Expose fungsi ke window untuk aksesibilitas global dan inline handler
@@ -78,6 +87,16 @@ export function initApp(root = document) {
     initInventoryModalListeners(root);
     initServiceModalListeners(root);
     initReceiptWaHandlers(root);
+    initPaymentModal();
+    initPosCatalogListeners();
+    initTaskModalListeners();
+    initManagerBookingCancel();
+    initCommissionFormListeners();
+    initCustomerBookingCancel();
+    initCustomerBookingCreate();
+    initWeightModal();
+    initReceiveModal();
+    initCustomerDelivery();
 }
 
 window.initAllPickers = initApp;

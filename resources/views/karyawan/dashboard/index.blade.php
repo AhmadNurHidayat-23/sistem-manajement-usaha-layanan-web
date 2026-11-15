@@ -69,4 +69,7 @@
         </div>
     @endif
 </div>
+
+{{-- Modal Konfirmasi Tugas Layanan --}}
+@include('karyawan.dashboard.partials.modal-konfirmasi-tugas')
 @endsection

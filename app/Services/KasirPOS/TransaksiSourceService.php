@@ -88,12 +88,9 @@ class TransaksiSourceService
         }
 
         if ($includeAppointments) {
-            $bookings = Booking::with(['service', 'user', 'details.service', 'transaction.payments'])
+            $bookings = Booking::with(['service.category', 'user', 'details.service', 'transaction.payments'])
                 ->where('branch_id', $branch->id)
                 ->whereNotIn('status', [BookingStatus::Cancelled])
-                ->whereDoesntHave('transaction', function ($q) {
-                    $q->where('status', StatusTransaksi::Paid);
-                })
                 ->whereHas('service', function ($q) use ($branch) {
                     $q->whereIn('service_type', ['appointment', 'both'])->orWhereNull('service_type')
                         ->where(function ($sub) use ($branch) {
@@ -106,25 +103,37 @@ class TransaksiSourceService
 
             foreach ($bookings as $b) {
                 $trx = $b->transaction;
+                $isPaid = $trx && $trx->status === StatusTransaksi::Paid;
                 $totalBill = $trx ? (float) $trx->total : ((float) ($b->service?->price ?? 0) + (float) $b->details->sum('subtotal'));
                 $paid = $trx ? (float) $trx->payments->whereIn('status', [StatusPembayaran::Completed, StatusPembayaran::Paid])->sum('amount') : 0.0;
                 $remaining = max(0, $totalBill - $paid);
 
-                if ($remaining <= 0 || $totalBill <= 0) {
-                    continue;
-                }
-
                 $rawTime = $b->booking_date ? $b->booking_date->copy() : now();
-                if ($b->booking_time) {
-                    $timeStr = is_string($b->booking_time) ? substr($b->booking_time, 0, 5) : $b->booking_time->format('H:i');
+                $timeStr = $b->booking_time ? (is_string($b->booking_time) ? substr($b->booking_time, 0, 5) : $b->booking_time->format('H:i')) : '-';
+
+                if ($isPaid) {
+                    $displayStatus = 'Lunas';
+                    $badgeClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+                    $actionType = 'none';
+                } elseif ($b->status === BookingStatus::Pending) {
+                    $displayStatus = 'Menunggu';
+                    $badgeClass = 'bg-amber-50 text-amber-700 border border-amber-200';
+                    $actionType = 'none';
+                } elseif ($b->status === BookingStatus::Confirmed) {
+                    $displayStatus = 'Diproses';
+                    $badgeClass = 'bg-blue-50 text-blue-700 border border-blue-200';
+                    $actionType = 'bayar';
                 } else {
-                    $timeStr = '-';
+                    $displayStatus = 'Siap Diambil / Diantar';
+                    $badgeClass = 'bg-teal-50 text-teal-700 border border-teal-200';
+                    $actionType = 'bayar';
                 }
 
                 $items->push([
                     'id' => $b->id,
                     'uuid' => $b->uuid,
                     'type' => 'appointment',
+                    'service_id' => $b->service_id,
                     'type_label' => 'Appointment',
                     'type_badge_class' => 'bg-blue-50 text-[#062072] border border-blue-200',
                     'customer_name' => $b->user?->name ?? 'Pelanggan',
@@ -134,19 +143,20 @@ class TransaksiSourceService
                     'total_amount' => $totalBill,
                     'paid_amount' => $paid,
                     'remaining_amount' => $remaining,
-                    'payment_status_label' => $paid > 0 ? 'Sebagian' : 'Belum Lunas',
+                    'display_status' => $displayStatus,
+                    'status_badge_class' => $badgeClass,
+                    'action_type' => $actionType,
+                    'detail_url' => route('bookings.show', $b->id),
+                    'payment_status_label' => $isPaid ? 'Lunas' : ($paid > 0 ? 'Sebagian' : 'Belum Lunas'),
                     'pay_url' => route('pos.index', ['branch_id' => $branch->id, 'booking_id' => $b->id]),
                 ]);
             }
         }
 
         if ($includeDropOff) {
-            $orders = Order::with(['service', 'user', 'details.service', 'transaction.payments'])
+            $orders = Order::with(['service.category', 'user', 'details.service', 'transaction.payments'])
                 ->where('branch_id', $branch->id)
                 ->whereNotIn('status', [StatusPesanan::Cancelled])
-                ->whereDoesntHave('transaction', function ($q) {
-                    $q->where('status', StatusTransaksi::Paid);
-                })
                 ->whereHas('service', function ($q) use ($branch) {
                     $q->whereIn('service_type', ['drop_off', 'both'])->orWhereNull('service_type')
                         ->where(function ($sub) use ($branch) {
@@ -159,22 +169,41 @@ class TransaksiSourceService
 
             foreach ($orders as $o) {
                 $trx = $o->transaction;
-                $qty = max(1, (float) ($o->estimated_quantity ?: 1));
-                $totalBill = $trx ? (float) $trx->total : (((float) ($o->service?->price ?? 0) * $qty) + (float) $o->details->sum('subtotal'));
+                $isPaid = $o->isPaid();
+                $totalBill = $o->calculateBill();
                 $paid = $trx ? (float) $trx->payments->whereIn('status', [StatusPembayaran::Completed, StatusPembayaran::Paid])->sum('amount') : 0.0;
                 $remaining = max(0, $totalBill - $paid);
 
-                if ($remaining <= 0 || $totalBill <= 0) {
-                    continue;
-                }
-
                 $rawTime = $o->created_at ?? now();
                 $timeStr = $o->created_at ? $o->created_at->format('H:i') : '-';
+
+                if ($isPaid) {
+                    $displayStatus = 'Lunas';
+                    $badgeClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+                    $actionType = 'none';
+                } elseif ($o->status === StatusPesanan::Pending) {
+                    $displayStatus = 'Menunggu';
+                    $badgeClass = 'bg-amber-50 text-amber-700 border border-amber-200';
+                    $actionType = 'terima';
+                } elseif ($o->status === StatusPesanan::Received && $o->isWeightBased() && ! $o->isWeighed()) {
+                    $displayStatus = 'Belum Ditimbang';
+                    $badgeClass = 'bg-rose-50 text-rose-700 border border-rose-200';
+                    $actionType = 'input_berat';
+                } elseif ($o->status === StatusPesanan::Ready || $o->status === StatusPesanan::Completed) {
+                    $displayStatus = 'Siap Diambil / Diantar';
+                    $badgeClass = 'bg-teal-50 text-teal-700 border border-teal-200';
+                    $actionType = 'bayar';
+                } else {
+                    $displayStatus = $o->status === StatusPesanan::Received ? 'Diterima' : 'Diproses';
+                    $badgeClass = 'bg-blue-50 text-blue-700 border border-blue-200';
+                    $actionType = 'detail';
+                }
 
                 $items->push([
                     'id' => $o->id,
                     'uuid' => $o->uuid,
                     'type' => 'drop_off',
+                    'service_id' => $o->service_id,
                     'type_label' => 'Drop-off',
                     'type_badge_class' => 'bg-amber-50 text-amber-800 border border-amber-200',
                     'customer_name' => $o->user?->name ?? 'Pelanggan',
@@ -184,7 +213,17 @@ class TransaksiSourceService
                     'total_amount' => $totalBill,
                     'paid_amount' => $paid,
                     'remaining_amount' => $remaining,
-                    'payment_status_label' => $paid > 0 ? 'Sebagian' : 'Belum Lunas',
+                    'display_status' => $displayStatus,
+                    'status_badge_class' => $badgeClass,
+                    'action_type' => $actionType,
+                    'detail_url' => route('orders.show', $o->id),
+                    'receive_url' => route('pos.orders.receive', $o->id),
+                    'employee_id' => $o->employee_id,
+                    'actual_weight' => $o->actual_weight,
+                    'price_per_kg' => (float) ($o->service?->price ?? 0),
+                    'is_weight_based' => $o->isWeightBased(),
+                    'is_weighed' => $o->isWeighed(),
+                    'payment_status_label' => $isPaid ? 'Lunas' : ($paid > 0 ? 'Sebagian' : 'Belum Lunas'),
                     'pay_url' => route('pos.index', ['branch_id' => $branch->id, 'order_id' => $o->id]),
                 ]);
             }
@@ -216,7 +255,9 @@ class TransaksiSourceService
 
         $items = [];
         if ($source->service) {
-            $qty = ($type === 'order' && ! empty($source->estimated_quantity)) ? (int) $source->estimated_quantity : 1;
+            $qty = ($type === 'order')
+                ? (float) ($source->actual_weight ?: $source->estimated_quantity ?: 1)
+                : 1.0;
             $items[] = [
                 'service_id' => $source->service->id,
                 'name' => $source->service->name,

@@ -60,8 +60,10 @@ Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer
     Route::get('/pesanan/{order}', [PelangganPesananController::class, 'showOrder'])->name('pesanan.show');
     Route::patch('/pesanan/{order}/batal', [PelangganPesananController::class, 'cancelOrder'])->name('pesanan.cancel');
 
-    // Pembayaran
+    // Pembayaran & Penyerahan Pesanan
     Route::get('/pesanan/{order}/pembayaran', [PelangganPembayaranController::class, 'show'])->name('pembayaran.show');
+    Route::patch('/pesanan/{order}/delivery-method', [PelangganPembayaranController::class, 'updateDeliveryMethod'])->name('pesanan.delivery-method');
+    Route::get('/pesanan/{order}/pay-online', [PelangganPembayaranController::class, 'payOnline'])->name('pesanan.pay-online');
 
     // Member & Poin
     Route::get('/member', [PelangganMemberController::class, 'index'])->name('member');

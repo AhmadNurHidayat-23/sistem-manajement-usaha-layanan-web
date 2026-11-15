@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Kasir;
 
 use App\Enums\BookingStatus;
+use App\Enums\StatusPesanan;
 use App\Enums\StatusTransaksi;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Employee;
 use App\Models\Order;
 use App\Models\Service;
 use App\Models\Transaction;
@@ -13,6 +15,7 @@ use App\Services\BookingAntrian\StatusPekerjaanService;
 use App\Services\KasirPOS\KasirService;
 use App\Services\KasirPOS\TransaksiService;
 use App\Services\NotifikasiService;
+use App\Services\OperationalNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -34,7 +37,7 @@ class PosController extends Controller
         $accessibleBranches = $this->kasirService->getAccessibleBranches($user);
 
         $selectedBranchId = $request->input('branch_id');
-        $activeBranch = $this->kasirService->getActiveBranchForUser($user, $selectedBranchId ? (int) $selectedBranchId : null);
+        $activeBranch = $this->kasirService->getActiveBranchForUser($user, $selectedBranchId ? (int) $selectedBranchId : null, $accessibleBranches);
 
         $activeShift = null;
         $shiftSummary = null;
@@ -120,6 +123,34 @@ class PosController extends Controller
     }
 
     /**
+     * Ambil daftar katalog layanan aktif untuk cabang tertentu (digunakan oleh modal transaksi kasir).
+     */
+    public function services(Request $request): JsonResponse
+    {
+        $branchId = $request->query('branch_id');
+        $query = Service::where('is_active', true);
+
+        if ($branchId) {
+            $query->where(function ($q) use ($branchId) {
+                $q->whereNull('branch_id')->orWhere('branch_id', $branchId);
+            });
+        }
+
+        $services = $query->with('category')
+            ->orderBy('name')
+            ->get()
+            ->map(fn ($s) => [
+                'id' => $s->id,
+                'name' => $s->name,
+                'price' => (float) $s->price,
+                'category_name' => $s->category?->name ?? 'Layanan',
+                'category_id' => $s->service_category_id,
+            ]);
+
+        return response()->json($services);
+    }
+
+    /**
      * Konfirmasi / check-in booking oleh kasir saat pelanggan hadir di cabang.
      */
     public function checkInBooking(Request $request, Booking $booking): JsonResponse|RedirectResponse
@@ -164,5 +195,61 @@ class PosController extends Controller
 
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    /**
+     * Catat berat aktual laundry kiloan oleh kasir dan hitung total tagihan.
+     */
+    public function recordWeight(Request $request, Order $order): JsonResponse
+    {
+        $validated = $request->validate([
+            'actual_weight' => ['required', 'numeric', 'min:0.01', 'max:999.99'],
+            'employee_id' => ['nullable', 'integer', 'exists:employees,id'],
+        ]);
+
+        if ($order->status === StatusPesanan::Cancelled) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pesanan yang telah dibatalkan tidak dapat ditimbang.',
+            ], 422);
+        }
+
+        $actualWeight = round((float) $validated['actual_weight'], 2);
+        $pricePerKg = (float) ($order->service?->price ?? 0);
+        $extraSubtotal = (float) $order->details->sum('subtotal');
+        $totalAmount = round(($pricePerKg * $actualWeight) + $extraSubtotal, 2);
+
+        $order->actual_weight = $actualWeight;
+        $order->total_amount = $totalAmount;
+        $order->weighed_at = now();
+        $order->weighed_by = $request->user()->id;
+
+        if (! empty($validated['employee_id'])) {
+            $order->employee_id = (int) $validated['employee_id'];
+        }
+
+        $order->save();
+
+        rescue(fn () => app(NotifikasiService::class)->notifikasiTagihanLaundry($order->fresh(['user', 'service'])));
+
+        if (! empty($validated['employee_id'])) {
+            $employee = Employee::find((int) $validated['employee_id']);
+            if ($employee) {
+                rescue(fn () => app(OperationalNotificationService::class)->notifyEmployeeNewTask($employee, $order->fresh()));
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Berat pesanan #{$order->id} ({$actualWeight} kg) berhasil dicatat.",
+            'order' => [
+                'id' => $order->id,
+                'actual_weight' => $actualWeight,
+                'price_per_kg' => $pricePerKg,
+                'total_amount' => $totalAmount,
+                'formatted_total' => 'Rp '.number_format($totalAmount, 0, ',', '.'),
+                'weighed_at' => $order->weighed_at?->format('d/m/Y H:i'),
+            ],
+        ]);
     }
 }

@@ -147,6 +147,7 @@ class KinerjaKaryawanService
             ->first();
 
         $upcomingShifts = $employee->shifts()
+            ->with('branch')
             ->whereDate('shift_date', '>=', Carbon::today())
             ->orderBy('shift_date')
             ->orderBy('start_time')
@@ -155,7 +156,7 @@ class KinerjaKaryawanService
 
         // Tugas hari ini (Appointment + Drop-off yang ditugaskan khusus karyawan ini)
         $todayBookings = $employee->bookings()
-            ->with(['service', 'user', 'branch'])
+            ->with(['service.category', 'user', 'branch'])
             ->whereDate('booking_date', Carbon::today())
             ->whereNotIn('status', [BookingStatus::Cancelled->value])
             ->orderBy('booking_time')
@@ -173,7 +174,7 @@ class KinerjaKaryawanService
             ]);
 
         $todayOrders = $employee->orders()
-            ->with(['service', 'user', 'branch'])
+            ->with(['service.category', 'user', 'branch'])
             ->where(function ($q) {
                 $q->whereDate('created_at', Carbon::today())
                     ->orWhereIn('status', [StatusPesanan::Received, StatusPesanan::Processing]);
@@ -190,6 +191,9 @@ class KinerjaKaryawanService
                 'time' => $o->estimated_finish_at ? $o->estimated_finish_at->format('H:i') : $o->created_at->format('H:i'),
                 'date' => $o->created_at->translatedFormat('d M Y'),
                 'status' => $o->status,
+                'is_weight_based' => $o->isWeightBased(),
+                'is_weighed' => $o->isWeighed(),
+                'actual_weight' => $o->actual_weight,
                 'detail_url' => route('orders.show', $o),
             ]);
 
@@ -197,7 +201,7 @@ class KinerjaKaryawanService
 
         // Riwayat tugas sebelumnya
         $pastBookings = $employee->bookings()
-            ->with(['service', 'user', 'branch'])
+            ->with(['service.category', 'user', 'branch'])
             ->whereDate('booking_date', '<', Carbon::today())
             ->latest('booking_date')
             ->limit(5)
@@ -215,7 +219,7 @@ class KinerjaKaryawanService
             ]);
 
         $pastOrders = $employee->orders()
-            ->with(['service', 'user', 'branch'])
+            ->with(['service.category', 'user', 'branch'])
             ->whereDate('created_at', '<', Carbon::today())
             ->whereIn('status', [StatusPesanan::Completed, StatusPesanan::Cancelled])
             ->latest()
@@ -230,6 +234,9 @@ class KinerjaKaryawanService
                 'time' => $o->created_at->format('H:i'),
                 'date' => $o->created_at->translatedFormat('d M Y'),
                 'status' => $o->status,
+                'is_weight_based' => $o->isWeightBased(),
+                'is_weighed' => $o->isWeighed(),
+                'actual_weight' => $o->actual_weight,
                 'detail_url' => route('orders.show', $o),
             ]);
 

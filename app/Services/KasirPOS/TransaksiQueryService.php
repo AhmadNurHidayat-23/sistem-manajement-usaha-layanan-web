@@ -31,7 +31,7 @@ class TransaksiQueryService
     public function getTransactionsForUser(User $user, array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
         $roleName = $user->role?->name;
-        $query = Transaction::with(['branch', 'cashier', 'payments', 'booking.user', 'order.user', 'details.service'])
+        $query = Transaction::with(['branch', 'cashier', 'payments', 'booking.user', 'order.user'])
             ->where('status', StatusTransaksi::Paid);
 
         if ($roleName === 'owner') {
