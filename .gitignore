@@ -33,4 +33,7 @@ Thumbs.db
 *.bak
 *.tmp
 *.zip
+*.sql
 /database/backups/
+/scratch/
+

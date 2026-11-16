@@ -43,12 +43,6 @@
             </svg>
         </button>
     </div>
-        <button type="button" onclick="closeMobileSidebar()" class="sidebar-close-btn lg:hidden flex items-center justify-center w-8 h-8 rounded-lg border border-[#E4E7EC] hover:bg-rose-50 text-[#667085] hover:text-rose-600 transition-colors cursor-pointer shrink-0" title="Tutup Menu Navigasi" aria-label="Tutup Menu Navigasi">
-            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-        </button>
-    </div>
 
     <nav class="flex-1 px-3 py-3 space-y-3.5 overflow-x-hidden overflow-y-auto">
         <!-- Seksi UTAMA -->

@@ -26,8 +26,8 @@
         <div class="flex items-center justify-between gap-3">
             <div class="min-w-0 flex-1">
                 <p class="text-[11px] sm:text-xs font-semibold text-[#667085] uppercase tracking-wider m-0 truncate">Transaksi Hari Ini</p>
-                <h3 class="text-[20px] font-semibold tracking-tight text-[#101828] mt-1 mb-0 tabular-nums leading-[1.3] break-words">{{ $shiftSummary['total_transactions'] ?? 0 }} Trx</h3>
-                <p class="text-[11px] sm:text-xs text-[#667085] mt-0.5 m-0 truncate leading-snug">Transaksi penjualan kasir</p>
+                <h3 class="text-[20px] font-semibold tracking-tight text-[#101828] mt-1 mb-0 tabular-nums leading-[1.3] break-words">{{ $shiftSummary['total_transactions'] ?? 0 }} Transaksi</h3>
+                <p class="text-[11px] sm:text-xs text-[#667085] mt-0.5 m-0 truncate leading-snug">Total transaksi hari ini</p>
             </div>
             <div class="w-9 sm:w-10 h-9 sm:h-10 rounded-xl bg-[#DCE8FF] text-[#062072] flex items-center justify-center shrink-0">
                 <x-icons.icon name="cart" class="w-[18px] h-[18px]" />

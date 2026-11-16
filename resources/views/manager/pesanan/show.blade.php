@@ -1,5 +1,6 @@
 @php
     $isEmployee = auth()->user()?->role?->name === 'employee';
+    $isCashier = auth()->user()?->role?->name === 'cashier';
 @endphp
 @extends('layouts.app', ['title' => $isEmployee ? 'Detail Tugas | SIMAUL' : 'Detail Order #' . $order->id . ' | SIMAUL'])
 
@@ -20,6 +21,10 @@
                 <a href="{{ route('queue.index') }}" class="inline-flex items-center justify-center px-3.5 py-2 text-xs font-semibold rounded-lg bg-white border border-[#D0D5DD] text-[#344054] hover:bg-[#F5F8FC] hover:text-[#062072] transition-colors shadow-2xs">
                     Kembali ke Antrean
                 </a>
+            @elseif($isCashier)
+                <x-buttons.btn variant="outline" href="{{ route('cashier.dashboard') }}" id="btn-kembali-kasir">
+                    Kembali
+                </x-buttons.btn>
             @else
                 <x-buttons.btn variant="outline" href="{{ route('orders.index') }}">
                     Kembali
@@ -94,7 +99,6 @@
                     };
                 @endphp
                 <x-cards.card title="Status Pengerjaan">
-                    {{-- Progres Visual Sederhana Tiga Tahapan SRS --}}
                     <div class="mb-5 pb-4 border-b border-[#E4E7EC]">
                         <p class="text-[11px] font-semibold text-[#667085] uppercase tracking-wider mb-2">Progres Pengerjaan</p>
                         <div class="grid grid-cols-3 gap-1.5 text-center text-xs">
@@ -110,7 +114,6 @@
                         </div>
                     </div>
 
-                    {{-- Aksi Kontekstual Berdasarkan Status --}}
                     @if($order->status->value === 'received')
                         <div class="space-y-3">
                             <div class="p-3 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-800">
@@ -152,8 +155,10 @@
                         </div>
                     @endif
                 </x-cards.card>
+            @elseif($isCashier)
+                @include('manager.pesanan.partials.status-kasir')
             @else
-                {{-- Status Card untuk Manager / Owner / Cashier --}}
+                {{-- Status Card untuk Manager / Owner --}}
                 @php
                     $statusConfig = [
                         'pending'    => ['label' => 'Pending',   'class' => 'bg-amber-100 text-amber-800', 'dot' => 'bg-amber-500'],

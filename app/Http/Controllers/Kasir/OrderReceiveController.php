@@ -36,30 +36,49 @@ class OrderReceiveController extends Controller
         }
 
         $user = $request->user();
-        $kasirBranch = $this->kasirService->getActiveBranchForUser($user, null);
-
-        if ($kasirBranch && $order->branch_id !== $kasirBranch->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Pesanan ini bukan milik cabang Anda.',
-            ], 403);
+        if ($order->branch) {
+            try {
+                $this->kasirService->authorizeBranchAccess($user, $order->branch);
+            } catch (\Throwable $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki izin untuk mengelola pesanan cabang ini.',
+                ], 403);
+            }
         }
 
         $order->status = StatusPesanan::Received;
-
         $isNonWeightBased = ! $order->isWeightBased();
+        $assignedEmployee = null;
 
-        if ($isNonWeightBased && ! empty($validated['employee_id'])) {
-            $order->employee_id = (int) $validated['employee_id'];
+        if ($isNonWeightBased) {
+            $employeeId = $validated['employee_id'] ?? null;
+            if (! $employeeId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Petugas pengerjaan wajib dipilih untuk layanan non-kiloan.',
+                ], 422);
+            }
+
+            $assignedEmployee = Employee::where('id', $employeeId)
+                ->where('branch_id', $order->branch_id)
+                ->where('status', 'active')
+                ->first();
+
+            if (! $assignedEmployee) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Petugas yang dipilih tidak valid atau bukan karyawan aktif cabang ini.',
+                ], 422);
+            }
+
+            $order->employee_id = $assignedEmployee->id;
         }
 
         $order->save();
 
-        if ($isNonWeightBased && ! empty($validated['employee_id'])) {
-            $employee = Employee::find((int) $validated['employee_id']);
-            if ($employee) {
-                rescue(fn () => app(OperationalNotificationService::class)->notifyEmployeeNewTask($employee, $order->fresh()));
-            }
+        if ($isNonWeightBased && $assignedEmployee) {
+            rescue(fn () => app(OperationalNotificationService::class)->notifyEmployeeNewTask($assignedEmployee, $order->fresh()));
         }
 
         return response()->json([

@@ -14,7 +14,6 @@
 
         <div class="flex items-center gap-2 shrink-0">
             @if ($activeBranch?->service_mode === 'both')
-                <!-- Filter Tab: Semua, Appointment, Drop-off untuk usaha multi-mode -->
                 <div class="inline-flex items-center gap-1 bg-[#F5F8FC] p-1 rounded-lg border border-[#E4E7EC]" role="tablist" aria-label="Filter Mode Transaksi">
                     <a href="{{ route('cashier.dashboard', array_filter(['branch_id' => $activeBranch?->id, 'type' => 'all'])) }}"
                        data-filter="all"
@@ -51,10 +50,11 @@
         <table class="w-full text-left text-xs border-collapse" id="payment-table">
             <thead>
                 <tr class="bg-[#F8FAFC] border-b border-[#E4E7EC] text-[#475467] font-semibold uppercase tracking-wider text-[11px]">
-                    <th class="px-4 py-3 sm:px-5">Waktu</th>
+                    <th class="px-4 py-3 sm:px-5">Pesanan</th>
                     <th class="px-4 py-3 sm:px-5">Pelanggan</th>
                     <th class="px-4 py-3 sm:px-5">Layanan</th>
-                    <th class="px-4 py-3 sm:px-5">Jenis</th>
+                    <th class="px-4 py-3 sm:px-5">Est. Selesai</th>
+                    <th class="px-4 py-3 sm:px-5 text-center">Penjemputan</th>
                     <th class="px-4 py-3 sm:px-5">Status</th>
                     <th class="px-4 py-3 sm:px-5">Tagihan</th>
                     <th class="px-4 py-3 sm:px-5 text-right">Aksi</th>
@@ -63,8 +63,13 @@
             <tbody class="divide-y divide-[#E4E7EC]" id="payment-tbody">
                 @foreach ($pendingPayments as $item)
                     <tr class="payment-row hover:bg-[#F5F8FC]/60 transition-colors" data-type="{{ $item['type'] }}" id="payment-row-{{ $item['type'] }}-{{ $item['id'] }}">
-                        <td class="px-4 py-3.5 sm:px-5 font-semibold text-[#101828] whitespace-nowrap tabular-nums">
-                            {{ $item['time'] ?? '-' }}
+                        <td class="px-4 py-3.5 sm:px-5">
+                            <div class="font-bold text-[#062072] text-[13px] whitespace-nowrap">
+                                #{{ $item['id'] }}
+                            </div>
+                            <div class="text-[11px] text-[#667085] whitespace-nowrap tabular-nums mt-0.5">
+                                {{ $item['created_time'] ?? ($item['time'] ?? '-') }}
+                            </div>
                         </td>
                         <td class="px-4 py-3.5 sm:px-5">
                             <div class="font-semibold text-[#101828]">{{ $item['customer_name'] }}</div>
@@ -72,14 +77,17 @@
                         <td class="px-4 py-3.5 sm:px-5 text-[#475467] max-w-xs truncate">
                             {{ $item['service_name'] }}
                         </td>
-                        <td class="px-4 py-3.5 sm:px-5 whitespace-nowrap">
-                            @if ($item['type'] === 'appointment')
+                        <td class="px-4 py-3.5 sm:px-5 whitespace-nowrap tabular-nums text-[#344054]">
+                            {{ $item['estimated_finish'] ?? '—' }}
+                        </td>
+                        <td class="px-4 py-3.5 sm:px-5 whitespace-nowrap text-center">
+                            @if (!empty($item['pickup_option']))
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-[#062072] border border-blue-200">
-                                    Appointment
+                                    Ya
                                 </span>
                             @else
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                                    Drop-off
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#F2F4F7] text-[#667085] border border-[#E4E7EC]">
+                                    Tidak
                                 </span>
                             @endif
                         </td>
@@ -90,8 +98,17 @@
                         </td>
                         <td class="px-4 py-3.5 sm:px-5 whitespace-nowrap">
                             <span class="font-semibold text-[#101828] tabular-nums block">
-                                Rp {{ number_format($item['remaining_amount'] ?? $item['total_amount'] ?? 0, 0, ',', '.') }}
+                                @if (!empty($item['total_amount']) && $item['total_amount'] > 0)
+                                    Rp {{ number_format($item['total_amount'], 0, ',', '.') }}
+                                @else
+                                    —
+                                @endif
                             </span>
+                            @if (!empty($item['is_estimated_bill']))
+                                <span class="text-[10px] font-medium text-amber-600 block">
+                                    (Estimasi)
+                                </span>
+                            @endif
                             @if (!empty($item['payment_status_label']))
                                 <span class="text-[11px] font-medium {{ ($item['payment_status_label'] === 'Lunas') ? 'text-emerald-600' : 'text-amber-600' }} block">
                                     {{ $item['payment_status_label'] }}
@@ -106,13 +123,12 @@
                                     data-customer-name="{{ $item['customer_name'] }}"
                                     data-service-name="{{ $item['service_name'] }}"
                                     data-is-weight-based="{{ !empty($item['is_weight_based']) ? '1' : '0' }}"
+                                    data-estimated-qty="{{ $item['estimated_display'] ?? '-' }}"
+                                    data-unit="{{ $item['unit'] ?? '' }}"
                                     data-price-per-kg="{{ $item['price_per_kg'] ?? 0 }}"
                                     data-branch-id="{{ $activeBranch?->id }}"
                                     data-submit-url="{{ route('pos.orders.receive', $item['id']) }}"
                                     class="inline-flex items-center justify-center px-3 py-1.5 bg-[#062072] hover:bg-[#0B3A9E] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors whitespace-nowrap cursor-pointer">
-                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
                                     Terima
                                 </button>
                             @elseif (($item['action_type'] ?? '') === 'input_berat')
@@ -126,9 +142,6 @@
                                     data-branch-id="{{ $activeBranch?->id }}"
                                     data-submit-url="{{ route('pos.orders.weigh', $item['id']) }}"
                                     class="inline-flex items-center justify-center px-3 py-1.5 bg-[#062072] hover:bg-[#0B3A9E] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors whitespace-nowrap cursor-pointer">
-                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
-                                    </svg>
                                     Timbang
                                 </button>
                             @elseif (($item['action_type'] ?? '') === 'detail')

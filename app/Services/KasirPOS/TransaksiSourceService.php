@@ -13,9 +13,6 @@ use Illuminate\Database\Eloquent\Collection;
 
 class TransaksiSourceService
 {
-    /**
-     * Booking appointment yang memenuhi syarat untuk dibayar di kasir.
-     */
     public function getEligibleBookings(int $branchId): Collection
     {
         $branch = Branch::find($branchId);
@@ -26,17 +23,12 @@ class TransaksiSourceService
         return Booking::with(['service', 'user'])
             ->where('branch_id', $branchId)
             ->whereNotIn('status', [BookingStatus::Cancelled])
-            ->whereDoesntHave('transaction', function ($q) {
-                $q->where('status', StatusTransaksi::Paid);
-            })
+            ->whereDoesntHave('transaction', fn ($q) => $q->where('status', StatusTransaksi::Paid))
             ->latest('booking_date')
             ->limit(30)
             ->get();
     }
 
-    /**
-     * Pesanan drop-off yang memenuhi syarat untuk dibayar di kasir.
-     */
     public function getEligibleOrders(int $branchId): Collection
     {
         $branch = Branch::find($branchId);
@@ -47,20 +39,15 @@ class TransaksiSourceService
         return Order::with(['service', 'user'])
             ->where('branch_id', $branchId)
             ->whereNotIn('status', [StatusPesanan::Cancelled])
-            ->whereDoesntHave('transaction', function ($q) {
-                $q->where('status', StatusTransaksi::Paid);
-            })
-            ->whereHas('service', function ($q) {
-                $q->where('service_type', '!=', 'appointment')->orWhereNull('service_type');
-            })
+            ->whereDoesntHave('transaction', fn ($q) => $q->where('status', StatusTransaksi::Paid))
+            ->whereHas('service', fn ($q) => $q->where('service_type', '!=', 'appointment')->orWhereNull('service_type'))
             ->latest()
             ->limit(30)
             ->get();
     }
 
     /**
-     * Daftar tagihan yang perlu ditangani kasir (Appointment & Drop-off),
-     * disesuaikan dengan mode layanan cabang dan sisa tagihan positif.
+     * Daftar tagihan yang perlu ditangani kasir (Appointment & Drop-off).
      *
      * @return \Illuminate\Support\Collection<int, array<string, mixed>>
      */
@@ -69,23 +56,8 @@ class TransaksiSourceService
         $items = collect();
         $mode = $branch->service_mode ?? 'both';
 
-        $includeAppointments = false;
-        $includeDropOff = false;
-
-        if ($mode === 'appointment') {
-            $includeAppointments = true;
-        } elseif ($mode === 'drop_off') {
-            $includeDropOff = true;
-        } else {
-            if ($typeFilter === 'appointment') {
-                $includeAppointments = true;
-            } elseif ($typeFilter === 'drop_off') {
-                $includeDropOff = true;
-            } else {
-                $includeAppointments = true;
-                $includeDropOff = true;
-            }
-        }
+        $includeAppointments = $mode === 'appointment' || ($mode === 'both' && $typeFilter !== 'drop_off');
+        $includeDropOff = $mode === 'drop_off' || ($mode === 'both' && $typeFilter !== 'appointment');
 
         if ($includeAppointments) {
             $bookings = Booking::with(['service.category', 'user', 'details.service', 'transaction.payments'])
@@ -93,9 +65,7 @@ class TransaksiSourceService
                 ->whereNotIn('status', [BookingStatus::Cancelled])
                 ->whereHas('service', function ($q) use ($branch) {
                     $q->whereIn('service_type', ['appointment', 'both'])->orWhereNull('service_type')
-                        ->where(function ($sub) use ($branch) {
-                            $sub->where('branch_id', $branch->id)->orWhereNull('branch_id');
-                        });
+                        ->where(fn ($sub) => $sub->where('branch_id', $branch->id)->orWhereNull('branch_id'));
                 })
                 ->latest('booking_date')
                 ->limit(50)
@@ -110,6 +80,7 @@ class TransaksiSourceService
 
                 $rawTime = $b->booking_date ? $b->booking_date->copy() : now();
                 $timeStr = $b->booking_time ? (is_string($b->booking_time) ? substr($b->booking_time, 0, 5) : $b->booking_time->format('H:i')) : '-';
+                $createdTime = $b->created_at ? $b->created_at->translatedFormat('d M Y, H:i').' WIB' : ($b->booking_date ? $b->booking_date->format('d/m/Y').' '.$timeStr : '-');
 
                 if ($isPaid) {
                     $displayStatus = 'Lunas';
@@ -118,9 +89,9 @@ class TransaksiSourceService
                 } elseif ($b->status === BookingStatus::Pending) {
                     $displayStatus = 'Menunggu';
                     $badgeClass = 'bg-amber-50 text-amber-700 border border-amber-200';
-                    $actionType = 'none';
+                    $actionType = 'detail';
                 } elseif ($b->status === BookingStatus::Confirmed) {
-                    $displayStatus = 'Diproses';
+                    $displayStatus = 'Dikerjakan';
                     $badgeClass = 'bg-blue-50 text-blue-700 border border-blue-200';
                     $actionType = 'bayar';
                 } else {
@@ -139,10 +110,15 @@ class TransaksiSourceService
                     'customer_name' => $b->user?->name ?? 'Pelanggan',
                     'service_name' => $b->service?->name ?? 'Layanan',
                     'time' => $timeStr,
+                    'created_time' => $createdTime,
+                    'estimated_finish' => '—',
+                    'pickup_option' => false,
+                    'pickup_label' => 'Tidak',
                     'raw_datetime' => $rawTime,
                     'total_amount' => $totalBill,
                     'paid_amount' => $paid,
                     'remaining_amount' => $remaining,
+                    'is_estimated_bill' => false,
                     'display_status' => $displayStatus,
                     'status_badge_class' => $badgeClass,
                     'action_type' => $actionType,
@@ -159,9 +135,7 @@ class TransaksiSourceService
                 ->whereNotIn('status', [StatusPesanan::Cancelled])
                 ->whereHas('service', function ($q) use ($branch) {
                     $q->whereIn('service_type', ['drop_off', 'both'])->orWhereNull('service_type')
-                        ->where(function ($sub) use ($branch) {
-                            $sub->where('branch_id', $branch->id)->orWhereNull('branch_id');
-                        });
+                        ->where(fn ($sub) => $sub->where('branch_id', $branch->id)->orWhereNull('branch_id'));
                 })
                 ->latest()
                 ->limit(50)
@@ -170,12 +144,15 @@ class TransaksiSourceService
             foreach ($orders as $o) {
                 $trx = $o->transaction;
                 $isPaid = $o->isPaid();
-                $totalBill = $o->calculateBill();
+                $totalBill = ($trx && (float) $trx->total > 0) ? (float) $trx->total : $o->calculateBill();
                 $paid = $trx ? (float) $trx->payments->whereIn('status', [StatusPembayaran::Completed, StatusPembayaran::Paid])->sum('amount') : 0.0;
                 $remaining = max(0, $totalBill - $paid);
 
                 $rawTime = $o->created_at ?? now();
                 $timeStr = $o->created_at ? $o->created_at->format('H:i') : '-';
+                $createdTime = $o->created_at ? $o->created_at->translatedFormat('d M Y, H:i').' WIB' : '-';
+                $estimatedFinish = $o->estimated_finish_at ? $o->estimated_finish_at->translatedFormat('d M Y, H:i').' WIB' : '—';
+                $isEstimatedBill = $o->isWeightBased() && ! $o->isWeighed();
 
                 if ($isPaid) {
                     $displayStatus = 'Lunas';
@@ -189,15 +166,27 @@ class TransaksiSourceService
                     $displayStatus = 'Belum Ditimbang';
                     $badgeClass = 'bg-rose-50 text-rose-700 border border-rose-200';
                     $actionType = 'input_berat';
+                } elseif ($o->status === StatusPesanan::Received) {
+                    $displayStatus = 'Diterima';
+                    $badgeClass = 'bg-slate-100 text-slate-700 border border-slate-200';
+                    $actionType = 'detail';
+                } elseif ($o->status === StatusPesanan::Processing) {
+                    $displayStatus = 'Dikerjakan';
+                    $badgeClass = 'bg-blue-50 text-blue-700 border border-blue-200';
+                    $actionType = 'detail';
                 } elseif ($o->status === StatusPesanan::Ready || $o->status === StatusPesanan::Completed) {
                     $displayStatus = 'Siap Diambil / Diantar';
                     $badgeClass = 'bg-teal-50 text-teal-700 border border-teal-200';
                     $actionType = 'bayar';
                 } else {
-                    $displayStatus = $o->status === StatusPesanan::Received ? 'Diterima' : 'Diproses';
-                    $badgeClass = 'bg-blue-50 text-blue-700 border border-blue-200';
+                    $displayStatus = $o->status->label();
+                    $badgeClass = 'bg-gray-100 text-gray-700 border border-gray-200';
                     $actionType = 'detail';
                 }
+
+                $unit = $o->service?->unit ?? ($o->isWeightBased() ? 'kg' : 'item');
+                $estQty = (float) ($o->estimated_quantity ?? 0);
+                $estDisplay = $estQty > 0 ? rtrim(rtrim(number_format($estQty, 2, '.', ''), '0'), '.').' '.$unit : '-';
 
                 $items->push([
                     'id' => $o->id,
@@ -209,10 +198,15 @@ class TransaksiSourceService
                     'customer_name' => $o->user?->name ?? 'Pelanggan',
                     'service_name' => $o->service?->name ?? 'Layanan',
                     'time' => $timeStr,
+                    'created_time' => $createdTime,
+                    'estimated_finish' => $estimatedFinish,
+                    'pickup_option' => (bool) $o->pickup_option,
+                    'pickup_label' => $o->pickup_option ? 'Ya' : 'Tidak',
                     'raw_datetime' => $rawTime,
                     'total_amount' => $totalBill,
                     'paid_amount' => $paid,
                     'remaining_amount' => $remaining,
+                    'is_estimated_bill' => $isEstimatedBill,
                     'display_status' => $displayStatus,
                     'status_badge_class' => $badgeClass,
                     'action_type' => $actionType,
@@ -220,6 +214,9 @@ class TransaksiSourceService
                     'receive_url' => route('pos.orders.receive', $o->id),
                     'employee_id' => $o->employee_id,
                     'actual_weight' => $o->actual_weight,
+                    'estimated_quantity' => $estQty,
+                    'estimated_display' => $estDisplay,
+                    'unit' => $unit,
                     'price_per_kg' => (float) ($o->service?->price ?? 0),
                     'is_weight_based' => $o->isWeightBased(),
                     'is_weighed' => $o->isWeighed(),
@@ -234,8 +231,6 @@ class TransaksiSourceService
 
     /**
      * Data sumber keranjang POS dari booking atau pesanan drop-off.
-     *
-     * @return array<string, mixed>|null
      */
     public function resolveSourceData(string $type, int|string $id): ?array
     {
@@ -255,9 +250,7 @@ class TransaksiSourceService
 
         $items = [];
         if ($source->service) {
-            $qty = ($type === 'order')
-                ? (float) ($source->actual_weight ?: $source->estimated_quantity ?: 1)
-                : 1.0;
+            $qty = ($type === 'order') ? (float) ($source->actual_weight ?: $source->estimated_quantity ?: 1) : 1.0;
             $items[] = [
                 'service_id' => $source->service->id,
                 'name' => $source->service->name,

@@ -28,8 +28,12 @@ class ManagerPesananController extends Controller
     /**
      * Daftar pesanan drop-off.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
+        if ($request->user()?->role?->name === 'cashier') {
+            return redirect()->route('cashier.dashboard');
+        }
+
         $filters = $request->only(['status', 'branch_id']);
         $orders = $this->bookingService->getOrdersForUser($request->user(), $filters);
         $branches = $this->bookingService->getActiveBranches();
@@ -40,8 +44,12 @@ class ManagerPesananController extends Controller
     /**
      * Form tambah drop-off order.
      */
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
+        if (request()->user()?->role?->name === 'cashier') {
+            return redirect()->route('cashier.dashboard');
+        }
+
         $this->authorize('create', Order::class);
 
         $branches = $this->bookingService->getActiveBranches('drop_off');
@@ -81,7 +89,7 @@ class ManagerPesananController extends Controller
     {
         $this->authorize('view', $order);
 
-        $order->load(['branch', 'service.category', 'user', 'details.service']);
+        $order->load(['branch', 'service.category', 'user', 'details.service', 'transaction.payments', 'employee']);
 
         return view('manager.pesanan.show', compact('order'));
     }
@@ -139,6 +147,11 @@ class ManagerPesananController extends Controller
             }
 
             rescue(fn () => $this->notifikasiService->notifikasiStatusOrder($fresh));
+
+            if ($request->user()?->role?->name === 'cashier') {
+                return redirect()->route('cashier.dashboard')
+                    ->with('success', 'Order berhasil dibatalkan.');
+            }
 
             return redirect()->route('orders.index')
                 ->with('success', 'Order berhasil dibatalkan.');

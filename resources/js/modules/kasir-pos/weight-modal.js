@@ -2,6 +2,8 @@
  * Modal Input Berat Laundry Kiloan untuk Kasir Dashboard.
  */
 
+let isWeightModalInitialized = false;
+
 function formatRupiah(num) {
     return Number(num || 0).toLocaleString('id-ID');
 }
@@ -9,16 +11,17 @@ function formatRupiah(num) {
 export function initWeightModal() {
     const modal = document.getElementById('modal-input-berat');
     const form = document.getElementById('form-input-berat');
+    if (!modal || !form || isWeightModalInitialized) {
+        return;
+    }
+    isWeightModalInitialized = true;
+
     const weightInput = document.getElementById('weight-actual-input');
     const employeeSelect = document.getElementById('weight-employee-select');
     const errorBox = document.getElementById('weight-modal-error');
     const submitBtn = document.getElementById('btn-submit-weight');
     const spinner = document.getElementById('btn-submit-weight-spinner');
     const btnText = document.getElementById('btn-submit-weight-text');
-
-    if (!modal || !form) {
-        return;
-    }
 
     async function loadBranchEmployees(branchId) {
         if (!employeeSelect) return;
@@ -92,14 +95,24 @@ export function initWeightModal() {
 
         calculateTotal();
 
-        modal.classList.remove('hidden');
-        document.body.classList.add('overflow-hidden');
+        if (typeof window.openModal === 'function') {
+            window.openModal(modal, btn);
+        } else {
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+        requestAnimationFrame(() => modal.classList.add('is-open'));
         weightInput?.focus();
     }
 
     function closeModal() {
-        modal.classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
+        modal.classList.remove('is-open');
+        if (typeof window.closeModal === 'function') {
+            window.closeModal(modal);
+        } else {
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
         form.reset();
         if (errorBox) {
             errorBox.textContent = '';
@@ -212,4 +225,3 @@ export function initWeightModal() {
         }
     }
 }
-

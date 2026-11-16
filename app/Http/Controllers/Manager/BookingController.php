@@ -23,8 +23,12 @@ class BookingController extends Controller
     /**
      * Daftar booking pengguna.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
+        if ($request->user()?->role?->name === 'cashier') {
+            return redirect()->route('cashier.dashboard');
+        }
+
         $filters = $request->only(['status', 'branch_id', 'date']);
         $bookings = $this->bookingService->getBookingsForUser($request->user(), $filters);
         $branches = $this->bookingService->getAccessibleBranches($request->user());
@@ -35,8 +39,12 @@ class BookingController extends Controller
     /**
      * Form tambah booking.
      */
-    public function create(Request $request): View
+    public function create(Request $request): View|RedirectResponse
     {
+        if ($request->user()?->role?->name === 'cashier') {
+            return redirect()->route('cashier.dashboard');
+        }
+
         $this->authorize('create', Booking::class);
 
         $branches = $this->bookingService->getActiveBranches('appointment');

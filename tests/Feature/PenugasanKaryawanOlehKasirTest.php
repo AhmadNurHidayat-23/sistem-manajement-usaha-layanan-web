@@ -2,13 +2,17 @@
 
 namespace Tests\Feature;
 
+use App\Enums\StatusPembayaran;
 use App\Enums\StatusPesanan;
+use App\Enums\StatusTransaksi;
 use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\Order;
+use App\Models\Payment;
 use App\Models\Role;
 use App\Models\Service;
 use App\Models\ServiceCategory;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -156,6 +160,33 @@ class PenugasanKaryawanOlehKasirTest extends TestCase
             ->assertJson(['success' => true, 'is_weight_based' => true]);
 
         $this->assertEquals(StatusPesanan::Received, $order->fresh()->status);
+
+        // Setelah diterima, tombol pada dashboard kasir berubah menjadi Timbang
+        $responseDashboard = $this->actingAs($this->cashier)
+            ->get(route('cashier.dashboard', ['branch_id' => $this->branch->id]));
+
+        $responseDashboard->assertOk()
+            ->assertSee('data-action="open-weight-modal"', false)
+            ->assertSee('Timbang', false);
+    }
+
+    public function test_kasir_menerima_pesanan_non_kiloan_wajib_memilih_petugas(): void
+    {
+        $order = Order::create([
+            'branch_id' => $this->branch->id,
+            'user_id' => $this->customer->id,
+            'service_id' => $this->nonKiloanService->id,
+            'status' => StatusPesanan::Pending,
+            'total_amount' => 35000,
+        ]);
+
+        $response = $this->actingAs($this->cashier)
+            ->postJson(route('pos.orders.receive', $order->id), []);
+
+        $response->assertStatus(422)
+            ->assertJson(['success' => false]);
+
+        $this->assertEquals(StatusPesanan::Pending, $order->fresh()->status);
     }
 
     public function test_kasir_dapat_menimbang_laundry_dan_menugaskan_karyawan(): void
@@ -190,5 +221,79 @@ class PenugasanKaryawanOlehKasirTest extends TestCase
         $responseCreate->assertOk()
             ->assertSee('Pesan')
             ->assertDontSee('Lihat Estimasi & Konfirmasi');
+    }
+
+    public function test_dashboard_kasir_menampilkan_tombol_terima_dengan_data_modal(): void
+    {
+        $order = Order::create([
+            'branch_id' => $this->branch->id,
+            'user_id' => $this->customer->id,
+            'service_id' => $this->kiloanService->id,
+            'status' => StatusPesanan::Pending,
+            'estimated_quantity' => 3.5,
+        ]);
+
+        $response = $this->actingAs($this->cashier)
+            ->get(route('cashier.dashboard', ['branch_id' => $this->branch->id]));
+
+        $response->assertOk()
+            ->assertSee('data-action="open-receive-modal"', false)
+            ->assertSee('data-estimated-qty="3.5 kg"', false)
+            ->assertSee('id="modal-terima-pesanan"', false);
+    }
+
+    public function test_dashboard_kasir_menampilkan_nominal_tagihan_asli_pada_pesanan_lunas(): void
+    {
+        $order = Order::create([
+            'branch_id' => $this->branch->id,
+            'user_id' => $this->customer->id,
+            'service_id' => $this->nonKiloanService->id,
+            'status' => StatusPesanan::Completed,
+            'total_amount' => 35000,
+        ]);
+
+        $trx = Transaction::create([
+            'transaction_code' => 'TRX-TEST-001',
+            'branch_id' => $this->branch->id,
+            'cashier_id' => $this->cashier->id,
+            'order_id' => $order->id,
+            'subtotal' => 35000,
+            'total' => 35000,
+            'status' => StatusTransaksi::Paid,
+            'transaction_date' => now(),
+        ]);
+
+        Payment::create([
+            'transaction_id' => $trx->id,
+            'amount' => 35000,
+            'payment_method' => 'cash',
+            'status' => StatusPembayaran::Completed,
+            'paid_at' => now(),
+        ]);
+
+        $response = $this->actingAs($this->cashier)
+            ->get(route('cashier.dashboard', ['branch_id' => $this->branch->id]));
+
+        $response->assertOk()
+            ->assertSee('Rp 35.000', false)
+            ->assertSee('Lunas', false);
+    }
+
+    public function test_tombol_aksi_dashboard_kasir_tanpa_ikon(): void
+    {
+        Order::create([
+            'branch_id' => $this->branch->id,
+            'user_id' => $this->customer->id,
+            'service_id' => $this->kiloanService->id,
+            'status' => StatusPesanan::Pending,
+            'estimated_quantity' => 2.0,
+        ]);
+
+        $response = $this->actingAs($this->cashier)
+            ->get(route('cashier.dashboard', ['branch_id' => $this->branch->id]));
+
+        $html = $response->getContent();
+        // Pastikan tombol Terima tidak membungkus elemen <svg>
+        $this->assertMatchesRegularExpression('/data-action="open-receive-modal"[^>]*>\s*Terima\s*<\/button>/', $html);
     }
 }

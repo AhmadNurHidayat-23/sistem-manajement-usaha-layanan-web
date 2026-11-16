@@ -22,12 +22,22 @@
     z-index: 60;
 }
 
+.simaul-select-portal {
+    position: relative;
+    z-index: 99999;
+}
+
 .custom-select-menu {
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
     opacity: 0;
     transform: translateY(-4px) scale(0.98);
     transition: opacity 160ms cubic-bezier(0.16, 1, 0.3, 1), transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
     will-change: opacity, transform;
+    z-index: 99999;
+}
+
+.custom-select-menu.custom-select-menu-up {
+    transform: translateY(4px) scale(0.98);
 }
 
 .custom-select-menu.is-open {

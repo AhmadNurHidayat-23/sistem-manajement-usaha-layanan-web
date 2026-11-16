@@ -1,10 +1,19 @@
 /**
  * Modal Terima Pesanan Drop-off untuk Dashboard Kasir.
+ * Mendukung layanan kiloan (lanjut ke timbang) dan non-kiloan (penugasan langsung).
  */
+
+let isReceiveModalInitialized = false;
+let isSubmitting = false;
 
 export function initReceiveModal() {
     const modal = document.getElementById('modal-terima-pesanan');
     const form = document.getElementById('form-terima-pesanan');
+    if (!modal || !form || isReceiveModalInitialized) {
+        return;
+    }
+    isReceiveModalInitialized = true;
+
     const employeeContainer = document.getElementById('receive-employee-container');
     const employeeSelect = document.getElementById('receive-employee-select');
     const kiloanInfo = document.getElementById('receive-kiloan-info');
@@ -12,10 +21,7 @@ export function initReceiveModal() {
     const submitBtn = document.getElementById('btn-submit-receive');
     const spinner = document.getElementById('btn-submit-receive-spinner');
     const btnText = document.getElementById('btn-submit-receive-text');
-
-    if (!modal || !form) {
-        return;
-    }
+    const msgEl = document.getElementById('receive-confirmation-message');
 
     async function loadBranchEmployees(branchId) {
         if (!employeeSelect) return;
@@ -50,6 +56,7 @@ export function initReceiveModal() {
         const orderId = btn.getAttribute('data-order-id') || '';
         const customerName = btn.getAttribute('data-customer-name') || '-';
         const serviceName = btn.getAttribute('data-service-name') || '-';
+        const estimatedQty = btn.getAttribute('data-estimated-qty') || '-';
         const isWeightBased = btn.getAttribute('data-is-weight-based') === '1';
         const submitUrl = btn.getAttribute('data-submit-url') || '';
         const branchId = btn.getAttribute('data-branch-id') || '';
@@ -60,6 +67,9 @@ export function initReceiveModal() {
         document.getElementById('receive-order-code').textContent = `#${orderId}`;
         document.getElementById('receive-customer-name').textContent = customerName;
         document.getElementById('receive-service-name').textContent = serviceName;
+
+        const estEl = document.getElementById('receive-estimated-qty');
+        if (estEl) estEl.textContent = estimatedQty;
 
         if (errorBox) {
             errorBox.textContent = '';
@@ -73,27 +83,51 @@ export function initReceiveModal() {
                 employeeSelect.value = '';
             }
             kiloanInfo?.classList.remove('hidden');
+            if (msgEl) {
+                msgEl.textContent = 'Pastikan barang fisik laundry kiloan telah diterima di toko. Konfirmasi penerimaan untuk melanjutkan ke tahap penimbangan aktual.';
+            }
+            if (btnText) {
+                btnText.textContent = 'Terima';
+            }
         } else {
             employeeContainer?.classList.remove('hidden');
             if (employeeSelect) {
                 employeeSelect.setAttribute('required', 'required');
             }
             kiloanInfo?.classList.add('hidden');
+            if (msgEl) {
+                msgEl.textContent = 'Pastikan barang fisik telah diterima di toko. Pilih petugas yang akan mengerjakan pesanan ini.';
+            }
+            if (btnText) {
+                btnText.textContent = 'Kirim';
+            }
             loadBranchEmployees(branchId);
         }
 
-        modal.classList.remove('hidden');
-        document.body.classList.add('overflow-hidden');
+        if (typeof window.openModal === 'function') {
+            window.openModal(modal, btn);
+        } else {
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+        requestAnimationFrame(() => modal.classList.add('is-open'));
     }
 
     function closeModal() {
-        modal.classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
+        modal.classList.remove('is-open');
+        if (typeof window.closeModal === 'function') {
+            window.closeModal(modal);
+        } else {
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
         form.reset();
         if (errorBox) {
             errorBox.textContent = '';
             errorBox.classList.add('hidden');
         }
+        isSubmitting = false;
+        setLoading(false, false);
     }
 
     // Event delegation
@@ -125,6 +159,7 @@ export function initReceiveModal() {
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
 
         const submitUrl = document.getElementById('receive-submit-url')?.value;
         const isWeightBased = document.getElementById('receive-is-weight-based')?.value === '1';
@@ -141,7 +176,8 @@ export function initReceiveModal() {
             return;
         }
 
-        setLoading(true);
+        isSubmitting = true;
+        setLoading(true, isWeightBased);
 
         try {
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -171,8 +207,8 @@ export function initReceiveModal() {
             window.location.reload();
         } catch (err) {
             showError(err.message || 'Terjadi kesalahan sistem saat menerima pesanan.');
-        } finally {
-            setLoading(false);
+            isSubmitting = false;
+            setLoading(false, isWeightBased);
         }
     });
 
@@ -183,7 +219,7 @@ export function initReceiveModal() {
         }
     }
 
-    function setLoading(isLoading) {
+    function setLoading(isLoading, isWeightBased) {
         if (submitBtn) {
             submitBtn.disabled = isLoading;
         }
@@ -191,7 +227,11 @@ export function initReceiveModal() {
             spinner.classList.toggle('hidden', !isLoading);
         }
         if (btnText) {
-            btnText.textContent = isLoading ? 'Memproses...' : 'Kirim';
+            if (isLoading) {
+                btnText.textContent = isWeightBased ? 'Menerima...' : 'Mengirim...';
+            } else {
+                btnText.textContent = isWeightBased ? 'Terima' : 'Kirim';
+            }
         }
     }
 }

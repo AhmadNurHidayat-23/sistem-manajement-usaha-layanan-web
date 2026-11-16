@@ -39,21 +39,18 @@ class Service extends Model
     public function isWeightBased(): bool
     {
         $unit = strtolower(trim((string) ($this->unit ?? '')));
+
         if ($unit === 'kg' || $unit === 'kilogram') {
             return true;
         }
 
+        if ($unit !== '') {
+            return false;
+        }
+
         $name = strtolower($this->name ?? '');
-        if (str_contains($name, 'kiloan') || str_contains($name, '/kg')) {
-            return true;
-        }
 
-        $categoryName = strtolower($this->category?->name ?? '');
-        if (str_contains($categoryName, 'kiloan') || str_contains($categoryName, 'kilo')) {
-            return true;
-        }
-
-        return false;
+        return str_contains($name, 'kiloan') || str_contains($name, '/kg');
     }
 
     /**

@@ -68,6 +68,22 @@ export function initReportFilter(root = document) {
         dropdownPanel.style.left = '0';
         dropdownPanel.style.right = 'auto';
 
+        const wrapperRect = dropdownWrapper.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - wrapperRect.bottom;
+        const spaceAbove = wrapperRect.top;
+
+        if (spaceBelow < 300 && spaceAbove > spaceBelow) {
+            dropdownPanel.style.top = 'auto';
+            dropdownPanel.style.bottom = '100%';
+            dropdownPanel.style.marginTop = '0';
+            dropdownPanel.style.marginBottom = '8px';
+        } else {
+            dropdownPanel.style.top = '100%';
+            dropdownPanel.style.bottom = 'auto';
+            dropdownPanel.style.marginTop = '8px';
+            dropdownPanel.style.marginBottom = '0';
+        }
+
         const rect = dropdownPanel.getBoundingClientRect();
         const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
 
