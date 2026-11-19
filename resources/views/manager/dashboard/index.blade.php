@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Dashboard Manajer | SIMAUL'])
+@extends('layouts.app', ['title' => __('dashboard.manager.title') . ' | SIMAUL'])
 
 @section('content')
 <div class="space-y-6">

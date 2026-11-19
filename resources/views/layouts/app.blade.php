@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,11 +13,23 @@
     <noscript>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
     </noscript>
+    <script>
+        (function() {
+            try {
+                var theme = localStorage.getItem('simaul_theme');
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-[#F5F8FC] text-[#101828] font-sans antialiased h-screen overflow-hidden">
+<body class="bg-[#F5F8FC] dark:bg-[#080E1E] text-[#101828] dark:text-[#F8FAFC] font-sans antialiased h-screen overflow-hidden">
     <!-- Top Loading Progress Bar untuk Instant Click Feedback -->
-    <div id="app-top-progress" class="fixed top-0 left-0 h-[2.5px] bg-[#062072] z-50 pointer-events-none transition-all duration-300 opacity-0 w-0" aria-hidden="true"></div>
+    <div id="app-top-progress" class="fixed top-0 left-0 h-[2.5px] bg-[#062072] dark:bg-[#3B82F6] z-[9999] pointer-events-none transition-all duration-300 opacity-0 w-0" aria-hidden="true"></div>
     <!-- Sidebar Navigasi Berdasarkan Role -->
     @php
         $isCollapsed = request()->cookie('sidebar_collapsed') === '1';
@@ -41,7 +53,7 @@
         @include('layouts.partials.topbar', ['title' => $title ?? 'Dashboard'])
 
         <!-- Area Konten Utama: HANYA area ini yang scroll -->
-        <main class="flex-1 overflow-y-auto p-4 sm:p-5 bg-[#F5F8FC]">
+        <main class="flex-1 overflow-y-auto p-4 sm:p-5 bg-[#F5F8FC] dark:bg-[#080E1E]">
             @yield('content')
         </main>
     </div>

@@ -8,6 +8,7 @@ use App\Http\Controllers\Manager\ManagerDashboardController;
 use App\Http\Controllers\Owner\InternalUserController;
 use App\Http\Controllers\Owner\OwnerDashboardController;
 use App\Http\Controllers\Public\HomeController;
+use App\Http\Controllers\Public\LocaleController;
 use App\Http\Controllers\Shared\AktivitasController;
 use App\Http\Controllers\Shared\NotificationFeedController;
 use App\Http\Controllers\Shared\NotifikasiController;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 // Halaman Customer / Public Landing Page
 Route::get('/', [HomeController::class, 'home'])->name('customer.home');
+Route::match(['get', 'post'], '/locale/toggle', [LocaleController::class, 'toggle'])->name('locale.toggle');
 
 require __DIR__.'/modules/auth.php';
 require __DIR__.'/modules/branch.php';

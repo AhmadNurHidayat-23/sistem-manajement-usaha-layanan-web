@@ -24,19 +24,19 @@
 
                 {{-- Headline Besar Dominan Rata Kiri (Tetap 4 Baris, Diperbesar Lebih Kuat) --}}
                 <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-[82px] xl:text-[92px] font-extrabold tracking-tight text-white leading-[0.93] sm:leading-[0.91] mb-6 sm:mb-8 text-left font-sans max-w-3xl xl:max-w-4xl">
-                    BAGAIMANA JIKA<br>SEMUA LAYANAN<br>JADI LEBIH<br>MUDAH?
+                    {{ __('public.hero.headline_1') }}<br>{{ __('public.hero.headline_2') }}<br>{{ __('public.hero.headline_3') }}<br>{{ __('public.hero.headline_4') }}
                 </h1>
 
                 {{-- CTA Hero --}}
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 w-full sm:w-auto">
                     <a href="#layanan"
                         class="inline-flex items-center justify-center px-7 py-3.5 rounded-xl bg-white hover:bg-neutral-100 text-[#062072] text-sm font-semibold transition-all no-underline shadow-sm">
-                        Jelajahi Layanan
+                        {{ __('public.hero.cta_services') }}
                     </a>
 
                     <a href="#cabang"
                         class="inline-flex items-center justify-center px-7 py-3.5 rounded-xl border border-white/25 hover:border-white/50 hover:bg-white/10 text-white text-sm font-semibold transition-all no-underline">
-                        Pilih Cabang
+                        {{ __('public.hero.cta_branches') }}
                     </a>
                 </div>
             </div>
@@ -44,18 +44,18 @@
             {{-- Sisi Kanan: Supporting Text & Micro Info (Mendukung, Lebih Ringan) --}}
             <div class="lg:col-span-4 flex flex-col justify-end text-left lg:self-end lg:pb-1 max-w-md">
                 <p class="text-sm sm:text-base text-[#DCE8FF]/80 leading-relaxed mb-5 font-normal">
-                    Temukan layanan dari berbagai cabang, pilih layanan yang sesuai kebutuhan, buat pesanan, dan pantau prosesnya dalam satu tempat.
+                    {{ __('public.hero.description') }}
                 </p>
 
                 {{-- Micro Info --}}
                 <div class="pt-4 border-t border-white/15 flex flex-col gap-2.5 text-xs text-[#DCE8FF]/70">
                     <div class="flex items-center gap-2">
                         <span class="w-1.5 h-1.5 rounded-full bg-[#DCE8FF] shrink-0"></span>
-                        <span>Mode Layanan Janji Temu & Antar-Langsung Cabang</span>
+                        <span>{{ __('public.hero.feature_1') }}</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="w-1.5 h-1.5 rounded-full bg-[#DCE8FF] shrink-0"></span>
-                        <span>Multi-Cabang Terintegrasi Dalam Satu Sistem</span>
+                        <span>{{ __('public.hero.feature_2') }}</span>
                     </div>
                 </div>
             </div>

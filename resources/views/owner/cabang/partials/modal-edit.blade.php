@@ -74,9 +74,9 @@
                     <div>
                         <label for="edit_branch_mode" class="block text-xs font-semibold text-[#101828] mb-1">Mode Layanan <span class="text-rose-500">*</span></label>
                         <select id="edit_branch_mode" name="service_mode" required class="w-full h-10 px-3 bg-white border border-[#D0D5DD] rounded-lg text-sm text-[#101828] focus:outline-none focus:ring-1 focus:ring-[#062072] shadow-2xs">
-                            <option value="both">Keduanya (Appointment & Drop-off)</option>
-                            <option value="appointment">Appointment Only</option>
-                            <option value="drop_off">Drop-off Only</option>
+                            <option value="both">Keduanya (Janji Temu & Serahkan di Cabang)</option>
+                            <option value="appointment">Hanya Janji Temu</option>
+                            <option value="drop_off">Hanya Serahkan di Cabang</option>
                         </select>
                     </div>
                 </div>

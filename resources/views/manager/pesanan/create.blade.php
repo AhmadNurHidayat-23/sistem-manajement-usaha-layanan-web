@@ -1,16 +1,16 @@
-@extends('layouts.app', ['title' => 'Buat Order Drop-off'])
+@extends('layouts.app', ['title' => 'Buat Pesanan'])
 
 @section('content')
 <div class="max-w-3xl space-y-6">
     <div class="flex items-center justify-between">
         <div>
-            <h3 class="text-xl font-bold text-[#101828] m-0">Buat Order Drop-off</h3>
-            <p class="text-xs text-[#667085] mt-1 m-0">Daftarkan pakaian atau cucian Anda untuk layanan drop-off laundry.</p>
+            <h3 class="text-xl font-bold text-[#101828] m-0">Buat Pesanan</h3>
+            <p class="text-xs text-[#667085] mt-1 m-0">Daftarkan pesanan layanan untuk diproses.</p>
         </div>
         <x-buttons.btn variant="outline" href="{{ route('orders.index') }}">Kembali</x-buttons.btn>
     </div>
 
-    <x-cards.card title="Form Order Drop-off" subtitle="Isi detail cucian yang akan diproses">
+    <x-cards.card title="Formulir Pesanan" subtitle="Isi detail layanan yang akan diproses">
         <form method="POST" action="{{ route('orders.store') }}" class="space-y-4" id="form-order">
             @csrf
 
@@ -86,7 +86,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    Buat Order
+                    Buat Pesanan
                 </x-buttons.btn>
             </div>
         </form>

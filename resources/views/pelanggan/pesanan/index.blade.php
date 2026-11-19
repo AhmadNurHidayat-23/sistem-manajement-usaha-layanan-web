@@ -6,7 +6,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h2 class="text-xl font-bold text-[#101828] m-0">Pesanan Saya</h2>
-            <p class="text-xs text-[#667085] mt-1 m-0">Pantau status semua pesanan laundry Anda</p>
+            <p class="text-xs text-[#667085] mt-1 m-0">Pantau status semua pesanan layanan Anda</p>
         </div>
         <a href="{{ route('customer.pesanan.create') }}"
             class="inline-flex items-center gap-2 px-4 py-2 bg-[#062072] hover:bg-[#04184F] text-white rounded-lg text-sm font-semibold transition-colors no-underline shadow-sm">
@@ -57,7 +57,7 @@
                 $statusConfig = [
                     'pending'    => ['label' => 'Menunggu', 'bg' => 'bg-amber-50', 'text' => 'text-amber-700', 'border' => 'border-amber-200', 'dot' => 'bg-amber-500'],
                     'received'   => ['label' => 'Diterima', 'bg' => 'bg-slate-50', 'text' => 'text-slate-700', 'border' => 'border-slate-200', 'dot' => 'bg-slate-400'],
-                    'processing' => ['label' => 'Dikerjakan', 'bg' => 'bg-[#DCE8FF]', 'text' => 'text-[#062072]', 'border' => 'border-[#0B3A9E]/20', 'dot' => 'bg-[#0B3A9E]'],
+                    'processing' => ['label' => 'Diproses', 'bg' => 'bg-[#DCE8FF]', 'text' => 'text-[#062072]', 'border' => 'border-[#0B3A9E]/20', 'dot' => 'bg-[#0B3A9E]'],
                     'ready'      => ['label' => 'Siap Diambil', 'bg' => 'bg-emerald-50', 'text' => 'text-emerald-700', 'border' => 'border-emerald-200', 'dot' => 'bg-emerald-500'],
                     'completed'  => ['label' => 'Selesai', 'bg' => 'bg-emerald-50', 'text' => 'text-emerald-700', 'border' => 'border-emerald-200', 'dot' => 'bg-emerald-500'],
                     'cancelled'  => ['label' => 'Dibatalkan', 'bg' => 'bg-rose-50', 'text' => 'text-rose-700', 'border' => 'border-rose-200', 'dot' => 'bg-rose-400'],
@@ -68,7 +68,7 @@
                 <div class="p-4 sm:p-5">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
                         <div class="flex items-center gap-3">
-                            <span class="text-sm font-bold text-[#101828]">Order #{{ $order->id }}</span>
+                            <span class="text-sm font-bold text-[#101828]">Pesanan #{{ $order->id }}</span>
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold {{ $sc['bg'] }} {{ $sc['text'] }} {{ $sc['border'] }} border">
                                 <span class="w-1.5 h-1.5 rounded-full {{ $sc['dot'] }}"></span>
                                 {{ $sc['label'] }}
@@ -125,7 +125,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
                 </svg>
                 <h3 class="text-sm font-bold text-[#101828] mb-1">Belum Ada Pesanan</h3>
-                <p class="text-xs text-[#667085] mb-4">Anda belum memiliki pesanan. Mulai dengan memilih layanan laundry.</p>
+                <p class="text-xs text-[#667085] mb-4">Anda belum memiliki pesanan. Mulai dengan memilih layanan SIMAUL.</p>
                 <a href="{{ route('customer.pesanan.create') }}"
                     class="inline-flex items-center gap-2 px-4 py-2 bg-[#062072] hover:bg-[#04184F] text-white rounded-lg text-sm font-semibold transition-colors no-underline">
                     Buat Pesanan Pertama

@@ -39,9 +39,9 @@
 
             @php
                 $modeLabels = [
-                    'both' => 'Appointment & Drop-off',
-                    'appointment' => 'Appointment',
-                    'drop_off' => 'Drop-off',
+                    'both' => 'Janji Temu & Serahkan di Cabang',
+                    'appointment' => 'Janji Temu',
+                    'drop_off' => 'Serahkan di Cabang',
                 ];
             @endphp
 
@@ -137,7 +137,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                         </svg>
                         <p class="text-xs sm:text-sm font-semibold text-[#101828] mb-0.5">Belum ada cabang terdaftar</p>
-                        <p class="text-[11px] text-[#667085] m-0">Gunakan tombol "Tambah Cabang" untuk mendaftarkan outlet baru.</p>
+                        <p class="text-[11px] text-[#667085] m-0">Gunakan tombol "Tambah Cabang" untuk mendaftarkan cabang baru.</p>
                     </td>
                 </tr>
             @endforelse

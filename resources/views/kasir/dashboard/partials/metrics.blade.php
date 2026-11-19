@@ -1,16 +1,16 @@
 <!-- Metrics Cards Grid: Style konsisten untuk semua KPI (Option 2) -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     <!-- Card 1: Shift Status -->
-    <a href="{{ route('pos.shift.index', ['branch_id' => $activeBranch?->id]) }}" class="bg-white rounded-xl border border-[#E4E7EC] shadow-2xs py-3 px-3.5 sm:py-3.5 sm:px-4 flex flex-col justify-between h-full hover:border-[#062072]/30 hover:bg-[#F5F8FC]/50 transition-colors group" title="Buka Halaman Shift Kasir">
+    <a href="{{ route('pos.shift.index', ['branch_id' => $activeBranch?->id]) }}" class="bg-white rounded-xl border border-[#E4E7EC] shadow-2xs py-3 px-3.5 sm:py-3.5 sm:px-4 flex flex-col justify-between h-full hover:border-[#062072]/30 hover:bg-[#F5F8FC]/50 transition-colors group" title="{{ __('dashboard.cashier.title') }}">
         <div class="flex items-center justify-between gap-3">
             <div class="min-w-0 flex-1">
-                <p class="text-[11px] sm:text-xs font-semibold text-[#667085] uppercase tracking-wider m-0 truncate">Status Shift</p>
+                <p class="text-[11px] sm:text-xs font-semibold text-[#667085] uppercase tracking-wider m-0 truncate">{{ __('dashboard.cashier.shift_status') }}</p>
                 @if ($activeShift)
-                    <h3 class="text-[20px] font-semibold tracking-tight text-emerald-600 mt-1 mb-0 leading-[1.3] break-words">Shift Aktif</h3>
-                    <p class="text-[11px] sm:text-xs text-[#667085] mt-0.5 m-0 truncate leading-snug">Sejak {{ $activeShift->opened_at->format('H:i') }} &bull; Kelola</p>
+                    <h3 class="text-[20px] font-semibold tracking-tight text-emerald-600 mt-1 mb-0 leading-[1.3] break-words">{{ __('dashboard.cashier.active_shift') }}</h3>
+                    <p class="text-[11px] sm:text-xs text-[#667085] mt-0.5 m-0 truncate leading-snug">{{ __('dashboard.cashier.shift_since', ['time' => $activeShift->opened_at->format('H:i')]) }}</p>
                 @else
-                    <h3 class="text-[20px] font-semibold tracking-tight text-amber-600 mt-1 mb-0 leading-[1.3] break-words">Belum Buka</h3>
-                    <p class="text-[11px] sm:text-xs text-amber-700 mt-0.5 m-0 truncate leading-snug">Klik untuk buka shift</p>
+                    <h3 class="text-[20px] font-semibold tracking-tight text-amber-600 mt-1 mb-0 leading-[1.3] break-words">{{ __('dashboard.cashier.shift_not_open') }}</h3>
+                    <p class="text-[11px] sm:text-xs text-amber-700 mt-0.5 m-0 truncate leading-snug">{{ __('dashboard.cashier.shift_open_hint') }}</p>
                 @endif
             </div>
             <div class="w-9 sm:w-10 h-9 sm:h-10 rounded-xl bg-[#DCE8FF] text-[#062072] flex items-center justify-center shrink-0 group-hover:bg-[#062072] group-hover:text-white transition-colors">
@@ -25,9 +25,9 @@
     <div class="bg-white rounded-xl border border-[#E4E7EC] shadow-2xs py-3 px-3.5 sm:py-3.5 sm:px-4 flex flex-col justify-between h-full">
         <div class="flex items-center justify-between gap-3">
             <div class="min-w-0 flex-1">
-                <p class="text-[11px] sm:text-xs font-semibold text-[#667085] uppercase tracking-wider m-0 truncate">Transaksi Hari Ini</p>
-                <h3 class="text-[20px] font-semibold tracking-tight text-[#101828] mt-1 mb-0 tabular-nums leading-[1.3] break-words">{{ $shiftSummary['total_transactions'] ?? 0 }} Transaksi</h3>
-                <p class="text-[11px] sm:text-xs text-[#667085] mt-0.5 m-0 truncate leading-snug">Total transaksi hari ini</p>
+                <p class="text-[11px] sm:text-xs font-semibold text-[#667085] uppercase tracking-wider m-0 truncate">{{ __('dashboard.cashier.today_transactions') }}</p>
+                <h3 class="text-[20px] font-semibold tracking-tight text-[#101828] mt-1 mb-0 tabular-nums leading-[1.3] break-words">{{ __('dashboard.cashier.transactions_count', ['count' => $shiftSummary['total_transactions'] ?? 0]) }}</h3>
+                <p class="text-[11px] sm:text-xs text-[#667085] mt-0.5 m-0 truncate leading-snug">{{ __('dashboard.cashier.total_today_transactions') }}</p>
             </div>
             <div class="w-9 sm:w-10 h-9 sm:h-10 rounded-xl bg-[#DCE8FF] text-[#062072] flex items-center justify-center shrink-0">
                 <x-icons.icon name="cart" class="w-[18px] h-[18px]" />
@@ -39,9 +39,9 @@
     <div class="bg-white rounded-xl border border-[#E4E7EC] shadow-2xs py-3 px-3.5 sm:py-3.5 sm:px-4 flex flex-col justify-between h-full">
         <div class="flex items-center justify-between gap-3">
             <div class="min-w-0 flex-1">
-                <p class="text-[11px] sm:text-xs font-semibold text-[#667085] uppercase tracking-wider m-0 truncate">Penjualan Shift</p>
+                <p class="text-[11px] sm:text-xs font-semibold text-[#667085] uppercase tracking-wider m-0 truncate">{{ __('dashboard.cashier.shift_sales') }}</p>
                 <h3 class="text-[20px] font-semibold tracking-tight text-[#101828] mt-1 mb-0 tabular-nums leading-[1.3] break-words">Rp {{ number_format($shiftSummary['total_sales'] ?? 0, 0, ',', '.') }}</h3>
-                <p class="text-[11px] sm:text-xs text-[#667085] mt-0.5 m-0 truncate leading-snug">Total omset shift berjalan</p>
+                <p class="text-[11px] sm:text-xs text-[#667085] mt-0.5 m-0 truncate leading-snug">{{ __('dashboard.cashier.shift_sales_subtitle') }}</p>
             </div>
             <div class="w-9 sm:w-10 h-9 sm:h-10 rounded-xl bg-[#DCE8FF] text-[#062072] flex items-center justify-center shrink-0">
                 <x-icons.icon name="money" class="w-[18px] h-[18px]" />
@@ -53,9 +53,9 @@
     <div class="bg-white rounded-xl border border-[#E4E7EC] shadow-2xs py-3 px-3.5 sm:py-3.5 sm:px-4 flex flex-col justify-between h-full">
         <div class="flex items-center justify-between gap-3">
             <div class="min-w-0 flex-1">
-                <p class="text-[11px] sm:text-xs font-semibold text-[#667085] uppercase tracking-wider m-0 truncate">Kas Tunai di Laci</p>
+                <p class="text-[11px] sm:text-xs font-semibold text-[#667085] uppercase tracking-wider m-0 truncate">{{ __('dashboard.cashier.cash_in_drawer') }}</p>
                 <h3 class="text-[20px] font-semibold tracking-tight text-[#101828] mt-1 mb-0 tabular-nums leading-[1.3] break-words">Rp {{ number_format($shiftSummary['expected_cash'] ?? ($activeShift?->opening_cash ?? 0), 0, ',', '.') }}</h3>
-                <p class="text-[11px] sm:text-xs text-[#667085] mt-0.5 m-0 truncate leading-snug">Termasuk modal awal kasir</p>
+                <p class="text-[11px] sm:text-xs text-[#667085] mt-0.5 m-0 truncate leading-snug">{{ __('dashboard.cashier.cash_in_drawer_subtitle') }}</p>
             </div>
             <div class="w-9 sm:w-10 h-9 sm:h-10 rounded-xl bg-[#DCE8FF] text-[#062072] flex items-center justify-center shrink-0">
                 <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

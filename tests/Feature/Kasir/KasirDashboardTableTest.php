@@ -3,11 +3,13 @@
 namespace Tests\Feature\Kasir;
 
 use App\Enums\BookingStatus;
+use App\Enums\StatusPembayaran;
 use App\Enums\StatusPesanan;
 use App\Enums\StatusTransaksi;
 use App\Models\Booking;
 use App\Models\Branch;
 use App\Models\Order;
+use App\Models\Payment;
 use App\Models\Service;
 use App\Models\Transaction;
 use App\Models\User;
@@ -54,8 +56,8 @@ class KasirDashboardTableTest extends TestCase
         $response = $this->actingAs($this->kasirBarber)->get(route('cashier.dashboard'));
 
         $response->assertOk();
-        $response->assertSee('Pembayaran yang Perlu Ditangani');
-        $response->assertSee('Mode: Appointment');
+        $response->assertSee('Pesanan yang Perlu Ditangani');
+        $response->assertSee('Mode: Janji Temu');
         $response->assertDontSee('Booking Siap Diproses');
         $response->assertDontSee('Pesanan Drop-off Siap Diproses');
         $response->assertDontSee('data-filter="drop_off"', false);
@@ -70,8 +72,8 @@ class KasirDashboardTableTest extends TestCase
         $response = $this->actingAs($this->kasirLaundry)->get(route('cashier.dashboard'));
 
         $response->assertOk();
-        $response->assertSee('Pembayaran yang Perlu Ditangani');
-        $response->assertSee('Mode: Drop-off');
+        $response->assertSee('Pesanan yang Perlu Ditangani');
+        $response->assertSee('Mode: Serahkan di Cabang');
         $response->assertDontSee('Booking Siap Diproses');
         $response->assertDontSee('Pesanan Drop-off Siap Diproses');
         $response->assertDontSee('data-filter="appointment"', false);
@@ -86,10 +88,10 @@ class KasirDashboardTableTest extends TestCase
         // 1. Filter default: Semua
         $respAll = $this->actingAs($this->kasirAuto)->get(route('cashier.dashboard'));
         $respAll->assertOk();
-        $respAll->assertSee('Pembayaran yang Perlu Ditangani');
+        $respAll->assertSee('Pesanan yang Perlu Ditangani');
         $respAll->assertSee('Semua');
-        $respAll->assertSee('Appointment');
-        $respAll->assertSee('Drop-off');
+        $respAll->assertSee('Janji Temu');
+        $respAll->assertSee('Serahkan di Cabang');
 
         $paymentsAll = $respAll->viewData('pendingPayments');
         $typesInAll = $paymentsAll->pluck('type')->unique();
@@ -133,7 +135,7 @@ class KasirDashboardTableTest extends TestCase
             'status' => BookingStatus::Completed,
         ]);
 
-        Transaction::create([
+        $trxPaid = Transaction::create([
             'uuid' => (string) Str::uuid(),
             'branch_id' => $this->branchBarber->id,
             'cashier_id' => $this->kasirBarber->id,
@@ -146,11 +148,28 @@ class KasirDashboardTableTest extends TestCase
             'transaction_date' => now(),
         ]);
 
+        Payment::create([
+            'transaction_id' => $trxPaid->id,
+            'amount' => (float) $service->price,
+            'payment_method' => 'cash',
+            'status' => StatusPembayaran::Completed,
+            'paid_at' => now(),
+        ]);
+
         $response = $this->actingAs($this->kasirBarber)->get(route('cashier.dashboard'));
         $pendingPayments = $response->viewData('pendingPayments');
 
         $this->assertTrue($pendingPayments->contains('id', $bookingUnpaid->id));
-        $this->assertFalse($pendingPayments->contains('id', $bookingPaid->id));
+        $unpaidItem = $pendingPayments->firstWhere('id', $bookingUnpaid->id);
+        $paidItem = $pendingPayments->firstWhere('id', $bookingPaid->id);
+
+        $this->assertGreaterThan(0, $unpaidItem['remaining_amount']);
+        $this->assertEquals('bayar', $unpaidItem['action_type']);
+
+        $this->assertNotNull($paidItem);
+        $this->assertEquals(0, $paidItem['remaining_amount']);
+        $this->assertEquals('none', $paidItem['action_type']);
+        $this->assertEquals('Lunas', $paidItem['display_status']);
     }
 
     public function test_booking_selesai_tetapi_belum_lunas_tetap_dapat_dibayar(): void
@@ -213,13 +232,13 @@ class KasirDashboardTableTest extends TestCase
         Order::where('branch_id', $this->branchAuto->id)->delete();
 
         $respAll = $this->actingAs($this->kasirAuto)->get(route('cashier.dashboard', ['type' => 'all']));
-        $respAll->assertSee('Tidak ada pembayaran yang perlu ditangani.');
+        $respAll->assertSee('Tidak ada pesanan yang perlu ditangani.');
 
         $respAppt = $this->actingAs($this->kasirAuto)->get(route('cashier.dashboard', ['type' => 'appointment']));
-        $respAppt->assertSee('Tidak ada pembayaran Appointment yang perlu ditangani.');
+        $respAppt->assertSee('Tidak ada pesanan Janji Temu yang perlu ditangani.');
 
         $respDrop = $this->actingAs($this->kasirAuto)->get(route('cashier.dashboard', ['type' => 'drop_off']));
-        $respDrop->assertSee('Tidak ada pembayaran Drop-off yang perlu ditangani.');
+        $respDrop->assertSee('Tidak ada pesanan Serahkan di Cabang yang perlu ditangani.');
     }
 
     public function test_record_order_dropoff_pada_barbershop_seperti_ahmad_tidak_muncul_pada_dashboard(): void
@@ -269,6 +288,9 @@ class KasirDashboardTableTest extends TestCase
         ]);
 
         $after = $this->actingAs($this->kasirBarber)->get(route('cashier.dashboard'));
-        $this->assertFalse($after->viewData('pendingPayments')->contains('id', $booking->id));
+        $paidItem = $after->viewData('pendingPayments')->firstWhere('id', $booking->id);
+        $this->assertNotNull($paidItem);
+        $this->assertSame('Lunas', $paidItem['display_status']);
+        $this->assertSame('none', $paidItem['action_type']);
     }
 }

@@ -22,7 +22,7 @@
             <div class="min-w-0 flex-1">
                 <p class="text-[11px] sm:text-xs font-semibold text-[#667085] uppercase tracking-wider m-0 truncate">Jumlah Transaksi</p>
                 <h3 class="text-[20px] font-semibold tracking-tight text-[#101828] mt-1 mb-0 tabular-nums truncate leading-tight">
-                    {{ number_format($report['summary']['total_transactions']) }} Trx
+                    {{ number_format($report['summary']['total_transactions']) }} Transaksi
                 </h3>
                 <p class="text-[11px] sm:text-xs text-[#667085] mt-0.5 m-0 truncate leading-snug">Transaksi berbayar lunas</p>
             </div>
@@ -40,7 +40,7 @@
                 <h3 class="text-[20px] font-semibold tracking-tight text-[#101828] mt-1 mb-0 tabular-nums truncate leading-tight">
                     Rp {{ number_format($report['summary']['average_transaction_value'], 0, ',', '.') }}
                 </h3>
-                <p class="text-[11px] sm:text-xs text-[#667085] mt-0.5 m-0 truncate leading-snug">Rata-rata per customer</p>
+                <p class="text-[11px] sm:text-xs text-[#667085] mt-0.5 m-0 truncate leading-snug">Rata-rata per pelanggan</p>
             </div>
             <div class="w-9 sm:w-10 h-9 sm:h-10 rounded-xl bg-[#DCE8FF] text-[#062072] flex items-center justify-center shrink-0">
                 <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

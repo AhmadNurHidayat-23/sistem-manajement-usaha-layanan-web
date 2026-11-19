@@ -39,9 +39,9 @@
                         Mode Layanan <span class="text-rose-500">*</span>
                     </label>
                     <select id="service_mode" name="service_mode" required class="w-full px-3 py-2 bg-white border border-[#E4E7EC] rounded-lg text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#062072]">
-                        <option value="both" {{ old('service_mode', $branch->service_mode) === 'both' ? 'selected' : '' }}>Keduanya (Appointment & Drop-off)</option>
-                        <option value="appointment" {{ old('service_mode', $branch->service_mode) === 'appointment' ? 'selected' : '' }}>Appointment Only</option>
-                        <option value="drop_off" {{ old('service_mode', $branch->service_mode) === 'drop_off' ? 'selected' : '' }}>Drop-off Only</option>
+                        <option value="both" {{ old('service_mode', $branch->service_mode) === 'both' ? 'selected' : '' }}>Keduanya (Janji Temu & Serahkan di Cabang)</option>
+                        <option value="appointment" {{ old('service_mode', $branch->service_mode) === 'appointment' ? 'selected' : '' }}>Hanya Janji Temu</option>
+                        <option value="drop_off" {{ old('service_mode', $branch->service_mode) === 'drop_off' ? 'selected' : '' }}>Hanya Serahkan di Cabang</option>
                     </select>
                     @error('service_mode')
                         <p class="mt-1 text-xs text-rose-600">{{ $message }}</p>

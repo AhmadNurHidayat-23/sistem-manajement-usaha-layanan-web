@@ -2,11 +2,11 @@
 <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 pb-1">
     <div>
         <h1 class="text-xl sm:text-2xl font-bold text-[#101828] tracking-tight m-0">
-            Dashboard Manajer
+            {{ __('dashboard.manager.title') }}
         </h1>
         <div class="flex flex-wrap items-center gap-2 mt-1">
             <span class="text-sm sm:text-base font-semibold text-[#1F2937]">
-                {{ $branch?->display_name ?? 'Cabang Belum Ditugaskan' }}
+                {{ $branch?->display_name ?? __('dashboard.manager.unassigned_branch') }}
             </span>
             @if ($branch)
                 <x-badges.status :status="$branch->is_active" />
@@ -27,7 +27,7 @@
 
 @if (! $branch)
     <div class="p-3.5 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl text-xs">
-        <strong>Perhatian:</strong> Akun Anda belum terdaftar mengelola cabang manapun. Hubungi Owner untuk menautkan cabang ke akun Manager Anda.
+        <strong>{{ __('dashboard.common.attention') }}:</strong> {{ __('dashboard.manager.unassigned_warning') }}
     </div>
 @endif
 
@@ -39,9 +39,9 @@
                 <x-icons.icon name="alert-triangle" class="w-5 h-5" />
             </div>
             <div>
-                <h4 class="text-xs font-bold m-0 text-amber-950">Peringatan Ketersediaan Stok Bahan</h4>
+                <h4 class="text-xs font-bold m-0 text-amber-950">{{ __('dashboard.manager.inventory_warning_title') }}</h4>
                 <p class="text-xs text-amber-800 m-0 mt-0.5">
-                    Terdapat <strong>{{ $inventory_summary['low_stock_count'] }} bahan menipis</strong> dan <strong>{{ $inventory_summary['out_of_stock_count'] }} bahan habis</strong> di cabang Anda.
+                    {!! __('dashboard.manager.inventory_warning_desc', ['low' => '<strong>' . $inventory_summary['low_stock_count'] . '</strong>', 'out' => '<strong>' . $inventory_summary['out_of_stock_count'] . '</strong>']) !!}
                 </p>
             </div>
         </div>
@@ -49,7 +49,7 @@
             href="{{ route('inventori.index') }}"
             class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#062072] hover:bg-[#0B3A9E] text-white text-xs font-semibold rounded-lg shrink-0 transition-colors shadow-xs"
         >
-            Kelola Inventori
+            {{ __('dashboard.manager.manage_inventory') }}
             <x-icons.icon name="arrow-right" class="w-3.5 h-3.5" />
         </a>
     </div>

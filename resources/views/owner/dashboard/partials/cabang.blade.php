@@ -1,11 +1,11 @@
 <x-cards.card class="overflow-hidden h-full flex flex-col">
     <div class="p-4 border-b border-[#E4E7EC] flex items-center justify-between">
         <div>
-            <h3 class="text-sm font-bold text-[#101828] m-0">Performa Tiap Cabang</h3>
-            <p class="text-xs text-[#667085] mt-0.5 m-0">Perbandingan transaksi, omzet, dan booking per outlet.</p>
+            <h3 class="text-sm font-bold text-[#101828] m-0">{{ __('dashboard.owner.branch_performance') }}</h3>
+            <p class="text-xs text-[#667085] mt-0.5 m-0">{{ __('dashboard.owner.branch_performance_subtitle') }}</p>
         </div>
         <x-badges.badge variant="primary" class="text-xs">
-            {{ count($branch_performance) }} Cabang
+            {{ count($branch_performance) }} {{ __('dashboard.nav.branches') }}
         </x-badges.badge>
     </div>
 
@@ -13,12 +13,12 @@
         <table class="w-full text-left border-collapse text-xs">
             <thead>
                 <tr class="bg-[#F8F9FC] border-b border-[#E4E7EC] text-[#667085] font-semibold text-[11px] uppercase tracking-wider">
-                    <th class="py-2 px-3">Nama Cabang</th>
-                    <th class="py-2 px-3 text-center">Transaksi</th>
-                    <th class="py-2 px-3 text-center">Booking</th>
-                    <th class="py-2 px-3 text-right">Total Omzet</th>
-                    <th class="py-2 px-3 text-right">Rata-Rata / Trx</th>
-                    <th class="py-2 px-3 text-center">Status</th>
+                    <th class="py-2 px-3">{{ __('dashboard.owner.branch_name') }}</th>
+                    <th class="py-2 px-3 text-center">{{ __('dashboard.owner.transactions') }}</th>
+                    <th class="py-2 px-3 text-center">{{ __('dashboard.owner.booking') }}</th>
+                    <th class="py-2 px-3 text-right">{{ __('dashboard.owner.total_revenue') }}</th>
+                    <th class="py-2 px-3 text-right">{{ __('dashboard.owner.avg_per_trx') }}</th>
+                    <th class="py-2 px-3 text-center">{{ __('dashboard.common.status') }}</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-[#E4E7EC] text-[#101828]">
@@ -47,7 +47,7 @@
                 @empty
                     <tr>
                         <td colspan="6" class="py-6 text-center text-[#667085]">
-                            Belum ada data cabang terdaftar.
+                            {{ __('dashboard.owner.no_branches') }}
                         </td>
                     </tr>
                 @endforelse

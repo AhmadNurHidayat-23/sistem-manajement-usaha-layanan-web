@@ -2,7 +2,7 @@
     $isEmployee = auth()->user()?->role?->name === 'employee';
     $isCashier = auth()->user()?->role?->name === 'cashier';
 @endphp
-@extends('layouts.app', ['title' => $isEmployee ? 'Detail Tugas | SIMAUL' : 'Detail Order #' . $order->id . ' | SIMAUL'])
+@extends('layouts.app', ['title' => $isEmployee ? 'Detail Tugas | SIMAUL' : 'Detail Pesanan #' . $order->id . ' | SIMAUL'])
 
 @section('content')
 <div class="w-full space-y-5">
@@ -12,7 +12,7 @@
                 <h2 class="text-xl font-bold text-[#101828] m-0">Detail Tugas</h2>
                 <p class="text-xs text-[#667085] mt-1 m-0">Pekerjaan yang ditugaskan kepada Anda &bull; Terakhir diperbarui {{ $order->updated_at->diffForHumans() }}</p>
             @else
-                <h3 class="text-xl font-bold text-[#101828] m-0">Detail Order #{{ $order->id }}</h3>
+                <h3 class="text-xl font-bold text-[#101828] m-0">Detail Pesanan #{{ $order->id }}</h3>
                 <p class="text-xs text-[#667085] mt-1 m-0">Dibuat {{ $order->created_at->diffForHumans() }}</p>
             @endif
         </div>
@@ -48,25 +48,44 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         {{-- Info Utama --}}
         <div class="md:col-span-2 space-y-4">
-            <x-cards.card :title="$isEmployee ? 'Informasi Tugas' : 'Informasi Order'">
+            <x-cards.card :title="$isEmployee ? 'Informasi Tugas' : 'Informasi Pesanan'">
                 <dl class="divide-y divide-[#E4E7EC]">
                     @php
                         $rows = [
                             ['Pelanggan',          $order->user?->name ?? '-'],
                             ['Nama Usaha',         $order->branch?->display_name ?? '-'],
-                            ['Jenis Pekerjaan',    'Drop-off (Titipan Layanan)'],
+                            ['Jenis Pekerjaan',    'Serahkan di Cabang'],
                             ['Layanan',            $order->service?->name ?? '-'],
                             ['Petugas',            $order->employee?->name ?? 'Belum ditentukan'],
                             ['Est. Kuantitas',     $order->estimated_quantity ? number_format($order->estimated_quantity, 2) : '-'],
                             ['Antar-Jemput',       $order->pickup_option ? 'Ya' : 'Tidak'],
-                            ['Est. Selesai',       $order->estimated_finish_at ? $order->estimated_finish_at->translatedFormat('d F Y, H:i') . ' WIB' : '-'],
-                            ['Catatan',            $order->notes ?? '-'],
                         ];
+
+                        if ($order->pickup_option && $order->pickup_address) {
+                            $pickupNav = $order->google_maps_pickup_url
+                                ? '<div class="mt-1"><a href="' . e($order->google_maps_pickup_url) . '" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-semibold text-[#062072] dark:text-[#93C5FD] hover:underline">Buka Navigasi Google Maps &rarr;</a></div>'
+                                : '';
+                            $rows[] = ['Alamat Jemput', '<div class="text-right">' . e($order->pickup_address) . $pickupNav . '</div>'];
+
+                            if ($order->different_delivery_location && $order->delivery_address) {
+                                $delNav = $order->google_maps_delivery_url
+                                    ? '<div class="mt-1"><a href="' . e($order->google_maps_delivery_url) . '" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-semibold text-[#062072] dark:text-[#93C5FD] hover:underline">Buka Navigasi Google Maps &rarr;</a></div>'
+                                    : '';
+                                $rows[] = ['Alamat Antar', '<div class="text-right">' . e($order->delivery_address) . $delNav . '</div>'];
+                            }
+
+                            if ($order->location_notes) {
+                                $rows[] = ['Catatan Lokasi', e($order->location_notes)];
+                            }
+                        }
+
+                        $rows[] = ['Est. Selesai',       $order->estimated_finish_at ? $order->estimated_finish_at->translatedFormat('d F Y, H:i') . ' WIB' : '-'];
+                        $rows[] = ['Catatan',            $order->notes ?? '-'];
                     @endphp
                     @foreach($rows as [$label, $value])
                     <div class="py-3 flex justify-between gap-4">
                         <dt class="text-sm text-[#667085] shrink-0">{{ $label }}</dt>
-                        <dd class="text-sm font-medium text-[#101828] text-right">{{ $value }}</dd>
+                        <dd class="text-sm font-medium text-[#101828] text-right">{!! $value !!}</dd>
                     </div>
                     @endforeach
                 </dl>
@@ -207,7 +226,7 @@
                             @csrf @method('PATCH')
                             <button type="submit" id="btn-batalkan-order"
                                 class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer">
-                                Batalkan Order
+                                Batalkan Pesanan
                             </button>
                         </form>
                         @endif

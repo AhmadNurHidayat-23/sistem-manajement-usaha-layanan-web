@@ -1,36 +1,31 @@
-
 <aside id="sidebar-nav" class="sidebar-nav fixed top-0 left-0 bg-white text-[#101828] flex flex-col h-screen z-30 select-none border-r border-[#E4E7EC] {{ ($isCollapsed ?? false) ? 'collapsed' : '' }}">
-    {{-- Header Sidebar (h-[72px] seragam dengan Topbar, tanpa garis pembatas horizontal) --}}
+    
     <div class="sidebar-header h-[72px] flex items-center justify-between px-5 sm:px-6 bg-white shrink-0">
         {{-- Logo Brand Full (Saat sidebar terbuka 250px & mobile drawer) --}}
         <a href="{{ route('manager.dashboard') }}" class="sidebar-brand-full flex items-center min-w-0" title="SIMAUL">
             <img src="{{ asset('images/brand/logo-header.png') }}" alt="SIMAUL" class="h-9 sm:h-10 w-auto max-w-[170px] object-contain ml-1">
         </a>
-
+       
         {{-- Logo Brand Mini (Saat sidebar collapsed 68px: tombol untuk membuka kembali ke 250px) --}}
         <button type="button"
-                class="sidebar-brand-mini sidebar-toggle-btn items-center justify-center p-1.5 rounded-xl hover:bg-[#F5F8FC] hover:scale-105 active:scale-95 transition-all cursor-pointer border border-transparent hover:border-[#E4E7EC]"
-                title="Buka Menu Navigasi"
-                aria-label="Buka Menu Navigasi">
+                class="sidebar-brand-mini sidebar-toggle-btn items-center justify-center p-1.5 rounded-xl hover:bg-[#F5F8FC] dark:hover:bg-[#1E2D4A] hover:scale-105 active:scale-95 transition-all cursor-pointer border border-transparent hover:border-[#E4E7EC] dark:hover:border-[#1E2D4A]"
+                title="{{ __('dashboard.topbar.open_nav') }}"
+                aria-label="{{ __('dashboard.topbar.open_nav') }}">
             <img src="{{ asset('images/brand/favicon.png') }}" alt="SIMAUL" class="w-[30px] h-[30px] rounded-lg object-contain shadow-xs shrink-0 pointer-events-none">
         </button>
 
         {{-- Tombol Toggle Desktop (Kecilkan ke 68px saat sidebar terbuka) --}}
         <button type="button"
-                class="sidebar-toggle-btn sidebar-toggle-close hidden lg:flex items-center justify-center w-8 h-8 rounded-lg border border-[#E4E7EC] hover:bg-[#F5F8FC] text-[#667085] hover:text-[#062072] transition-colors cursor-pointer shrink-0"
-                title="Kecilkan Sidebar"
-                aria-label="Kecilkan Sidebar">
+                class="sidebar-toggle-btn sidebar-toggle-close hidden lg:flex items-center justify-center w-8 h-8 rounded-lg border border-[#E4E7EC] dark:border-[#1E2D4A] hover:bg-[#F5F8FC] dark:hover:bg-[#1E2D4A] text-[#667085] hover:text-[#062072] dark:hover:text-[#93C5FD] transition-colors cursor-pointer shrink-0"
+                title="{{ __('dashboard.topbar.collapse_sidebar') }}"
+                aria-label="{{ __('dashboard.topbar.collapse_sidebar') }}">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
             </svg>
         </button>
-
+        
         {{-- Tombol Tutup Mobile Drawer --}}
-        <button type="button"
-                onclick="closeMobileSidebar()"
-                class="sidebar-close-btn lg:hidden flex items-center justify-center w-8 h-8 rounded-lg border border-[#E4E7EC] hover:bg-rose-50 text-[#667085] hover:text-rose-600 transition-colors cursor-pointer shrink-0"
-                title="Tutup Menu Navigasi"
-                aria-label="Tutup Menu Navigasi">
+        <button type="button" onclick="closeMobileSidebar()" class="sidebar-close-btn lg:hidden flex items-center justify-center w-8 h-8 rounded-lg border border-[#E4E7EC] dark:border-[#1E2D4A] hover:bg-rose-50 dark:hover:bg-rose-950/30 text-[#667085] hover:text-rose-600 transition-colors cursor-pointer shrink-0" title="{{ __('dashboard.topbar.close_nav') }}" aria-label="{{ __('dashboard.topbar.close_nav') }}">
             <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
@@ -40,74 +35,74 @@
     <nav class="flex-1 px-3 py-3 space-y-3.5 overflow-x-hidden overflow-y-auto">
         <!-- Seksi UTAMA -->
         <div class="space-y-1">
-            <div class="sidebar-section-header px-3 pt-1.5 pb-1 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#667085]">
-                Utama
+            <div class="sidebar-section-header px-3 pt-1.5 pb-1 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#667085] dark:text-[#94A3B8]">
+                {{ __('dashboard.sections.main') }}
             </div>
             @php
                 $isDashboardActive = request()->routeIs('manager.dashboard') || request()->routeIs('bookings.*') || request()->is('bookings*');
             @endphp
             <a href="{{ route('manager.dashboard') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 relative focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#062072] {{ $isDashboardActive ? 'bg-[#062072] text-white font-semibold shadow-xs' : 'text-[#344054] hover:text-[#062072] hover:bg-[#EBF2FE]' }}"
-               title="Dashboard">
-                <x-icons.icon name="dashboard" class="w-4.5 h-4.5 shrink-0 {{ $isDashboardActive ? 'text-white' : 'text-[#667085]' }}" />
-                <span class="sidebar-label truncate">Dashboard</span>
-                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-[#101828] text-white text-xs rounded-md whitespace-nowrap z-50 shadow-lg border border-white/10 pointer-events-none">Dashboard</span>
+               class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 relative focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#062072] {{ $isDashboardActive ? 'bg-[#062072] text-white font-semibold shadow-xs' : 'text-[#344054] dark:text-[#CBD5E1] hover:text-[#062072] dark:hover:text-white hover:bg-[#EBF2FE] dark:hover:bg-[#1E2D4A]' }}"
+               title="{{ __('dashboard.nav.dashboard') }}">
+                <x-icons.icon name="dashboard" class="w-4.5 h-4.5 shrink-0 {{ $isDashboardActive ? 'text-white' : 'text-[#667085] dark:text-[#94A3B8]' }}" />
+                <span class="sidebar-label truncate">{{ __('dashboard.nav.dashboard') }}</span>
+                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-[#101828] text-white text-xs rounded-md whitespace-nowrap z-50 shadow-lg border border-white/10 pointer-events-none">{{ __('dashboard.nav.dashboard') }}</span>
             </a>
         </div>
 
         <!-- Seksi OPERASIONAL -->
         <div class="space-y-1">
-            <div class="sidebar-section-header px-3 pt-1.5 pb-1 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#667085]">
-                Operasional
+            <div class="sidebar-section-header px-3 pt-1.5 pb-1 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#667085] dark:text-[#94A3B8]">
+                {{ __('dashboard.sections.operations') }}
             </div>
             <a href="{{ route('employees.shifts.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 relative focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#062072] {{ request()->routeIs('employees.shifts.*') ? 'bg-[#062072] text-white font-semibold shadow-xs' : 'text-[#344054] hover:text-[#062072] hover:bg-[#EBF2FE]' }}"
-               title="Jadwal Shift">
-                <x-icons.icon name="clock" class="w-4.5 h-4.5 shrink-0 {{ request()->routeIs('employees.shifts.*') ? 'text-white' : 'text-[#667085]' }}" />
-                <span class="sidebar-label truncate">Jadwal Shift</span>
-                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-[#101828] text-white text-xs rounded-md whitespace-nowrap z-50 shadow-lg border border-white/10 pointer-events-none">Jadwal Shift</span>
+               class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 relative focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#062072] {{ request()->routeIs('employees.shifts.*') ? 'bg-[#062072] text-white font-semibold shadow-xs' : 'text-[#344054] dark:text-[#CBD5E1] hover:text-[#062072] dark:hover:text-white hover:bg-[#EBF2FE] dark:hover:bg-[#1E2D4A]' }}"
+               title="{{ __('dashboard.nav.shifts') }}">
+                <x-icons.icon name="clock" class="w-4.5 h-4.5 shrink-0 {{ request()->routeIs('employees.shifts.*') ? 'text-white' : 'text-[#667085] dark:text-[#94A3B8]' }}" />
+                <span class="sidebar-label truncate">{{ __('dashboard.nav.shifts') }}</span>
+                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-[#101828] text-white text-xs rounded-md whitespace-nowrap z-50 shadow-lg border border-white/10 pointer-events-none">{{ __('dashboard.nav.shifts') }}</span>
             </a>
             <a href="{{ route('inventori.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 relative focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#062072] {{ request()->routeIs('inventori.*') ? 'bg-[#062072] text-white font-semibold shadow-xs' : 'text-[#344054] hover:text-[#062072] hover:bg-[#EBF2FE]' }}"
-               title="Inventori Bahan">
-                <x-icons.icon name="box" class="w-4.5 h-4.5 shrink-0 {{ request()->routeIs('inventori.*') ? 'text-white' : 'text-[#667085]' }}" />
-                <span class="sidebar-label truncate">Inventori Bahan</span>
-                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-[#101828] text-white text-xs rounded-md whitespace-nowrap z-50 shadow-lg border border-white/10 pointer-events-none">Inventori Bahan</span>
+               class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 relative focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#062072] {{ request()->routeIs('inventori.*') ? 'bg-[#062072] text-white font-semibold shadow-xs' : 'text-[#344054] dark:text-[#CBD5E1] hover:text-[#062072] dark:hover:text-white hover:bg-[#EBF2FE] dark:hover:bg-[#1E2D4A]' }}"
+               title="{{ __('dashboard.nav.inventory') }}">
+                <x-icons.icon name="box" class="w-4.5 h-4.5 shrink-0 {{ request()->routeIs('inventori.*') ? 'text-white' : 'text-[#667085] dark:text-[#94A3B8]' }}" />
+                <span class="sidebar-label truncate">{{ __('dashboard.nav.inventory') }}</span>
+                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-[#101828] text-white text-xs rounded-md whitespace-nowrap z-50 shadow-lg border border-white/10 pointer-events-none">{{ __('dashboard.nav.inventory') }}</span>
             </a>
         </div>
 
         <!-- Seksi MANAJEMEN -->
         <div class="space-y-1">
-            <div class="sidebar-section-header px-3 pt-1.5 pb-1 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#667085]">
-                Manajemen
+            <div class="sidebar-section-header px-3 pt-1.5 pb-1 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#667085] dark:text-[#94A3B8]">
+                {{ __('dashboard.sections.management') }}
             </div>
             <a href="{{ route('promotions.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 relative focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#062072] {{ request()->routeIs('promotions.*') ? 'bg-[#062072] text-white font-semibold shadow-xs' : 'text-[#344054] hover:text-[#062072] hover:bg-[#EBF2FE]' }}"
-               title="Promo & Voucher">
-                <x-icons.icon name="ticket" class="w-4.5 h-4.5 shrink-0 {{ request()->routeIs('promotions.*') ? 'text-white' : 'text-[#667085]' }}" />
-                <span class="sidebar-label truncate">Promo & Voucher</span>
-                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-[#101828] text-white text-xs rounded-md whitespace-nowrap z-50 shadow-lg border border-white/10 pointer-events-none">Promo & Voucher</span>
+               class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 relative focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#062072] {{ request()->routeIs('promotions.*') ? 'bg-[#062072] text-white font-semibold shadow-xs' : 'text-[#344054] dark:text-[#CBD5E1] hover:text-[#062072] dark:hover:text-white hover:bg-[#EBF2FE] dark:hover:bg-[#1E2D4A]' }}"
+               title="{{ __('dashboard.nav.promotions') }}">
+                <x-icons.icon name="ticket" class="w-4.5 h-4.5 shrink-0 {{ request()->routeIs('promotions.*') ? 'text-white' : 'text-[#667085] dark:text-[#94A3B8]' }}" />
+                <span class="sidebar-label truncate">{{ __('dashboard.nav.promotions') }}</span>
+                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-[#101828] text-white text-xs rounded-md whitespace-nowrap z-50 shadow-lg border border-white/10 pointer-events-none">{{ __('dashboard.nav.promotions') }}</span>
             </a>
             <a href="{{ route('employees.commissions.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 relative focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#062072] {{ request()->routeIs('employees.commissions.*') ? 'bg-[#062072] text-white font-semibold shadow-xs' : 'text-[#344054] hover:text-[#062072] hover:bg-[#EBF2FE]' }}"
-               title="Komisi Karyawan">
-                <x-icons.icon name="money" class="w-4.5 h-4.5 shrink-0 {{ request()->routeIs('employees.commissions.*') ? 'text-white' : 'text-[#667085]' }}" />
-                <span class="sidebar-label truncate">Komisi Karyawan</span>
-                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-[#101828] text-white text-xs rounded-md whitespace-nowrap z-50 shadow-lg border border-white/10 pointer-events-none">Komisi Karyawan</span>
+               class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 relative focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#062072] {{ request()->routeIs('employees.commissions.*') ? 'bg-[#062072] text-white font-semibold shadow-xs' : 'text-[#344054] dark:text-[#CBD5E1] hover:text-[#062072] dark:hover:text-white hover:bg-[#EBF2FE] dark:hover:bg-[#1E2D4A]' }}"
+               title="{{ __('dashboard.nav.employee_commissions') }}">
+                <x-icons.icon name="money" class="w-4.5 h-4.5 shrink-0 {{ request()->routeIs('employees.commissions.*') ? 'text-white' : 'text-[#667085] dark:text-[#94A3B8]' }}" />
+                <span class="sidebar-label truncate">{{ __('dashboard.nav.employee_commissions') }}</span>
+                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-[#101828] text-white text-xs rounded-md whitespace-nowrap z-50 shadow-lg border border-white/10 pointer-events-none">{{ __('dashboard.nav.employee_commissions') }}</span>
             </a>
         </div>
 
         <!-- Seksi LAPORAN -->
         <div class="space-y-1">
-            <div class="sidebar-section-header px-3 pt-1.5 pb-1 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#667085]">
-                Laporan
+            <div class="sidebar-section-header px-3 pt-1.5 pb-1 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#667085] dark:text-[#94A3B8]">
+                {{ __('dashboard.sections.reports') }}
             </div>
             <a href="{{ route('reports.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 relative focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#062072] {{ request()->routeIs('reports.*') ? 'bg-[#062072] text-white font-semibold shadow-xs' : 'text-[#344054] hover:text-[#062072] hover:bg-[#EBF2FE]' }}"
-               title="Laporan Keuangan">
-                <x-icons.icon name="report" class="w-4.5 h-4.5 shrink-0 {{ request()->routeIs('reports.*') ? 'text-white' : 'text-[#667085]' }}" />
-                <span class="sidebar-label truncate">Laporan Keuangan</span>
-                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-[#101828] text-white text-xs rounded-md whitespace-nowrap z-50 shadow-lg border border-white/10 pointer-events-none">Laporan Keuangan</span>
+               class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 relative focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#062072] {{ request()->routeIs('reports.*') ? 'bg-[#062072] text-white font-semibold shadow-xs' : 'text-[#344054] dark:text-[#CBD5E1] hover:text-[#062072] dark:hover:text-white hover:bg-[#EBF2FE] dark:hover:bg-[#1E2D4A]' }}"
+               title="{{ __('dashboard.nav.reports_finance') }}">
+                <x-icons.icon name="report" class="w-4.5 h-4.5 shrink-0 {{ request()->routeIs('reports.*') ? 'text-white' : 'text-[#667085] dark:text-[#94A3B8]' }}" />
+                <span class="sidebar-label truncate">{{ __('dashboard.nav.reports_finance') }}</span>
+                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-[#101828] text-white text-xs rounded-md whitespace-nowrap z-50 shadow-lg border border-white/10 pointer-events-none">{{ __('dashboard.nav.reports_finance') }}</span>
             </a>
         </div>
     </nav>
@@ -116,10 +111,10 @@
     <div class="sidebar-footer-section px-3 pb-3 pt-2.5 bg-white shrink-0">
         <form method="POST" action="{{ route('logout') }}" class="m-0">
             @csrf
-            <button type="submit" class="sidebar-link sidebar-logout-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#344054] hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-rose-500" title="Keluar dari Akun">
-                <x-icons.icon name="logout" class="w-4.5 h-4.5 shrink-0 text-[#667085] group-hover:text-rose-600" />
-                <span class="sidebar-logout-label truncate">Keluar</span>
-                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-[#101828] text-white text-xs rounded-md whitespace-nowrap z-50 shadow-lg border border-white/10 pointer-events-none">Keluar</span>
+            <button type="submit" class="sidebar-link sidebar-logout-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#344054] dark:text-[#CBD5E1] hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-rose-500" title="{{ __('dashboard.nav.logout_account') }}">
+                <x-icons.icon name="logout" class="w-4.5 h-4.5 shrink-0 text-[#667085] dark:text-[#94A3B8] group-hover:text-rose-600 dark:group-hover:text-rose-400" />
+                <span class="sidebar-logout-label truncate">{{ __('dashboard.nav.logout') }}</span>
+                <span class="sidebar-tooltip absolute left-full ml-3 px-2.5 py-1 bg-[#101828] text-white text-xs rounded-md whitespace-nowrap z-50 shadow-lg border border-white/10 pointer-events-none">{{ __('dashboard.nav.logout') }}</span>
             </button>
         </form>
     </div>

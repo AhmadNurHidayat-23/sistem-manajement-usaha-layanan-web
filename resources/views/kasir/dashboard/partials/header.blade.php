@@ -5,16 +5,16 @@
             <svg class="w-6 h-6 text-[#062072]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
             </svg>
-            Dashboard Kasir
+            {{ __('dashboard.cashier.title') }}
         </h3>
-        <p class="text-xs text-[#667085] mt-1 m-0">Ringkasan operasional shift kasir, transaksi harian, dan antrian pembayaran.</p>
+        <p class="text-xs text-[#667085] mt-1 m-0">{{ __('dashboard.cashier.subtitle') }}</p>
     </div>
 
     @if ($accessibleBranches->count() > 1 || $activeBranch)
         <div class="flex items-center gap-2">
             @if ($accessibleBranches->count() > 1)
                 <form method="GET" action="{{ route('cashier.dashboard') }}" class="flex items-center gap-2">
-                    <label for="dash_branch_id" class="text-xs font-medium text-[#667085] whitespace-nowrap">Cabang:</label>
+                    <label for="dash_branch_id" class="text-xs font-medium text-[#667085] whitespace-nowrap">{{ __('dashboard.cashier.branch_label') }}</label>
                     <select id="dash_branch_id" name="branch_id" class="branch-switch-select px-3 py-1.5 bg-white border border-[#E4E7EC] rounded-lg text-xs font-semibold text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#062072]">
                         @foreach ($accessibleBranches as $b)
                             <option value="{{ $b->id }}" {{ $activeBranch?->id === $b->id ? 'selected' : '' }}>{{ $b->display_name }}</option>

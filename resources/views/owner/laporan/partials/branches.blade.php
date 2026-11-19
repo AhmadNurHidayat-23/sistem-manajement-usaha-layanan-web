@@ -5,7 +5,7 @@
         <div class="p-4 border-b border-[#E4E7EC] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
             <div>
                 <h3 class="text-sm font-bold text-[#101828] m-0">Laporan Konsolidasi Seluruh Cabang</h3>
-                <p class="text-xs text-[#667085] mt-0.5 m-0 leading-relaxed">Perbandingan volume penjualan dan omzet antar cabang outlet.</p>
+                <p class="text-xs text-[#667085] mt-0.5 m-0 leading-relaxed">Perbandingan volume penjualan dan omzet antar cabang.</p>
             </div>
             <span class="self-start sm:self-auto text-xs font-semibold px-2.5 py-1 rounded-full bg-[#DCE8FF] text-[#062072] border border-[#0B3A9E]/15 shrink-0 shadow-2xs">
                 {{ count($report['branch_performance']) }} Cabang Aktif
@@ -18,7 +18,7 @@
                 <thead>
                     <tr class="bg-[#F8F9FC] border-b border-[#E4E7EC] text-[#667085] font-semibold text-[11px] uppercase tracking-wider">
                         <th class="py-2.5 px-3">Nama Cabang</th>
-                        <th class="py-2.5 px-3">Alamat Outlet</th>
+                        <th class="py-2.5 px-3">Alamat Cabang</th>
                         <th class="py-2.5 px-3 text-center">Jumlah Transaksi</th>
                         <th class="py-2.5 px-3 text-right">Total Omzet</th>
                         <th class="py-2.5 px-3 text-right">Potongan Diskon</th>
@@ -88,9 +88,9 @@
                         </div>
                     </div>
 
-                    {{-- Alamat Outlet (Lengkap, Tidak Terpotong) --}}
+                    {{-- Alamat Cabang (Lengkap, Tidak Terpotong) --}}
                     <div class="pt-2 border-t border-[#F2F4F7]">
-                        <span class="text-[11px] text-[#667085] block font-medium uppercase tracking-wider mb-0.5">Alamat Outlet</span>
+                        <span class="text-[11px] text-[#667085] block font-medium uppercase tracking-wider mb-0.5">Alamat Cabang</span>
                         <p class="text-xs text-[#344054] m-0 break-words leading-relaxed">
                             {{ $bp['address'] ?: 'Alamat belum diatur' }}
                         </p>

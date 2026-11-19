@@ -1,18 +1,18 @@
 <x-cards.card class="overflow-hidden h-full flex flex-col">
     <div class="p-4 border-b border-[#E7ECF3] flex items-center justify-between">
         <div>
-            <h3 class="text-sm font-bold text-[#101828] m-0">Jadwal Staf Hari Ini</h3>
-            <p class="text-xs text-[#6B7280] mt-0.5 m-0">Staf bertugas dan jam kerja shift.</p>
+            <h3 class="text-sm font-bold text-[#101828] m-0">{{ __('dashboard.manager.staff_schedule_today') }}</h3>
+            <p class="text-xs text-[#6B7280] mt-0.5 m-0">{{ __('dashboard.manager.staff_schedule_subtitle') }}</p>
         </div>
         <x-badges.badge variant="neutral" class="text-[10px]">
-            {{ count($today_shifts) }} Shift
+            {{ count($today_shifts) }} {{ __('dashboard.units.shifts') }}
         </x-badges.badge>
     </div>
 
     <div class="divide-y divide-[#E7ECF3] flex-1 overflow-y-auto max-h-[380px]">
         @forelse ($today_shifts as $shift)
             @php
-                $empName = $shift->employee?->name ?? 'Karyawan';
+                $empName = $shift->employee?->name ?? __('dashboard.units.staff');
                 $initials = strtoupper(substr($empName, 0, 2));
                 $startFormatted = $shift->start_time ? \Carbon\Carbon::parse($shift->start_time)->format('H.i') : '-';
                 $endFormatted = $shift->end_time ? \Carbon\Carbon::parse($shift->end_time)->format('H.i') : '-';
@@ -32,12 +32,12 @@
                     </div>
                 </div>
                 <div class="shrink-0 text-right ml-2">
-                    <x-badges.status :status="$shift->status" />
+                    <x-badges.status :status="$shift->effective_status ?? $shift->status" />
                 </div>
             </div>
         @empty
             <div class="p-8 text-center text-xs text-[#6B7280]">
-                Belum ada jadwal staf hari ini.
+                {{ __('dashboard.manager.no_staff_schedule') }}
             </div>
         @endforelse
     </div>

@@ -39,7 +39,7 @@
                         {{ $ulasan->transaction?->branch?->display_name ?? $ulasan->transaction?->order?->branch?->display_name ?? 'Usaha' }}
                     </span>
                     @if ($ulasan->transaction?->order_id)
-                        • Order #{{ $ulasan->transaction->order_id }}
+                        • Pesanan #{{ $ulasan->transaction->order_id }}
                     @endif
                 </p>
             </div>

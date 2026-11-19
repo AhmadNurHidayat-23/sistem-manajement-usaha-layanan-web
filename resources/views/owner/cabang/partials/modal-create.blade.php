@@ -5,7 +5,7 @@
         <div class="flex items-center justify-between px-6 py-4 border-b border-[#E7ECF3] bg-white sticky top-0 z-10">
             <div>
                 <h3 id="modal-create-branch-title" class="text-base sm:text-lg font-bold text-[#101828] m-0">Tambah Cabang Baru</h3>
-                <p class="text-xs text-[#667085] mt-0.5 m-0">Daftarkan outlet baru beserta jam operasional dan mode layanan.</p>
+                <p class="text-xs text-[#667085] mt-0.5 m-0">Daftarkan cabang baru beserta jam operasional dan mode layanan.</p>
             </div>
             <button type="button" data-modal-close="modal-create-branch" class="text-[#667085] hover:text-[#101828] p-1.5 rounded-lg hover:bg-[#F5F8FC] transition-colors cursor-pointer" aria-label="Tutup Modal">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,9 +73,9 @@
                     <div>
                         <label for="create_branch_mode" class="block text-xs font-semibold text-[#101828] mb-1">Mode Layanan <span class="text-rose-500">*</span></label>
                         <select id="create_branch_mode" name="service_mode" required class="w-full h-10 px-3 bg-white border border-[#D0D5DD] rounded-lg text-sm text-[#101828] focus:outline-none focus:ring-1 focus:ring-[#062072] shadow-2xs">
-                            <option value="both" {{ old('service_mode') === 'both' ? 'selected' : '' }}>Keduanya (Appointment & Drop-off)</option>
-                            <option value="appointment" {{ old('service_mode') === 'appointment' ? 'selected' : '' }}>Appointment Only</option>
-                            <option value="drop_off" {{ old('service_mode') === 'drop_off' ? 'selected' : '' }}>Drop-off Only</option>
+                            <option value="both" {{ old('service_mode') === 'both' ? 'selected' : '' }}>Keduanya (Janji Temu & Serahkan di Cabang)</option>
+                            <option value="appointment" {{ old('service_mode') === 'appointment' ? 'selected' : '' }}>Hanya Janji Temu</option>
+                            <option value="drop_off" {{ old('service_mode') === 'drop_off' ? 'selected' : '' }}>Hanya Serahkan di Cabang</option>
                         </select>
                     </div>
                 </div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,9 +13,18 @@
     <noscript>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     </noscript>
+    <script>
+        (function() {
+            try {
+                document.documentElement.classList.remove('dark');
+            } catch (e) {}
+        })();
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-white text-[#101828] min-h-screen lg:h-screen lg:overflow-hidden flex flex-col font-sans antialiased selection:bg-[#DCE8FF] selection:text-[#062072]">
+    <!-- Top Loading Progress Bar untuk Smooth Navigation Feedback -->
+    <div id="app-top-progress" class="fixed top-0 left-0 h-[2.5px] bg-[#062072] dark:bg-[#3B82F6] z-[9999] pointer-events-none transition-all duration-300 opacity-0 w-0" aria-hidden="true"></div>
 
     <div class="min-h-screen lg:h-screen w-full flex flex-col lg:flex-row lg:overflow-hidden">
 

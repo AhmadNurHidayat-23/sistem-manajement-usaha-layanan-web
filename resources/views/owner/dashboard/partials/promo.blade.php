@@ -2,20 +2,20 @@
     <div class="p-4 border-b border-[#E4E7EC]">
         <div class="flex items-center justify-between">
             <div>
-                <h3 class="text-sm font-bold text-[#101828] m-0">Efektivitas Promo & Kupon</h3>
-                <p class="text-xs text-[#667085] mt-0.5 m-0">Evaluasi pemakaian voucher diskon pelanggan.</p>
+                <h3 class="text-sm font-bold text-[#101828] m-0">{{ __('dashboard.owner.promo_effectiveness') }}</h3>
+                <p class="text-xs text-[#667085] mt-0.5 m-0">{{ __('dashboard.owner.promo_effectiveness_subtitle') }}</p>
             </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-[#E4E7EC]">
             <div class="p-3 rounded-lg bg-[#F8F9FC] border border-[#E4E7EC]">
-                <span class="text-[10px] uppercase font-semibold text-[#667085] block">Total Kupon Digunakan</span>
+                <span class="text-[10px] uppercase font-semibold text-[#667085] block">{{ __('dashboard.owner.total_coupons_used') }}</span>
                 <span class="text-sm font-bold text-[#062072] block mt-1">
-                    {{ number_format($promo_effectiveness['total_usages']) }} kali
+                    {{ number_format($promo_effectiveness['total_usages']) }} {{ __('dashboard.units.times') }}
                 </span>
             </div>
             <div class="p-3 rounded-lg bg-[#F8F9FC] border border-[#E4E7EC]">
-                <span class="text-[10px] uppercase font-semibold text-[#667085] block">Total Potongan Diskon</span>
+                <span class="text-[10px] uppercase font-semibold text-[#667085] block">{{ __('dashboard.owner.total_discount_given') }}</span>
                 <span class="text-sm font-bold text-[#101828] block mt-1">
                     Rp {{ number_format($promo_effectiveness['total_discount_given'], 0, ',', '.') }}
                 </span>
@@ -34,12 +34,12 @@
                 </div>
                 <div class="text-right">
                     <span class="text-xs font-bold text-[#101828]">{{ $promo['usage_count'] }}x</span>
-                    <span class="text-[10px] text-[#667085] block">Diskon: Rp {{ number_format($promo['total_discount'], 0, ',', '.') }}</span>
+                    <span class="text-[10px] text-[#667085] block">{{ __('dashboard.common.discount') ?? 'Diskon' }}: Rp {{ number_format($promo['total_discount'], 0, ',', '.') }}</span>
                 </div>
             </div>
         @empty
             <div class="p-6 text-center text-xs text-[#667085]">
-                Belum ada kode promo yang digunakan pelanggan.
+                {{ __('dashboard.owner.no_promo_data') }}
             </div>
         @endforelse
     </div>

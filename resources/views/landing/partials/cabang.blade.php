@@ -3,100 +3,94 @@
 <section id="cabang" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
         <div>
-            <span class="text-xs font-semibold uppercase tracking-wider text-[#062072] block mb-2">CABANG LAYANAN</span>
-            <h2 class="text-2xl sm:text-3xl font-bold text-[#101828] tracking-tight m-0">
-                Cabang Operasional
+            <h2 class="text-2xl sm:text-3xl font-bold text-[#101828] dark:text-white tracking-tight m-0">
+                {{ __('public.branches.title') }}
             </h2>
-            <p class="text-sm text-[#667085] mt-1.5 m-0 max-w-xl">
-                Setiap cabang memiliki spesialisasi layanan dan mode operasional yang disesuaikan untuk kenyamanan Anda.
+            <p class="text-sm text-[#667085] dark:text-[#94A3B8] mt-1.5 m-0 max-w-xl">
+                {{ __('public.branches.subtitle') }}
             </p>
         </div>
 
-        @if (isset($currentBranch) && $currentBranch)
-            <a href="{{ route('customer.home') }}#cabang"
-                class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#062072] hover:text-[#04184F] no-underline">
-                <span>Tampilkan Semua Cabang</span>
-            </a>
-        @endif
+        <a href="{{ route('customer.home') }}#cabang"
+            class="inline-flex items-center gap-1.5 text-xs font-semibold {{ (isset($currentBranch) && $currentBranch) ? 'text-[#062072] dark:text-[#93C5FD] hover:underline' : 'text-[#667085] dark:text-[#94A3B8] hover:text-[#101828] dark:hover:text-white' }} no-underline">
+            <span>{{ __('public.branches.all') }}</span>
+        </a>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {{-- Layout Tiga Kolom Terbuka dengan Pemisah Vertikal Tipis --}}
+    <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#E5E7EB] dark:divide-[#1E2D4A]">
         @foreach ($availableBranches as $branch)
             @php
                 $isSelected = isset($currentBranch) && $currentBranch && $currentBranch->id === $branch->id;
                 $serviceModeText = match($branch->service_mode) {
-                    'appointment' => 'Janji Temu',
-                    'drop_off' => 'Antar-Langsung',
-                    'both' => 'Janji Temu & Antar-Langsung',
-                    default => 'Janji Temu & Antar-Langsung',
+                    'appointment' => __('public.catalog.appointment'),
+                    'drop_off' => __('public.catalog.drop_off'),
+                    default => __('public.catalog.both'),
                 };
                 $branchCategories = $branch->services
                     ? $branch->services->map(fn($s) => $s->category?->name)->filter()->unique()->values()
                     : collect();
             @endphp
-            <div class="rounded-xl border {{ $isSelected ? 'border-[#062072] bg-white ring-2 ring-[#062072]/15 shadow-sm' : 'border-[#E4E7EC] bg-white hover:border-[#062072]/40 shadow-2xs' }} p-5 sm:p-6 flex flex-col justify-between transition-all h-full">
-                <div class="space-y-3.5">
-                    {{-- Badge Status & Jam Operasional --}}
-                    <div class="flex items-center justify-between gap-2 flex-wrap">
-                        <span class="text-xs font-semibold {{ $isSelected ? 'text-white bg-[#062072]' : 'text-[#062072] bg-[#DCE8FF]/70' }} px-2.5 py-1 rounded-md">
-                            {{ $isSelected ? 'Cabang Terpilih' : 'Cabang Resmi' }}
-                        </span>
-                        <div class="flex flex-col items-end text-[11px] text-[#667085]">
-                            <span class="font-medium text-emerald-700">{{ $branch->operating_days_label }}</span>
-                            <span class="flex items-center gap-1">
-                                <svg class="w-3.5 h-3.5 text-[#667085] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                {{ $branch->operating_hours_label }}
-                            </span>
+            <div class="flex flex-col justify-between py-6 md:py-2 px-0 md:px-7 lg:px-9 first:md:pl-0 last:md:pr-0">
+                <div class="space-y-5">
+                    {{-- Nama Cabang, Alamat & Telepon --}}
+                    <div>
+                        <div class="flex items-center justify-between gap-2">
+                            <h3 class="text-xl sm:text-2xl font-medium tracking-tight text-[#101828] dark:text-white m-0 leading-snug">
+                                {{ $branch->display_name }}
+                            </h3>
+                            @if ($isSelected)
+                                <span class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-[4px] bg-[#062072]/10 dark:bg-[#93C5FD]/10 text-[#062072] dark:text-[#93C5FD] shrink-0">
+                                    {{ __('dashboard.common.active') }}
+                                </span>
+                            @endif
                         </div>
+                        <p class="text-xs sm:text-[13px] text-[#475467] dark:text-[#94A3B8] leading-relaxed mt-2.5 m-0">
+                            {{ $branch->address ?? __('public.branches.default_address') }}
+                        </p>
+                        @if ($branch->phone)
+                            <p class="text-xs text-[#667085] dark:text-[#94A3B8] mt-1.5 m-0">
+                                {{ __('public.branches.phone_label') }}: <span class="font-medium text-[#101828] dark:text-[#F1F5F9]">{{ $branch->phone }}</span>
+                            </p>
+                        @endif
                     </div>
 
-                    {{-- Nama Cabang --}}
-                    <div>
-                        <h3 class="text-base sm:text-lg font-bold text-[#101828] m-0 leading-snug">
-                            {{ $branch->display_name }}
-                        </h3>
-                        <p class="text-xs text-[#667085] leading-relaxed mt-1.5 m-0">
-                            {{ $branch->address ?? 'Alamat lengkap cabang operasional resmi SIMAUL.' }}
+                    {{-- Jadwal Operasional Visual (Hari & Jam Menonjol) --}}
+                    <div class="space-y-1">
+                        <span class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#64748B] dark:text-[#94A3B8] block">
+                            {{ __('public.branches.operating_hours_title') }}
+                        </span>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-base sm:text-lg font-semibold tracking-tight text-[#062072] dark:text-[#93C5FD]">
+                                {{ str_replace(':', '.', str_replace(' - ', ' – ', $branch->operating_hours_label)) }}
+                            </span>
+                        </div>
+                        <p class="text-xs text-[#475467] dark:text-[#94A3B8] mt-0.5 m-0">
+                            {{ __('public.branches.days_open') }}
                         </p>
                     </div>
 
-                    {{-- Kontak Cabang --}}
-                    @if ($branch->phone)
-                        <div class="text-xs text-[#667085] flex items-center gap-1.5 pt-0.5">
-                            <svg class="w-3.5 h-3.5 text-[#062072] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                            </svg>
-                            <span>{{ $branch->phone }}</span>
-                        </div>
-                    @endif
-
-                    {{-- Layanan Yang Tersedia --}}
+                    {{-- Layanan Tersedia & Mode --}}
                     @if ($branchCategories->count())
-                        <div class="pt-2 border-t border-[#F2F4F7]">
-                            <span class="text-[11px] font-medium text-[#667085] block mb-1.5">Layanan Tersedia:</span>
-                            <div class="flex flex-wrap gap-1.5">
-                                @foreach ($branchCategories as $categoryName)
-                                    <span class="inline-flex items-center text-[11px] font-medium text-[#062072] bg-[#F5F8FC] border border-[#E4E7EC] px-2 py-0.5 rounded">
-                                        {{ $categoryName }}
-                                    </span>
-                                @endforeach
-                            </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#64748B] dark:text-[#94A3B8] block">
+                                {{ __('public.branches.available_services') }}
+                            </span>
+                            <p class="text-xs text-[#344054] dark:text-[#CBD5E1] leading-relaxed m-0 font-normal">
+                                {{ $branchCategories->join(' · ') }}
+                            </p>
+                            <p class="text-[11px] text-[#64748B] dark:text-[#94A3B8] m-0 pt-0.5">
+                                {{ __('public.branches.service_mode_label') }}: {{ $serviceModeText }}
+                            </p>
                         </div>
                     @endif
                 </div>
 
-                {{-- Footer Kartu: Mode & CTA --}}
-                <div class="pt-4 mt-5 border-t border-[#E4E7EC] flex items-center justify-between gap-3">
-                    <div class="text-[11px] text-[#667085]">
-                        <span class="block text-[10px] uppercase tracking-wider text-[#98A2B3]">Mode</span>
-                        <strong class="text-[#101828] font-semibold text-xs">{{ $serviceModeText }}</strong>
-                    </div>
-
+                {{-- Tombol Pilih Cabang Abu-abu Sejajar --}}
+                <div class="mt-auto pt-6">
                     <a href="{{ route('customer.home', ['branch_id' => $branch->id]) }}#layanan"
-                        class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors no-underline shrink-0 {{ $isSelected ? 'bg-[#062072] text-white hover:bg-[#04184F]' : 'border border-[#E4E7EC] text-[#101828] hover:bg-[#F5F8FC] hover:border-[#062072]/30' }}">
-                        {{ $isSelected ? 'Lihat Layanan' : 'Pilih Cabang' }}
+                        class="w-full inline-flex items-center justify-center h-10 px-4 rounded-[4px] text-xs font-semibold transition-colors no-underline text-center {{ $isSelected ? 'bg-[#062072] text-white hover:bg-[#04184F]' : 'bg-[#E5E7EB] hover:bg-[#D1D5DB] dark:bg-[#1F2937] dark:hover:bg-[#374151] text-[#111827] dark:text-[#F9FAFB]' }}">
+                        {{ $isSelected ? __('public.branches.selected') : __('public.branches.select_branch') }}
                     </a>
                 </div>
             </div>

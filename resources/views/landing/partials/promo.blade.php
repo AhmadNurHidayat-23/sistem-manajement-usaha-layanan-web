@@ -41,7 +41,7 @@
                             {{ $promo->name }}
                         </h3>
                         <p class="text-xs text-[#667085] line-clamp-2 leading-relaxed m-0 mb-4">
-                            {{ $promo->branch ? 'Berlaku khusus di cabang ' . ($promo->branch->display_name ?? $promo->branch->name) . '.' : 'Berlaku di seluruh outlet resmi.' }}
+                            {{ $promo->branch ? 'Berlaku khusus di cabang ' . ($promo->branch->display_name ?? $promo->branch->name) . '.' : 'Berlaku di seluruh cabang resmi.' }}
                         </p>
                     </div>
 

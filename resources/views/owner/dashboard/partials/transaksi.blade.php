@@ -1,11 +1,11 @@
 <x-cards.card class="overflow-hidden">
     <div class="p-4 border-b border-[#E4E7EC] flex items-center justify-between">
         <div>
-            <h3 class="text-sm font-bold text-[#101828] m-0">Transaksi Kasir Terbaru Seluruh Cabang</h3>
-            <p class="text-xs text-[#667085] mt-0.5 m-0">Aktivitas pembayaran kasir secara realtime.</p>
+            <h3 class="text-sm font-bold text-[#101828] m-0">{{ __('dashboard.owner.recent_transactions') }}</h3>
+            <p class="text-xs text-[#667085] mt-0.5 m-0">{{ __('dashboard.owner.recent_transactions_subtitle') }}</p>
         </div>
         <a href="{{ route('pos.transactions.index') }}" class="text-xs font-semibold text-[#062072] hover:underline">
-            Semua Transaksi
+            {{ __('dashboard.owner.all_transactions') }}
         </a>
     </div>
 
@@ -13,13 +13,13 @@
         <table class="w-full text-left border-collapse text-xs">
             <thead>
                 <tr class="bg-[#F8F9FC] border-b border-[#E4E7EC] text-[#667085] font-semibold text-[11px] uppercase tracking-wider">
-                    <th class="py-2 px-3">Kode Transaksi</th>
-                    <th class="py-2 px-3">Cabang</th>
-                    <th class="py-2 px-3">Kasir Bertugas</th>
-                    <th class="py-2 px-3 text-center">Metode Bayar</th>
-                    <th class="py-2 px-3 text-left">Total Transaksi</th>
-                    <th class="py-2 px-3">Waktu Transaksi</th>
-                    <th class="py-2 px-3 text-center">Status</th>
+                    <th class="py-2 px-3">{{ __('dashboard.owner.trx_code') }}</th>
+                    <th class="py-2 px-3">{{ __('dashboard.owner.branch') }}</th>
+                    <th class="py-2 px-3">{{ __('dashboard.owner.cashier_on_duty') }}</th>
+                    <th class="py-2 px-3 text-center">{{ __('dashboard.owner.payment_method') }}</th>
+                    <th class="py-2 px-3 text-left">{{ __('dashboard.owner.total_amount') }}</th>
+                    <th class="py-2 px-3">{{ __('dashboard.owner.trx_time') }}</th>
+                    <th class="py-2 px-3 text-center">{{ __('dashboard.common.status') }}</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-[#E4E7EC] text-[#101828]">
@@ -30,7 +30,7 @@
                                 {{ $trx->transaction_code }}
                             </a>
                         </td>
-                        <td class="py-2.5 px-3 font-medium text-[#101828] truncate max-w-[150px]">{{ $trx->branch?->display_name ?? $trx->branch?->name ?? 'Cabang' }}</td>
+                        <td class="py-2.5 px-3 font-medium text-[#101828] truncate max-w-[150px]">{{ $trx->branch?->display_name ?? $trx->branch?->name ?? __('dashboard.owner.branch') }}</td>
                         <td class="py-2.5 px-3 text-[#667085] truncate max-w-[120px]">{{ $trx->cashier?->name ?? '-' }}</td>
                         <td class="py-2.5 px-3 text-center whitespace-nowrap">
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-700">
@@ -50,7 +50,7 @@
                 @empty
                     <tr>
                         <td colspan="7" class="py-6 text-center text-[#667085]">
-                            Belum ada transaksi kasir yang tercatat.
+                            {{ __('dashboard.owner.no_transactions') }}
                         </td>
                     </tr>
                 @endforelse

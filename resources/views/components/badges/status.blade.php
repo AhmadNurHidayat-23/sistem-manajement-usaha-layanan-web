@@ -6,48 +6,59 @@
     $val = $status instanceof \BackedEnum ? $status->value : (string) $status;
     $val = strtolower($val);
 
-    $map = [
-        // Status booking
-        'completed' => ['label' => 'Selesai', 'variant' => 'success'],
-        'confirmed' => ['label' => 'Dikerjakan', 'variant' => 'primary'],
-        'in_progress' => ['label' => 'Dikerjakan', 'variant' => 'primary'],
-        'pending' => ['label' => 'Menunggu', 'variant' => 'warning'],
-        'cancelled' => ['label' => 'Batal', 'variant' => 'danger'],
+    $normalized = match($val) {
+        '1', 'active' => 'active',
+        '0', 'inactive' => 'inactive',
+        'completed_trx', 'paid' => 'paid',
+        'tersedia', 'available' => 'available',
+        'menipis', 'low' => 'low',
+        'habis', 'out_of_stock' => 'out_of_stock',
+        'berakhir', 'ended' => 'ended',
+        'ready', 'siap_diambil' => 'ready',
+        'received', 'diterima' => 'received',
+        default => $val,
+    };
 
-        // Shift attendance status
-        'present' => ['label' => 'Hadir', 'variant' => 'success'],
-        'late' => ['label' => 'Terlambat', 'variant' => 'warning'],
-        'absent' => ['label' => 'Absen', 'variant' => 'danger'],
-        'scheduled' => ['label' => 'Terjadwal', 'variant' => 'neutral'],
-        'off' => ['label' => 'Libur', 'variant' => 'neutral'],
-
-        // Status transaksi
-        'paid' => ['label' => 'Lunas', 'variant' => 'success'],
-        'completed_trx' => ['label' => 'Lunas', 'variant' => 'success'],
-        'failed' => ['label' => 'Gagal', 'variant' => 'danger'],
-        'refunded' => ['label' => 'Refund', 'variant' => 'danger'],
-
-        // Active / Inactive status
-        '1' => ['label' => 'Aktif', 'variant' => 'success'],
-        '0' => ['label' => 'Nonaktif', 'variant' => 'neutral'],
-        'active' => ['label' => 'Aktif', 'variant' => 'success'],
-        'inactive' => ['label' => 'Nonaktif', 'variant' => 'neutral'],
-
-        // Inventory Stock & Mutation status
-        'tersedia' => ['label' => 'Tersedia', 'variant' => 'success'],
-        'menipis' => ['label' => 'Menipis', 'variant' => 'warning'],
-        'habis' => ['label' => 'Habis', 'variant' => 'danger'],
-        'available' => ['label' => 'Tersedia', 'variant' => 'success'],
-        'low' => ['label' => 'Menipis', 'variant' => 'warning'],
-        'out_of_stock' => ['label' => 'Habis', 'variant' => 'danger'],
-        'in' => ['label' => 'Masuk', 'variant' => 'success'],
-        'out' => ['label' => 'Keluar', 'variant' => 'danger'],
-        'adjustment' => ['label' => 'Penyesuaian', 'variant' => 'primary'],
+    $variantMap = [
+        'completed' => 'success',
+        'confirmed' => 'primary',
+        'in_progress' => 'primary',
+        'pending' => 'warning',
+        'cancelled' => 'danger',
+        'processing' => 'primary',
+        'ready' => 'success',
+        'received' => 'primary',
+        'present' => 'success',
+        'late' => 'warning',
+        'absent' => 'danger',
+        'scheduled' => 'neutral',
+        'ended' => 'neutral',
+        'off' => 'neutral',
+        'paid' => 'success',
+        'unpaid' => 'warning',
+        'failed' => 'danger',
+        'refunded' => 'danger',
+        'active' => 'success',
+        'inactive' => 'neutral',
+        'available' => 'success',
+        'low' => 'warning',
+        'out_of_stock' => 'danger',
+        'in' => 'success',
+        'out' => 'danger',
+        'adjustment' => 'primary',
+        'draft' => 'neutral',
+        'rejected' => 'danger',
+        'expired' => 'danger',
+        'suspended' => 'danger',
     ];
 
-    $config = $map[$val] ?? ['label' => ucfirst($val), 'variant' => 'neutral'];
+    $labelKey = 'dashboard.status.' . $normalized;
+    $label = \Illuminate\Support\Facades\Lang::has($labelKey)
+        ? __($labelKey)
+        : ucfirst($val);
+    $variant = $variantMap[$normalized] ?? 'neutral';
 @endphp
 
-<x-badges.badge :variant="$config['variant']" {{ $attributes->merge(['class' => 'text-[10px] font-bold']) }}>
-    {{ $config['label'] }}
+<x-badges.badge :variant="$variant" {{ $attributes->merge(['class' => 'text-[10px] font-bold']) }}>
+    {{ $label }}
 </x-badges.badge>

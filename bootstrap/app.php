@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\MobileAuthenticate;
 use App\Http\Middleware\RoleMiddleware;
+use App\Http\Middleware\SetLocaleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -30,9 +31,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'payment/webhook',
         ]);
 
-        // Biarkan cookie preferensi UI sidebar dibaca langsung tanpa enkripsi session
+        // Biarkan cookie preferensi UI dibaca langsung tanpa enkripsi session
         $middleware->encryptCookies(except: [
             'sidebar_collapsed',
+            'simaul_locale',
+        ]);
+
+        $middleware->web(append: [
+            SetLocaleMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -1,12 +1,12 @@
-@extends('layouts.app', ['title' => 'Dashboard Owner'])
+@extends('layouts.app', ['title' => __('dashboard.owner.title')])
 
 @section('content')
 <div class="space-y-6">
     <!-- Header Dashboard -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h2 class="text-xl font-bold text-[#101828] m-0">Dashboard Owner</h2>
-            <p class="text-xs text-[#667085] mt-1 m-0">Rekapitulasi omzet, performa unit usaha, layanan terlaris, dan kinerja staf seluruh cabang.</p>
+            <h2 class="text-xl font-bold text-[#101828] m-0">{{ __('dashboard.owner.title') }}</h2>
+            <p class="text-xs text-[#667085] mt-1 m-0">{{ __('dashboard.owner.subtitle') }}</p>
         </div>
     </div>
 

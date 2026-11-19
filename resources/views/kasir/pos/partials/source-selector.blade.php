@@ -24,14 +24,14 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
             </svg>
-            Dari Drop-off / Antar-Jemput
+            Dari Pesanan
         </button>
     </div>
 
     <!-- Pilihan booking appointment -->
     <div id="booking-selector-container" class="space-y-2 hidden pt-2 border-t border-[#E4E7EC]">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <label for="select_booking_id" class="text-xs font-bold text-[#101828]">Pilih Booking Appointment Siap Bayar:</label>
+            <label for="select_booking_id" class="text-xs font-bold text-[#101828]">Pilih Booking Janji Temu Siap Bayar:</label>
             <div id="booking-action-bar" class="hidden">
                 <button type="button" id="btn-booking-checkout" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#062072] hover:bg-[#0B3A9E] text-white text-xs font-bold rounded-lg shadow-2xs transition-colors cursor-pointer">
                     <span>Lanjutkan Pembayaran Booking</span>
@@ -42,7 +42,7 @@
             </div>
         </div>
         <select id="select_booking_id" onchange="loadBookingData(this.value)" class="w-full px-3 py-2 bg-[#F8FAFC] border border-[#D0D5DD] rounded-lg text-xs font-medium text-[#101828] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#062072]">
-            <option value="">-- Pilih Booking Appointment --</option>
+            <option value="">-- Pilih Janji Temu (Booking) --</option>
             @forelse ($eligibleBookings as $eb)
                 <option value="{{ $eb->uuid ?? $eb->id }}">
                     [{{ $eb->status === \App\Enums\BookingStatus::Pending ? 'Belum Diverifikasi' : 'Terverifikasi' }}] {{ $eb->user?->name ?? 'Pelanggan' }} &bull; {{ $eb->service?->name }} ({{ is_string($eb->booking_time) ? substr($eb->booking_time, 0, 5) : $eb->booking_time?->format('H:i') }})
@@ -56,10 +56,10 @@
     <!-- Pilihan pesanan drop-off -->
     <div id="order-selector-container" class="space-y-2 hidden pt-2 border-t border-[#E4E7EC]">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <label for="select_order_id" class="text-xs font-bold text-[#101828]">Pilih Pesanan Drop-off Siap Bayar:</label>
+            <label for="select_order_id" class="text-xs font-bold text-[#101828]">Pilih Pesanan Siap Bayar:</label>
             <div id="order-action-bar" class="hidden">
                 <button type="button" id="btn-order-checkout" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#062072] hover:bg-[#0B3A9E] text-white text-xs font-bold rounded-lg shadow-2xs transition-colors cursor-pointer">
-                    <span>Lanjutkan Pembayaran Drop-off</span>
+                    <span>Lanjutkan Pembayaran Pesanan</span>
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
@@ -67,13 +67,13 @@
             </div>
         </div>
         <select id="select_order_id" onchange="loadOrderData(this.value)" class="w-full px-3 py-2 bg-[#F8FAFC] border border-[#D0D5DD] rounded-lg text-xs font-medium text-[#101828] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#062072]">
-            <option value="">-- Pilih Pesanan Drop-off --</option>
+            <option value="">-- Pilih Pesanan --</option>
             @forelse ($eligibleOrders as $eo)
                 <option value="{{ $eo->uuid ?? $eo->id }}">
                     {{ $eo->user?->name ?? 'Pelanggan' }} &bull; {{ $eo->service?->name }} (Rp {{ number_format($eo->total_amount, 0, ',', '.') }})
                 </option>
             @empty
-                <option value="" disabled>Tidak ada pesanan drop-off siap bayar untuk cabang ini</option>
+                <option value="" disabled>Tidak ada pesanan siap bayar untuk cabang ini</option>
             @endforelse
         </select>
     </div>

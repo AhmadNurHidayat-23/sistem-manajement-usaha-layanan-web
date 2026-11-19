@@ -31,14 +31,28 @@ class KontenLandingTest extends TestCase
 
         $response->assertSee('01');
         $response->assertSee('Pilih Cabang');
+        $response->assertSee('Temukan cabang SIMAUL terdekat dan pilih lokasi yang menyediakan layanan sesuai kebutuhan Anda.');
         $response->assertSee('02');
         $response->assertSee('Pilih Layanan');
+        $response->assertSee('Jelajahi pilihan barbershop, laundry, atau auto care, kemudian tentukan layanan yang diinginkan.');
         $response->assertSee('03');
         $response->assertSee('Buat Pesanan');
+        $response->assertSee('Atur jadwal janji temu atau buat pesanan antar-langsung sesuai jenis layanan yang dipilih.');
         $response->assertSee('04');
         $response->assertSee('Pantau Proses');
+        $response->assertSee('Pantau perkembangan dan perubahan status pesanan dengan mudah melalui aplikasi SIMAUL.');
         $response->assertSee('05');
         $response->assertSee('Selesaikan Pembayaran');
+        $response->assertSee('Selesaikan pembayaran menggunakan metode yang tersedia sesuai ketentuan layanan dan pesanan.');
+
+        // Timeline elements
+        $response->assertSee('workflow-timeline');
+        $response->assertSee('workflow-track-bg');
+        $response->assertSee('workflow-track-fill');
+        $response->assertSee('workflow-node');
+
+        // Pastikan card kotak lama sudah tidak digunakan
+        $response->assertDontSee('hover:border-[#062072]/30');
     }
 
     public function test_landing_page_shows_all_branches_and_operational_mode_labels(): void

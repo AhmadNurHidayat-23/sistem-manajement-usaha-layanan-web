@@ -6,7 +6,7 @@
             <div class="min-w-0 flex-1">
                 <p class="text-[11px] sm:text-xs font-semibold text-[#667085] uppercase tracking-wider m-0 truncate">Layanan Selesai</p>
                 <h3 class="text-xl sm:text-[22px] font-bold tracking-tight text-[#101828] mt-1 mb-0 tabular-nums truncate leading-tight">{{ $performance['completed_bookings'] }}</h3>
-                <p class="text-[11px] sm:text-xs text-[#667085] mt-0.5 m-0 truncate leading-snug">Dari {{ $performance['total_bookings_assigned'] }} order ditugaskan</p>
+                <p class="text-[11px] sm:text-xs text-[#667085] mt-0.5 m-0 truncate leading-snug">Dari {{ $performance['total_bookings_assigned'] }} pesanan ditugaskan</p>
             </div>
             <div class="w-9 sm:w-10 h-9 sm:h-10 rounded-xl bg-[#DCE8FF] text-[#062072] flex items-center justify-center shrink-0">
                 <x-icons.icon name="check" class="w-[18px] h-[18px]" />

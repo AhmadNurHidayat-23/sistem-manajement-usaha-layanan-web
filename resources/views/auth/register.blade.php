@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="mb-5">
-    <h2 class="text-xl font-bold text-[#101828] mb-1 tracking-tight">Daftar Akun Customer</h2>
+    <h2 class="text-xl font-bold text-[#101828] mb-1 tracking-tight">Daftar Akun Pelanggan</h2>
     <p class="text-sm text-[#667085] m-0">Buat akun baru untuk mulai booking layanan.</p>
 </div>
 
@@ -60,7 +60,7 @@
 
     <button type="submit" id="btn-register"
         class="w-full h-11 px-4 bg-[#062072] hover:bg-[#04184F] active:scale-[0.98] text-white font-semibold text-sm rounded-lg transition-all flex items-center justify-center shadow-xs cursor-pointer">
-        Daftar Customer
+        Daftar Pelanggan
     </button>
 </form>
 

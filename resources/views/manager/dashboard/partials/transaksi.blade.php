@@ -1,11 +1,11 @@
 <x-cards.card class="overflow-hidden">
     <div class="p-4 border-b border-[#E4E7EC] flex items-center justify-between">
         <div>
-            <h3 class="text-sm font-bold text-[#101828] m-0">Transaksi Kasir Terbaru di Cabang</h3>
-            <p class="text-xs text-[#667085] mt-0.5 m-0">Data transaksi pembayaran di cabang outlet Anda.</p>
+            <h3 class="text-sm font-bold text-[#101828] m-0">{{ __('dashboard.manager.recent_branch_transactions') }}</h3>
+            <p class="text-xs text-[#667085] mt-0.5 m-0">{{ __('dashboard.manager.recent_branch_transactions_subtitle') }}</p>
         </div>
         <a href="{{ route('pos.transactions.index') }}" class="text-xs font-semibold text-[#062072] hover:underline flex items-center gap-1">
-            Semua Transaksi Cabang
+            {{ __('dashboard.manager.all_branch_transactions') }}
             <x-icons.icon name="arrow-right" class="w-3.5 h-3.5" />
         </a>
     </div>
@@ -14,12 +14,12 @@
         <table class="w-full text-left border-collapse text-xs">
             <thead>
                 <tr class="bg-[#F8F9FC] border-b border-[#E4E7EC] text-[#667085] font-semibold text-[11px] uppercase tracking-wider">
-                    <th class="py-2 px-3">Kode Transaksi</th>
-                    <th class="py-2 px-3">Kasir</th>
-                    <th class="py-2 px-3 text-center">Metode Bayar</th>
-                    <th class="py-2 px-3 text-left">Total Transaksi</th>
-                    <th class="py-2 px-3">Waktu Transaksi</th>
-                    <th class="py-2 px-3 text-center">Status</th>
+                    <th class="py-2 px-3">{{ __('dashboard.owner.trx_code') }}</th>
+                    <th class="py-2 px-3">{{ __('dashboard.common.cashier') }}</th>
+                    <th class="py-2 px-3 text-center">{{ __('dashboard.owner.payment_method') }}</th>
+                    <th class="py-2 px-3 text-left">{{ __('dashboard.owner.total_amount') }}</th>
+                    <th class="py-2 px-3">{{ __('dashboard.owner.trx_time') }}</th>
+                    <th class="py-2 px-3 text-center">{{ __('dashboard.common.status') }}</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-[#E4E7EC] text-[#101828]">
@@ -49,7 +49,7 @@
                 @empty
                     <tr>
                         <td colspan="6" class="py-6 text-center text-[#667085]">
-                            Belum ada transaksi kasir pada cabang ini.
+                            {{ __('dashboard.manager.no_branch_transactions') }}
                         </td>
                     </tr>
                 @endforelse

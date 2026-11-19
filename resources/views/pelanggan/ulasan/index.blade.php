@@ -6,7 +6,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h2 class="text-xl font-bold text-[#101828] m-0">Ulasan Saya</h2>
-            <p class="text-xs text-[#667085] mt-1 m-0">Daftar ulasan dan rating yang telah Anda berikan untuk layanan laundry</p>
+            <p class="text-xs text-[#667085] mt-1 m-0">Daftar ulasan dan rating yang telah Anda berikan untuk layanan SIMAUL</p>
         </div>
         <a href="{{ route('customer.pesanan.index', ['status' => 'completed']) }}"
             class="inline-flex items-center gap-2 px-4 py-2 bg-[#062072] hover:bg-[#04184F] text-white rounded-lg text-sm font-semibold transition-colors no-underline shadow-sm">
@@ -47,11 +47,11 @@
                                 {{ $ulasan->service?->category?->name ?? 'Layanan' }}
                             </span>
                             <span class="text-sm font-bold text-[#101828]">
-                                {{ $ulasan->service?->name ?? 'Layanan Laundry' }}
+                                {{ $ulasan->service?->name ?? 'Layanan' }}
                             </span>
                             @if ($orderId)
                                 <span class="text-xs text-[#667085]">
-                                    (Order #{{ $orderId }})
+                                    (Pesanan #{{ $orderId }})
                                 </span>
                             @endif
                         </div>
@@ -111,7 +111,7 @@
                 </div>
                 <h3 class="text-sm font-bold text-[#101828] mb-1">Belum Ada Ulasan</h3>
                 <p class="text-xs text-[#667085] mb-4 max-w-sm mx-auto">
-                    Anda belum memberikan ulasan untuk pesanan laundry Anda. Berikan penilaian setelah pesanan Anda selesai.
+                    Anda belum memberikan ulasan untuk layanan Anda. Berikan penilaian setelah layanan Anda selesai.
                 </p>
                 <a href="{{ route('customer.pesanan.index', ['status' => 'completed']) }}"
                     class="inline-flex items-center gap-2 px-4 py-2 bg-[#062072] hover:bg-[#04184F] text-white rounded-lg text-sm font-semibold transition-colors no-underline">

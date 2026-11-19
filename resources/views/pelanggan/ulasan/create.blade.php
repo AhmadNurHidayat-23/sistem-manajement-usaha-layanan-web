@@ -14,7 +14,7 @@
     <!-- Header -->
     <div>
         <h2 class="text-xl font-bold text-[#101828] m-0">Beri Ulasan & Rating</h2>
-        <p class="text-xs text-[#667085] mt-1 m-0">Bagikan pengalaman Anda tentang layanan laundry yang Anda terima</p>
+        <p class="text-xs text-[#667085] mt-1 m-0">Bagikan pengalaman Anda tentang layanan yang Anda terima</p>
     </div>
 
     <!-- Error Alert -->
@@ -44,7 +44,7 @@
                 </p>
             </div>
             <div class="text-right">
-                <span class="text-xs font-bold text-[#062072]">Order #{{ $order->id }}</span>
+                <span class="text-xs font-bold text-[#062072]">Pesanan #{{ $order->id }}</span>
                 <p class="text-[11px] text-[#667085] mt-0.5 m-0">{{ $order->created_at->format('d M Y') }}</p>
             </div>
         </div>

@@ -1,8 +1,8 @@
 <!-- Jadwal Shift Mendatang -->
-<x-cards.card title="Jadwal Shift Mendatang" subtitle="Agenda shift kerja Anda minggu ini">
+<x-cards.card :title="__('dashboard.employee.upcoming_shifts')" :subtitle="__('dashboard.employee.upcoming_shifts_subtitle')">
     @if ($upcomingShifts->isEmpty())
         <div class="py-8 text-center">
-            <p class="text-xs text-[#667085] m-0">Belum ada jadwal shift mendatang yang direncanakan.</p>
+            <p class="text-xs text-[#667085] m-0">{{ __('dashboard.employee.no_upcoming_shifts') }}</p>
         </div>
     @else
         <div class="space-y-3">
@@ -21,7 +21,7 @@
                             {{ \Carbon\Carbon::parse($sh->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($sh->end_time)->format('H:i') }}
                         </span>
                         <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700">
-                            {{ ucfirst($sh->status->value) }}
+                            {{ ($sh->effective_status ?? $sh->status)->label() }}
                         </span>
                     </div>
                 </div>

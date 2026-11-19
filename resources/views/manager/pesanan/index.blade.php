@@ -1,19 +1,19 @@
-@extends('layouts.app', ['title' => 'Daftar Order Drop-off'])
+@extends('layouts.app', ['title' => 'Daftar Pesanan'])
 
 @section('content')
 <div class="space-y-6">
     {{-- Header --}}
     <div class="flex items-center justify-between">
         <div>
-            <h3 class="text-xl font-bold text-[#101828] m-0">Order Drop-off</h3>
-            <p class="text-xs text-[#667085] mt-1 m-0">Kelola antrian drop-off layanan.</p>
+            <h3 class="text-xl font-bold text-[#101828] m-0">Daftar Pesanan</h3>
+            <p class="text-xs text-[#667085] mt-1 m-0">Kelola antrean dan status pesanan layanan.</p>
         </div>
         @can('create', App\Models\Order::class)
         <x-buttons.btn variant="primary" href="{{ route('orders.create') }}" id="btn-buat-order">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
-            Buat Order
+            Buat Pesanan
         </x-buttons.btn>
         @endcan
     </div>
@@ -108,7 +108,7 @@
                     <svg class="w-10 h-10 mx-auto mb-2 text-[#E4E7EC]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
                     </svg>
-                    Belum ada order drop-off.
+                    Belum ada pesanan.
                 </td>
             </tr>
             @endforelse

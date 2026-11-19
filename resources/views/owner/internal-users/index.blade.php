@@ -111,7 +111,7 @@
                                     };
                                 @endphp
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border {{ $badgeClass }}">
-                                    {{ ucfirst($roleName ?? '-') }}
+                                    {{ \Illuminate\Support\Facades\Lang::has('dashboard.roles.' . strtolower($roleName ?? '')) ? __('dashboard.roles.' . strtolower($roleName)) : ucfirst($roleName ?? '-') }}
                                 </span>
                             </td>
                             <td class="py-3 px-4">

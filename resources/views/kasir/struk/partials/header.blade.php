@@ -44,7 +44,7 @@
         </div>
     @elseif ($transaction->order_id)
         <div class="flex justify-between items-start gap-2">
-            <span class="text-[#667085] shrink-0">Ref Order</span>
+            <span class="text-[#667085] shrink-0">Ref Pesanan</span>
             <span class="font-medium text-[#101828] text-right">#{{ $transaction->order_id }}</span>
         </div>
     @endif

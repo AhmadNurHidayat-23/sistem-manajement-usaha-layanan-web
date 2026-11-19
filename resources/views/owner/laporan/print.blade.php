@@ -45,7 +45,7 @@
             </td>
             <td>
                 <span class="summary-label">Total Transaksi</span>
-                <span class="summary-value">{{ number_format($report['summary']['total_transactions'] ?? 0) }} Trx</span>
+                <span class="summary-value">{{ number_format($report['summary']['total_transactions'] ?? 0) }} Transaksi</span>
             </td>
             <td>
                 <span class="summary-label">Rata-Rata / Transaksi</span>
@@ -65,9 +65,9 @@
             <tr>
                 <th class="text-center" style="width: 20px;">No</th>
                 <th class="text-center" style="width: 68px;">Tanggal</th>
-                <th style="width: 90px;">Kode Trx</th>
+                <th style="width: 90px;">Kode Transaksi</th>
                 <th>Cabang</th>
-                <th>Customer</th>
+                <th>Pelanggan</th>
                 <th class="text-center" style="width: 60px;">Metode</th>
                 <th class="text-right" style="width: 68px;">Subtotal (Rp)</th>
                 <th class="text-right" style="width: 58px;">Diskon (Rp)</th>
@@ -127,7 +127,7 @@
                     <thead>
                         <tr>
                             <th>Metode</th>
-                            <th class="text-center" style="width: 40px;">Trx</th>
+                            <th class="text-center" style="width: 65px;">Transaksi</th>
                             <th class="text-right" style="width: 75px;">Total (Rp)</th>
                         </tr>
                     </thead>

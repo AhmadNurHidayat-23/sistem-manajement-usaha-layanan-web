@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Dashboard Kasir | SIMAUL'])
+@extends('layouts.app', ['title' => __('dashboard.cashier.title') . ' | SIMAUL'])
 
 @section('content')
 <div class="space-y-6">

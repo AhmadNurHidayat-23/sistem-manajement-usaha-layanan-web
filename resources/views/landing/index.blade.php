@@ -22,8 +22,5 @@
 
     {{-- Ulasan --}}
     @include('landing.partials.ulasan')
-
-    {{-- CTA Akhir --}}
-    @include('landing.partials.cta')
 </div>
 @endsection

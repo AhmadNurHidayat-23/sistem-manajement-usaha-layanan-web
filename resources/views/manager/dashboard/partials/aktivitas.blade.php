@@ -1,17 +1,17 @@
 @php
     $serviceMode = $branch?->service_mode ?? 'appointment';
     $actionRoute = $serviceMode === 'drop_off' ? route('orders.index') : route('bookings.index');
-    $actionText = $serviceMode === 'drop_off' ? 'Kelola Pesanan' : 'Kelola Booking';
+    $actionText = $serviceMode === 'drop_off' ? __('dashboard.manager.manage_orders') : __('dashboard.manager.manage_bookings');
 @endphp
 
 <x-cards.card class="overflow-hidden h-full flex flex-col">
     <div class="p-4 border-b border-[#E7ECF3] flex items-center justify-between">
         <div>
             <h3 class="text-sm font-bold text-[#101828] m-0">
-                Aktivitas Layanan & Antrean Hari Ini
+                {{ __('dashboard.manager.activities_and_queue') }}
             </h3>
             <p class="text-xs text-[#6B7280] mt-0.5 m-0">
-                Daftar reservasi dan pengerjaan layanan cabang hari ini.
+                {{ __('dashboard.manager.activities_subtitle') }}
             </p>
         </div>
         <a href="{{ $actionRoute }}" class="text-xs font-semibold text-[#062072] hover:underline flex items-center gap-1 shrink-0">
@@ -24,11 +24,11 @@
         <table class="w-full text-left border-collapse text-xs">
             <thead>
                 <tr class="bg-[#F8F9FC] border-b border-[#E7ECF3] text-[#6B7280] font-semibold text-[11px] uppercase tracking-wider">
-                    <th class="py-2.5 px-3.5">Jam</th>
-                    <th class="py-2.5 px-3.5">Pelanggan</th>
-                    <th class="py-2.5 px-3.5">Layanan</th>
-                    <th class="py-2.5 px-3.5">Staf / Teknisi</th>
-                    <th class="py-2.5 px-3.5 text-center">Status</th>
+                    <th class="py-2.5 px-3.5">{{ __('dashboard.manager.time') }}</th>
+                    <th class="py-2.5 px-3.5">{{ __('dashboard.manager.customer') }}</th>
+                    <th class="py-2.5 px-3.5">{{ __('dashboard.manager.service') }}</th>
+                    <th class="py-2.5 px-3.5">{{ __('dashboard.manager.staff_technician') }}</th>
+                    <th class="py-2.5 px-3.5 text-center">{{ __('dashboard.common.status') }}</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-[#E7ECF3] text-[#101828]">
@@ -48,14 +48,14 @@
                             {{ $actTime }}
                         </td>
                         <td class="py-2.5 px-3.5 font-medium text-[#101828] truncate max-w-[150px]">
-                            {{ $act->user?->name ?? 'Pelanggan Walk-in' }}
+                            {{ $act->user?->name ?? __('dashboard.manager.walk_in_customer') }}
                         </td>
                         <td class="py-2.5 px-3.5 text-[#6B7280] truncate max-w-[160px]">
                             <div class="flex items-center gap-1.5">
-                                <span class="truncate">{{ $act->service?->name ?? 'Layanan' }}</span>
+                                <span class="truncate">{{ $act->service?->name ?? __('dashboard.manager.service') }}</span>
                                 @if ($serviceMode === 'both')
                                     <span class="text-[9px] px-1.5 py-0.2 rounded font-medium shrink-0 {{ $isDropOffOrder ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800' }}">
-                                        {{ $isDropOffOrder ? 'Drop-off' : 'Booking' }}
+                                        {{ $isDropOffOrder ? __('dashboard.units.orders') : __('public.catalog.appointment') }}
                                     </span>
                                 @endif
                             </div>
@@ -64,7 +64,7 @@
                             @if ($act->employee)
                                 <span class="text-[#101828] font-medium">{{ $act->employee->name }}</span>
                             @else
-                                <span class="text-[#6B7280] italic">Belum Ditugaskan</span>
+                                <span class="text-[#6B7280] italic">{{ __('dashboard.manager.not_assigned') }}</span>
                             @endif
                         </td>
                         <td class="py-2.5 px-3.5 text-center whitespace-nowrap">
@@ -74,7 +74,7 @@
                 @empty
                     <tr>
                         <td colspan="5" class="py-8 text-center text-[#6B7280]">
-                            Belum ada aktivitas layanan atau antrean hari ini.
+                            {{ __('dashboard.manager.no_activities_today') }}
                         </td>
                     </tr>
                 @endforelse

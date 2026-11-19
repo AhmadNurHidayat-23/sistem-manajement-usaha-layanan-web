@@ -73,11 +73,11 @@
                         <dt class="text-xs font-semibold text-[#667085] uppercase tracking-wider">Mode Layanan</dt>
                         <dd class="mt-1 font-medium text-[#101828]">
                             @if ($branch->service_mode === 'both')
-                                Appointment & Drop-off (Keduanya)
+                                Janji Temu & Serahkan di Cabang (Keduanya)
                             @elseif ($branch->service_mode === 'appointment')
-                                Appointment Only
+                                Hanya Janji Temu
                             @elseif ($branch->service_mode === 'drop_off')
-                                Drop-off Only
+                                Hanya Serahkan di Cabang
                             @else
                                 {{ ucwords(str_replace('_', ' ', $branch->service_mode)) }}
                             @endif

@@ -155,7 +155,7 @@ class ResponsivitasLaporanMobileTest extends TestCase
 
         // Desktop Table Container (>= 768px)
         $response->assertSee('hidden md:block overflow-x-auto', false);
-        $response->assertSee('Alamat Outlet');
+        $response->assertSee('Alamat Cabang');
 
         // Mobile Cards Container (< 768px)
         $response->assertSee('block md:hidden p-3.5 sm:p-4 space-y-3', false);
