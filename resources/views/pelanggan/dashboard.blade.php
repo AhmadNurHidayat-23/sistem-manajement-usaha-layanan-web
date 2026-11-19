@@ -119,7 +119,7 @@
                                         data-branch-id="{{ $branch->id }}"
                                         data-service-id="{{ $service->id }}"
                                         class="inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-[#062072] hover:bg-[#04184F] focus:ring-2 focus:ring-[#062072]/20 text-white text-xs font-semibold no-underline transition-colors cursor-pointer">
-                                        {{ __('public.customer.order_dropoff') }}
+                                        {{ __('public.customer.order_now') }}
                                     </a>
                                 @else
                                     <a href="{{ route('customer.booking.create', ['branch_id' => $branch->id, 'service_id' => $service->id]) }}"
@@ -132,7 +132,7 @@
                                         data-branch-id="{{ $branch->id }}"
                                         data-service-id="{{ $service->id }}"
                                         class="inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-[#062072] hover:bg-[#04184F] focus:ring-2 focus:ring-[#062072]/20 text-white text-xs font-semibold no-underline transition-colors cursor-pointer">
-                                        {{ __('public.customer.drop_off') }}
+                                        {{ __('public.customer.order_now') }}
                                     </a>
                                 @endif
                             </div>

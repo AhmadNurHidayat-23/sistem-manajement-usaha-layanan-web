@@ -211,6 +211,36 @@ class CustomerStreamlinedUxTest extends TestCase
         $response->assertSee(route('customer.pesanan.create', ['branch_id' => $this->autoCare->id, 'service_id' => $this->autoDropService->id]));
     }
 
+    public function test_dashboard_modal_layanan_menampilkan_tombol_pesan_sekarang_dan_janji_temu(): void
+    {
+        // Bahasa Indonesia (default)
+        $response = $this->actingAs($this->andi)->get(route('customer.dashboard'));
+        $response->assertStatus(200);
+
+        // Barbershop (appointment): tombol Buat Janji Temu
+        $response->assertSee('Buat Janji Temu');
+
+        // Laundry (drop_off): tombol Pesan Sekarang pada modal layanan
+        $response->assertSee('Pesan Sekarang');
+
+        // Auto Care (both): menampilkan Janji Temu dan Pesan Sekarang
+        $response->assertSee('Janji Temu');
+
+        // Pastikan tidak ada tombol aksi layanan berlabel tombol "Serahkan di Cabang"
+        $response->assertDontSee('>Serahkan di Cabang<', false);
+        $response->assertDontSee('>Order Drop-off<', false);
+
+        // Mode Bahasa Inggris (EN)
+        $responseEn = $this->actingAs($this->andi)
+            ->withSession(['locale' => 'en'])
+            ->get(route('customer.dashboard'));
+        $responseEn->assertStatus(200);
+        $responseEn->assertSee('Book Appointment');
+        $responseEn->assertSee('Order Now');
+        $responseEn->assertSee('Appointment');
+        $responseEn->assertDontSee('>Drop-off<', false);
+    }
+
     public function test_aktivitas_saya_merges_appointments_and_orders_isolating_user_data(): void
     {
         $andiBooking = Booking::create([
