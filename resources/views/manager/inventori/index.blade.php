@@ -31,7 +31,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <x-cards.metric
             title="Total Jenis Bahan"
-            :value="number_format($metrics['total_items']) . ' Item'"
+            :value="number_format($metrics['total_items']) . ' Bahan'"
             subtitle="Katalog bahan terdaftar"
             icon="inventory"
             variant="primary"
@@ -39,7 +39,7 @@
 
         <x-cards.metric
             title="Stok Tersedia"
-            :value="number_format($metrics['available']) . ' Item'"
+            :value="number_format($metrics['available']) . ' Bahan'"
             subtitle="Stok aman di atas minimum"
             icon="box"
             variant="emerald"
@@ -47,7 +47,7 @@
 
         <x-cards.metric
             title="Stok Menipis"
-            :value="number_format($metrics['low_stock']) . ' Item'"
+            :value="number_format($metrics['low_stock']) . ' Bahan'"
             subtitle="Perlu pengadaan ulang segera"
             icon="alert-triangle"
             variant="amber"
@@ -55,7 +55,7 @@
 
         <x-cards.metric
             title="Stok Habis"
-            :value="number_format($metrics['out_of_stock']) . ' Item'"
+            :value="number_format($metrics['out_of_stock']) . ' Bahan'"
             subtitle="Stok kosong tidak dapat dipakai"
             icon="alert-triangle"
             variant="amber"

@@ -33,7 +33,7 @@
                 @if ($branches->isNotEmpty())
                     <div>
                         <label for="create_inv_branch" class="block text-xs font-semibold text-[#101828] mb-1">
-                            Cabang Outlet <span class="text-rose-500">*</span>
+                            Cabang <span class="text-rose-500">*</span>
                         </label>
                         <select name="branch_id" id="create_inv_branch" required class="w-full h-10 px-3 bg-white border border-[#D0D5DD] rounded-lg text-sm text-[#101828] focus:outline-none focus:ring-1 focus:ring-[#062072] shadow-2xs">
                             <option value="">Pilih Cabang</option>
@@ -46,7 +46,7 @@
                     </div>
                 @elseif ($managerBranch)
                     <div>
-                        <label class="block text-xs font-semibold text-[#101828] mb-1">Cabang Outlet</label>
+                        <label class="block text-xs font-semibold text-[#101828] mb-1">Cabang</label>
                         <input type="text" readonly value="{{ $managerBranch->display_name }}" class="w-full h-10 px-3 bg-slate-50 border border-[#E4E7EC] rounded-lg text-sm text-[#667085] cursor-not-allowed">
                         <input type="hidden" name="branch_id" value="{{ $managerBranch->id }}">
                     </div>

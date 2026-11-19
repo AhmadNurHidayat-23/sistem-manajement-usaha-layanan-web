@@ -33,7 +33,7 @@
             @if ($branches->isNotEmpty())
                 <div>
                     <label for="branch_id" class="block text-xs font-semibold text-[#344054] mb-1">
-                        Cabang Outlet <span class="text-rose-600">*</span>
+                        Cabang <span class="text-rose-600">*</span>
                     </label>
                     <select
                         name="branch_id"
@@ -51,7 +51,7 @@
                 </div>
             @elseif ($managerBranch)
                 <div>
-                    <label class="block text-xs font-semibold text-[#344054] mb-1">Cabang Outlet</label>
+                    <label class="block text-xs font-semibold text-[#344054] mb-1">Cabang</label>
                     <input
                         type="text"
                         readonly

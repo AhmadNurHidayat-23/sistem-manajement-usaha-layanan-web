@@ -32,7 +32,7 @@
 
             <!-- Cabang (Readonly) -->
             <div>
-                <label class="block text-xs font-semibold text-[#344054] mb-1">Cabang Outlet</label>
+                <label class="block text-xs font-semibold text-[#344054] mb-1">Cabang</label>
                 <input
                     type="text"
                     readonly
