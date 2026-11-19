@@ -1,0 +1,235 @@
+/* ==========================================================================
+   INTERNAL DASHBOARD DARK MODE (Owner, Manager, Kasir, Karyawan)
+   ========================================================================== */
+
+/* Main Background and Area */
+html.dark body:has(.main-area),
+html.dark .main-area,
+html.dark .main-area main {
+    background-color: #080E1E !important;
+    color: #F8FAFC !important;
+}
+
+/* Sidebar Styling */
+html.dark .sidebar-nav {
+    background-color: #0B1328 !important;
+    border-color: #1E2D4A !important;
+}
+
+html.dark .sidebar-header {
+    background-color: #0B1328 !important;
+    border-color: #1E2D4A !important;
+}
+
+html.dark .sidebar-link {
+    color: #94A3B8 !important;
+}
+
+html.dark .sidebar-link:hover {
+    background-color: #1E2D4A !important;
+    color: #FFFFFF !important;
+}
+
+html.dark .sidebar-link.active,
+html.dark .sidebar-link[aria-current="page"] {
+    background-color: #062072 !important;
+    color: #FFFFFF !important;
+}
+
+html.dark .sidebar-section-header {
+    color: #64748B !important;
+}
+
+html.dark .sidebar-section-divider {
+    border-color: #1E2D4A !important;
+}
+
+html.dark .sidebar-footer {
+    border-color: #1E2D4A !important;
+}
+
+/* Header & Topbar */
+html.dark header {
+    background-color: #111C35 !important;
+    border-color: #1E2D4A !important;
+}
+
+html.dark #header-realtime-clock span {
+    color: #F8FAFC !important;
+}
+
+/* Surfaces, Cards, and Containers */
+html.dark .main-area .bg-white,
+html.dark .main-area .bg-\[\#FFFFFF\] {
+    background-color: #111C35 !important;
+    border-color: #1E2D4A !important;
+}
+
+html.dark .main-area .bg-\[\#F5F8FC\],
+html.dark .main-area .bg-\[\#F8FAFC\] {
+    background-color: #0E172E !important;
+}
+
+html.dark .main-area .border-\[\#E4E7EC\],
+html.dark .main-area .border-\[\#D0D5DD\],
+html.dark .main-area .border-neutral-200 {
+    border-color: #1E2D4A !important;
+}
+
+html.dark .main-area .divide-\[\#F2F4F7\] > :not([hidden]) ~ :not([hidden]),
+html.dark .main-area .divide-\[\#E4E7EC\] > :not([hidden]) ~ :not([hidden]) {
+    border-color: #1E2D4A !important;
+}
+
+/* Text Colors */
+html.dark .main-area .text-\[\#101828\] {
+    color: #F8FAFC !important;
+}
+
+html.dark .main-area .text-\[\#344054\] {
+    color: #CBD5E1 !important;
+}
+
+html.dark .main-area .text-\[\#667085\] {
+    color: #94A3B8 !important;
+}
+
+html.dark .main-area .text-\[\#475467\] {
+    color: #A0AEC0 !important;
+}
+
+html.dark .main-area .text-\[\#062072\] {
+    color: #93C5FD !important;
+}
+
+/* Forms, Inputs, Selects, and Textareas */
+html.dark .main-area input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+html.dark .main-area select,
+html.dark .main-area textarea {
+    background-color: #0E172E !important;
+    border-color: #1E2D4A !important;
+    color: #F8FAFC !important;
+}
+
+html.dark .main-area input::placeholder,
+html.dark .main-area textarea::placeholder {
+    color: #64748B !important;
+}
+
+/* Custom Select, Date Picker, and Time Picker Panels */
+html.dark .custom-select-trigger,
+html.dark .custom-date-trigger,
+html.dark .custom-time-trigger {
+    background-color: #0E172E !important;
+    border-color: #1E2D4A !important;
+    color: #F8FAFC !important;
+}
+
+html.dark .custom-select-panel,
+html.dark .custom-date-panel,
+html.dark .custom-time-panel {
+    background-color: #111C35 !important;
+    border-color: #1E2D4A !important;
+    color: #F8FAFC !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6) !important;
+}
+
+html.dark .custom-select-option:hover,
+html.dark .custom-select-option.selected {
+    background-color: #1E2D4A !important;
+    color: #FFFFFF !important;
+}
+
+/* Tables and Headers */
+html.dark .main-area table thead th {
+    background-color: #0B1328 !important;
+    color: #94A3B8 !important;
+    border-color: #1E2D4A !important;
+}
+
+html.dark .main-area table tbody tr {
+    border-color: #1E2D4A !important;
+}
+
+html.dark .main-area table tbody tr:hover {
+    background-color: #17233F !important;
+}
+
+html.dark .main-area table tbody td {
+    border-color: #1E2D4A !important;
+}
+
+/* Modals & Popups */
+html.dark [data-modal-container],
+html.dark .modal-content,
+html.dark .modal-panel {
+    background-color: #111C35 !important;
+    border-color: #1E2D4A !important;
+    color: #F8FAFC !important;
+}
+
+html.dark #sidebar-backdrop {
+    background-color: rgba(4, 24, 79, 0.75) !important;
+}
+
+/* Dropdown Menus */
+html.dark #header-profile-dropdown,
+html.dark #notification-dropdown-panel {
+    background-color: #111C35 !important;
+    border-color: #1E2D4A !important;
+    color: #F8FAFC !important;
+}
+
+/* Status Badges with High Contrast Dark Palette */
+html.dark .bg-emerald-50,
+html.dark .bg-green-50 {
+    background-color: rgba(6, 78, 59, 0.35) !important;
+}
+
+html.dark .text-emerald-700,
+html.dark .text-green-700 {
+    color: #6EE7B7 !important;
+}
+
+html.dark .bg-amber-50,
+html.dark .bg-yellow-50 {
+    background-color: rgba(120, 53, 15, 0.35) !important;
+}
+
+html.dark .text-amber-700,
+html.dark .text-yellow-700 {
+    color: #FCD34D !important;
+}
+
+html.dark .bg-rose-50,
+html.dark .bg-red-50 {
+    background-color: rgba(136, 19, 55, 0.35) !important;
+}
+
+html.dark .text-rose-700,
+html.dark .text-red-700 {
+    color: #FDA4AF !important;
+}
+
+html.dark .bg-blue-50 {
+    background-color: rgba(30, 58, 138, 0.35) !important;
+}
+
+html.dark .text-blue-700 {
+    color: #93C5FD !important;
+}
+
+/* Secondary & Ghost Buttons in Dark Mode */
+html.dark .main-area .hover\:bg-\[\#F5F8FC\]:hover {
+    background-color: #1E2D4A !important;
+}
+
+html.dark .main-area .bg-neutral-100 {
+    background-color: #1E2D4A !important;
+    color: #F8FAFC !important;
+}
+
+/* Circular Internal Dark Mode Button */
+#internal-theme-toggle-btn {
+    border-radius: 50% !important;
+}

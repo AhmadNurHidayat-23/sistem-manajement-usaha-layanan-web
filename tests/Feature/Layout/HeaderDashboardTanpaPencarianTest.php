@@ -117,6 +117,50 @@ class HeaderDashboardTanpaPencarianTest extends TestCase
         }
     }
 
+    public function test_navbar_dashboard_menampilkan_hanya_foto_profil_lingkaran_tanpa_teks_nama_di_sebelahnya(): void
+    {
+        $dashboards = [
+            'owner' => [$this->owner, route('owner.dashboard'), 'Bambang Owner'],
+            'manager' => [$this->manager, route('manager.dashboard'), 'Siti Manajer'],
+            'cashier' => [$this->cashier, route('cashier.dashboard'), 'Dewi Kasir'],
+            'employee' => [$this->employee, route('employee.dashboard'), 'Joko Karyawan'],
+        ];
+
+        foreach ($dashboards as $role => [$user, $url, $expectedName]) {
+            $response = $this->actingAs($user)->get($url);
+            $response->assertOk();
+            $content = $response->getContent();
+
+            // 1. Tombol profil berbentuk lingkaran w-9 h-9 rounded-full
+            $this->assertMatchesRegularExpression(
+                '/<button[^>]*id="header-profile-btn"[^>]*class="[^"]*rounded-full[^"]*"/',
+                $content
+            );
+
+            // 2. Di dalam button profil TIDAK ADA teks nama akun (hanya foto / inisial)
+            // Regex ekstrak inner HTML tombol header-profile-btn
+            preg_match('/<button[^>]*id="header-profile-btn"[^>]*>(.*?)<\/button>/s', $content, $btnMatches);
+            $this->assertNotEmpty($btnMatches, "Tombol header-profile-btn harus ditemukan untuk {$role}");
+            $btnInner = $btnMatches[1];
+
+            // Pastikan teks nama akun tidak ada di dalam button
+            $this->assertStringNotContainsString(">{$expectedName}<", $btnInner);
+            $this->assertStringNotContainsString('truncate leading-tight', $btnInner);
+
+            // 3. Nama akun tetap tersedia di dalam menu dropdown profil
+            $this->assertStringContainsString('id="header-profile-dropdown"', $content);
+            $this->assertStringContainsString($expectedName, $content);
+
+            // 4. Lonceng notifikasi tetap ada di sebelah profil dengan jarak rapi
+            $response->assertSee('id="notification-bell-btn"', false);
+
+            // 5. Tombol Dark Mode Dashboard Internal tersedia
+            $response->assertSee('id="internal-theme-toggle-btn"', false);
+            $response->assertSee('id="internal-theme-moon"', false);
+            $response->assertSee('id="internal-theme-sun"', false);
+        }
+    }
+
     public function test_pencarian_modul_lain_tetap_berfungsi_dan_tidak_terhapus(): void
     {
         // Contoh: Pencarian pada halaman Laporan Keuangan (Filter Pencarian Tanggal/Periode)

@@ -21,7 +21,7 @@ class CabangSeeder extends Seeder
                 'opening_time' => '09:00',
                 'closing_time' => '21:00',
                 'service_mode' => 'appointment',
-                'operating_days' => ['selasa', 'rabu', 'kamis', 'jumat', 'sabtu', 'minggu'],
+                'operating_days' => ['senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'],
                 'max_slot_capacity' => 4,
                 'is_active' => true,
             ]
@@ -36,7 +36,7 @@ class CabangSeeder extends Seeder
                 'opening_time' => '08:00',
                 'closing_time' => '20:00',
                 'service_mode' => 'drop_off',
-                'operating_days' => ['senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu', 'minggu'],
+                'operating_days' => ['senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'],
                 'max_slot_capacity' => 8,
                 'is_active' => true,
             ]

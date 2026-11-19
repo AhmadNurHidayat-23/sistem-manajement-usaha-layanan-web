@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Storage;
 
 #[Fillable(['uuid', 'service_category_id', 'branch_id', 'name', 'description', 'image_path', 'price', 'unit', 'estimated_duration', 'service_type', 'is_active', 'commission_type', 'commission_value'])]
 class Service extends Model
@@ -29,11 +28,7 @@ class Service extends Model
 
     public function getImageUrlAttribute(): ?string
     {
-        if ($this->image_path) {
-            return Storage::url($this->image_path);
-        }
-
-        return null;
+        return ServiceImage::urlForPath($this->image_path);
     }
 
     public function isWeightBased(): bool

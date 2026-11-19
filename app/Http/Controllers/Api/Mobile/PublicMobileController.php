@@ -82,7 +82,7 @@ class PublicMobileController extends Controller
                         'image_url' => $img->image_url,
                         'sort_order' => $img->sort_order,
                     ];
-                })->values(),
+                })->whereNotNull('image_url')->values(),
             ];
         });
 

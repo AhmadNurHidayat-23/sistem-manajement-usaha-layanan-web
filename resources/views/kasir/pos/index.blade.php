@@ -33,13 +33,11 @@
             @endif
 
             {{-- Tombol Pop-up Keranjang & Pembayaran --}}
-            <button type="button" id="btn-open-cart-checkout" class="inline-flex items-center gap-2.5 px-4 py-2 bg-[#062072] hover:bg-[#0B3A9E] text-white text-xs font-bold rounded-lg shadow-sm transition-all cursor-pointer">
-                <svg class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button type="button" id="btn-open-cart-checkout" class="inline-flex items-center gap-2 px-3.5 py-2 bg-[#062072] hover:bg-[#0B3A9E] dark:bg-[#0A2E8C] dark:hover:bg-[#0D44B8] text-white text-xs font-bold rounded-lg shadow-sm transition-all cursor-pointer shrink-0">
+                <svg class="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                 </svg>
-                <span>Keranjang & Pembayaran</span>
-                <span id="pos-header-cart-count" class="px-2 py-0.5 rounded-full text-[11px] bg-white text-[#062072] font-black">0</span>
-                <span id="pos-header-cart-total" class="font-extrabold border-l border-white/20 pl-2">Rp 0</span>
+                <span class="whitespace-nowrap">Keranjang & Pembayaran</span>
             </button>
         </div>
     </div>

@@ -337,16 +337,31 @@ class BookingService
         $service = Service::find($data['service_id']);
         $estimatedFinish = $this->calculateEstimatedFinish($service, $data);
 
+        $isPickup = ! empty($data['pickup_option']);
+        $isDifferentDelivery = $isPickup && ! empty($data['different_delivery_location']);
+
         $order = Order::create([
             'user_id' => $user->id,
             'branch_id' => $data['branch_id'],
             'service_id' => $data['service_id'],
             'estimated_quantity' => $data['estimated_quantity'] ?? null,
-            'pickup_option' => isset($data['pickup_option']) && $data['pickup_option'],
+            'pickup_option' => $isPickup,
+            'pickup_address' => $isPickup ? ($data['pickup_address'] ?? null) : null,
+            'pickup_latitude' => $isPickup ? ($data['pickup_latitude'] ?? null) : null,
+            'pickup_longitude' => $isPickup ? ($data['pickup_longitude'] ?? null) : null,
+            'different_delivery_location' => $isDifferentDelivery,
+            'delivery_address' => $isDifferentDelivery ? ($data['delivery_address'] ?? null) : null,
+            'delivery_latitude' => $isDifferentDelivery ? ($data['delivery_latitude'] ?? null) : null,
+            'delivery_longitude' => $isDifferentDelivery ? ($data['delivery_longitude'] ?? null) : null,
+            'location_notes' => $isPickup ? ($data['location_notes'] ?? null) : null,
             'estimated_finish_at' => $estimatedFinish,
             'status' => StatusPesanan::Pending,
             'notes' => $data['notes'] ?? null,
         ]);
+
+        if ($user && empty($user->address) && ! empty($order->pickup_address)) {
+            $user->updateQuietly(['address' => $order->pickup_address]);
+        }
 
         if (! empty($data['extra_service_ids'])) {
             $this->syncOrderDetails($order, $data['extra_service_ids']);

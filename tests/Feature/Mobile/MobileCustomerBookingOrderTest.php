@@ -64,7 +64,7 @@ class MobileCustomerBookingOrderTest extends TestCase
 
         $bookingResponse->assertStatus(201)
             ->assertJsonPath('success', true)
-            ->assertJsonPath('data.status', 'pending')
+            ->assertJsonPath('data.status', 'confirmed')
             ->assertJsonPath('data.service.duration_formatted', '±1 jam');
 
         $bookingId = $bookingResponse->json('data.id');

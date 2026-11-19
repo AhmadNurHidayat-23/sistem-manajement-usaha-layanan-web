@@ -1,6 +1,5 @@
 /**
- * Controller Carousel Multi-Image Kartu Layanan Landing Page SIMAUL.
- * Setiap kartu layanan memiliki state slide independen dan mendukung loop 1-2-3-1 & 1<-3.
+ * Nike-inspired Service Catalog Carousel & Service Multi-Image Controller for SIMAUL Landing Page.
  */
 
 window.serviceCarouselStates = window.serviceCarouselStates || {};
@@ -14,8 +13,7 @@ export function updateServiceCarousel(serviceId, nextIndex) {
     const total = slides.length;
     if (total <= 1) return;
 
-    // Loop wrap-around: 1 -> 2 -> 3 -> 1 dan 1 <- 3
-    let index = (nextIndex + total) % total;
+    const index = (nextIndex + total) % total;
     window.serviceCarouselStates[serviceId] = index;
 
     slides.forEach((slide, idx) => {
@@ -53,7 +51,44 @@ export function goToServiceSlide(serviceId, index) {
     updateServiceCarousel(serviceId, index);
 }
 
+export function initNikeCarousels() {
+    const sections = document.querySelectorAll('.nike-category-section');
+    if (!sections.length) return;
+
+    sections.forEach((section) => {
+        const track = section.querySelector('.nike-carousel-track-wrapper');
+        const prevBtn = section.querySelector('.nike-carousel-prev');
+        const nextBtn = section.querySelector('.nike-carousel-next');
+
+        if (!track || !prevBtn || !nextBtn) return;
+
+        function updateButtons() {
+            const tolerance = 8;
+            const maxScroll = track.scrollWidth - track.clientWidth;
+            prevBtn.disabled = track.scrollLeft <= tolerance;
+            nextBtn.disabled = track.scrollLeft >= maxScroll - tolerance;
+        }
+
+        prevBtn.addEventListener('click', () => {
+            const scrollDistance = track.clientWidth * 0.95;
+            track.scrollBy({ left: -scrollDistance, behavior: 'smooth' });
+        });
+
+        nextBtn.addEventListener('click', () => {
+            const scrollDistance = track.clientWidth * 0.95;
+            track.scrollBy({ left: scrollDistance, behavior: 'smooth' });
+        });
+
+        track.addEventListener('scroll', updateButtons, { passive: true });
+        window.addEventListener('resize', updateButtons, { passive: true });
+
+        updateButtons();
+    });
+}
+
 if (typeof window !== 'undefined') {
+    window.initNikeCarousels = initNikeCarousels;
+    window.updateServiceCarousel = updateServiceCarousel;
     window.nextServiceSlide = nextServiceSlide;
     window.prevServiceSlide = prevServiceSlide;
     window.goToServiceSlide = goToServiceSlide;

@@ -29,9 +29,11 @@ export function openModal(id, trigger = null) {
     const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) {
         el.classList.add('is-open');
+        el.dispatchEvent(new CustomEvent('modal-opened', { bubbles: true, detail: { id: el.id, modal: el } }));
     } else {
         requestAnimationFrame(() => {
             el.classList.add('is-open');
+            el.dispatchEvent(new CustomEvent('modal-opened', { bubbles: true, detail: { id: el.id, modal: el } }));
         });
     }
 

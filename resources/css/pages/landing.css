@@ -1,5 +1,5 @@
 /* ==========================================================================
-   LANDING PAGE STYLES
+   LANDING PAGE STYLES & DARK MODE ADAPTIVE STYLES
    ========================================================================== */
 
 /* Hero & Section Specific Transitions */
@@ -9,5 +9,96 @@
 
 /* Section anchor smooth scroll target */
 .landing-section {
-    scroll-margin-top: 6rem;
+    scroll-margin-top: 5rem;
+}
+
+/* Scrollbar utility for Nike Carousel */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Dark Mode Background & Text */
+html.dark body {
+    background-color: #080E1E;
+    color: #F8FAFC;
+}
+
+/* Card & Surface Dark Backgrounds */
+html.dark .bg-white {
+    background-color: #111C35 !important;
+    border-color: #1E2D4A !important;
+}
+
+html.dark .bg-\[\#F5F8FC\] {
+    background-color: #0B1328 !important;
+}
+
+html.dark .bg-\[\#F8FAFC\] {
+    background-color: #0E172E !important;
+}
+
+/* Text Colors */
+html.dark .text-\[\#101828\],
+html.dark .text-\[\#111827\] {
+    color: #F8FAFC !important;
+}
+
+html.dark .text-\[\#344054\] {
+    color: #CBD5E1 !important;
+}
+
+html.dark .text-\[\#667085\],
+html.dark .text-\[\#6B7280\] {
+    color: #94A3B8 !important;
+}
+
+html.dark .text-\[\#475467\] {
+    color: #A0AEC0 !important;
+}
+
+/* Borders and Dividers */
+html.dark .border-\[\#E4E7EC\] {
+    border-color: #1E2D4A !important;
+}
+
+html.dark .divide-\[\#F2F4F7\] > :not([hidden]) ~ :not([hidden]) {
+    border-color: #1E2D4A !important;
+}
+
+/* Badges & Tags */
+html.dark .bg-\[\#DCE8FF\]\/60 {
+    background-color: rgba(11, 58, 158, 0.35) !important;
+    color: #93C5FD !important;
+}
+
+html.dark .bg-\[\#DCE8FF\] {
+    background-color: rgba(11, 58, 158, 0.45) !important;
+    color: #BFDBFE !important;
+}
+
+/* Accent Text & Links */
+html.dark .text-\[\#062072\] {
+    color: #93C5FD !important;
+}
+
+/* Hover States */
+html.dark .hover\:bg-\[\#F5F8FC\]:hover {
+    background-color: #1E2D4A !important;
+}
+
+/* Footer in Dark Mode */
+html.dark #tentang {
+    background-color: #060B18 !important;
+    border-color: #1E2D4A !important;
+}
+
+/* Ensure Service Photos maintain authentic original colors (NO FILTER) */
+html.dark .nike-service-card img,
+html.dark #layanan img,
+html.dark img.object-cover {
+    filter: none !important;
 }

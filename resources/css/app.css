@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:is(.dark, .dark *));
+
 @theme {
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
     --color-primary-navy: #062072;
@@ -16,6 +18,9 @@
 @import './base.css';
 @import './components.css';
 @import './pages/landing.css';
+@import './pages/workflow-timeline.css';
 @import './pages/auth.css';
 @import './pages/customer.css';
 @import './pages/internal.css';
+@import './pages/internal-dark.css';
+@import './pages/page-transitions.css';

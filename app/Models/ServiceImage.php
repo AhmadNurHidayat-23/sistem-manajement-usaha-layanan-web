@@ -20,17 +20,20 @@ class ServiceImage extends Model
         ];
     }
 
-    public function getImageUrlAttribute(): string
+    public function getImageUrlAttribute(): ?string
     {
-        if ($this->image_path && Storage::disk('public')->exists($this->image_path)) {
-            return Storage::url($this->image_path);
+        return self::urlForPath($this->image_path);
+    }
+
+    public static function urlForPath(?string $path): ?string
+    {
+        $disk = Storage::disk('public');
+
+        if (! $path || ! $disk->fileExists($path)) {
+            return null;
         }
 
-        if ($this->image_path && file_exists(public_path('storage/'.$this->image_path))) {
-            return asset('storage/'.$this->image_path);
-        }
-
-        return $this->image_path ? Storage::url($this->image_path) : asset('images/service-placeholder.svg');
+        return @getimagesize($disk->path($path)) !== false ? Storage::url($path) : null;
     }
 
     public function service(): BelongsTo

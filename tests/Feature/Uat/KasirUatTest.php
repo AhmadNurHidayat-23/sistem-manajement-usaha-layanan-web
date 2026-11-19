@@ -55,8 +55,7 @@ class KasirUatTest extends TestCase
 
         $dashboardActiveResponse = $this->actingAs($this->cashier)->get(route('cashier.dashboard'));
         $dashboardActiveResponse->assertStatus(200);
-        $dashboardActiveResponse->assertSee('Pembayaran yang Perlu Ditangani');
-        $dashboardActiveResponse->assertSee('Bayar di POS');
+        $dashboardActiveResponse->assertSee('Pesanan yang Perlu Ditangani');
         $this->assertDatabaseHas('cashier_shifts', [
             'user_id' => $this->cashier->id,
             'branch_id' => $this->branch1->id,
@@ -65,7 +64,7 @@ class KasirUatTest extends TestCase
 
         $posResponse = $this->actingAs($this->cashier)->get(route('pos.index'));
         $posResponse->assertStatus(200);
-        $posResponse->assertSee('Terminal POS');
+        $posResponse->assertSee('Katalog Layanan');
 
         $validatePromo = $this->actingAs($this->cashier)->postJson(route('promotions.validate'), [
             'code' => 'DISKON10',

@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Enums\StatusTransaksi;
 use App\Models\Transaction;
+use App\Services\Inventori\InventoriTransaksiService;
 use App\Services\Karyawan\KomisiKaryawanService;
 use App\Services\OperationalNotificationService;
 use Illuminate\Support\Facades\Log;
@@ -23,6 +24,17 @@ class TransactionObserver
                 $transaction->transaction_code
             ));
         } elseif ($transaction->status === StatusTransaksi::Paid) {
+            try {
+                if ($transaction->details()->exists()) {
+                    app(InventoriTransaksiService::class)->deductStockForTransaction($transaction);
+                }
+            } catch (\Throwable $e) {
+                Log::error("[TransactionObserver] Gagal memproses pengurangan stok transaksi {$transaction->id}: {$e->getMessage()}", [
+                    'transaction_id' => $transaction->id,
+                    'exception' => $e,
+                ]);
+            }
+
             $this->handlePaid($transaction);
         }
     }
@@ -32,17 +44,37 @@ class TransactionObserver
      */
     public function updated(Transaction $transaction): void
     {
-        if ($transaction->wasChanged('status') && $transaction->status === StatusTransaksi::Paid) {
-            try {
-                app(KomisiKaryawanService::class)->processTransactionCommission($transaction);
-            } catch (\Throwable $e) {
-                Log::error("[TransactionObserver] Gagal memproses komisi otomatis transaksi {$transaction->id}: {$e->getMessage()}", [
-                    'transaction_id' => $transaction->id,
-                    'exception' => $e,
-                ]);
-            }
+        if ($transaction->wasChanged('status')) {
+            if ($transaction->status === StatusTransaksi::Paid) {
+                try {
+                    app(KomisiKaryawanService::class)->processTransactionCommission($transaction);
+                } catch (\Throwable $e) {
+                    Log::error("[TransactionObserver] Gagal memproses komisi otomatis transaksi {$transaction->id}: {$e->getMessage()}", [
+                        'transaction_id' => $transaction->id,
+                        'exception' => $e,
+                    ]);
+                }
 
-            $this->handlePaid($transaction);
+                try {
+                    app(InventoriTransaksiService::class)->deductStockForTransaction($transaction);
+                } catch (\Throwable $e) {
+                    Log::error("[TransactionObserver] Gagal memproses pengurangan stok transaksi {$transaction->id}: {$e->getMessage()}", [
+                        'transaction_id' => $transaction->id,
+                        'exception' => $e,
+                    ]);
+                }
+
+                $this->handlePaid($transaction);
+            } elseif (in_array($transaction->status, [StatusTransaksi::Cancelled, StatusTransaksi::Refunded], true)) {
+                try {
+                    app(InventoriTransaksiService::class)->reverseStockForTransaction($transaction);
+                } catch (\Throwable $e) {
+                    Log::error("[TransactionObserver] Gagal mengembalikan stok transaksi {$transaction->id}: {$e->getMessage()}", [
+                        'transaction_id' => $transaction->id,
+                        'exception' => $e,
+                    ]);
+                }
+            }
         }
     }
 

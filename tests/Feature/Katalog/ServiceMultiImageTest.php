@@ -11,6 +11,8 @@ use Database\Seeders\LayananSeeder;
 use Database\Seeders\PeranSeeder;
 use Database\Seeders\ServiceImageSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ServiceMultiImageTest extends TestCase
@@ -21,6 +23,8 @@ class ServiceMultiImageTest extends TestCase
     {
         parent::setUp();
 
+        Storage::fake('public');
+
         $seeder = new ServiceImageSeeder;
         $reflection = new \ReflectionClass(ServiceImageSeeder::class);
         $property = $reflection->getProperty('serviceDirectories');
@@ -30,12 +34,10 @@ class ServiceMultiImageTest extends TestCase
         foreach ($directories as $dir) {
             $parent = dirname($dir);
             $slug = basename($dir);
-            @mkdir(storage_path('app/public/'.$parent), 0755, true);
+            Storage::disk('public')->makeDirectory($parent);
             for ($i = 1; $i <= 3; $i++) {
-                $path = storage_path("app/public/{$parent}/{$slug}-{$i}.jpg");
-                if (! file_exists($path)) {
-                    file_put_contents($path, 'dummy-image-content');
-                }
+                $filename = "{$slug}-{$i}.jpg";
+                Storage::disk('public')->putFileAs($parent, UploadedFile::fake()->image($filename), $filename);
             }
         }
 
@@ -89,19 +91,20 @@ class ServiceMultiImageTest extends TestCase
         $response = $this->get('/');
 
         $response->assertStatus(200);
-        $response->assertSee('Katalog Layanan');
+        $response->assertSee('Barbershop & Grooming');
         $response->assertSee('service-carousel');
     }
 
-    public function test_landing_page_renders_carousel_markup_and_controls(): void
+    public function test_landing_page_renders_single_image_per_card_without_inner_controls(): void
     {
         $response = $this->get('/');
 
         $response->assertStatus(200);
-        $response->assertSee('carousel-btn-prev');
-        $response->assertSee('carousel-btn-next');
-        $response->assertSee('carousel-dots');
-        $response->assertSee('carousel-slides');
+        $response->assertSee('service-carousel');
+        $response->assertDontSee('carousel-btn-prev');
+        $response->assertDontSee('carousel-btn-next');
+        $response->assertDontSee('carousel-dots');
+        $response->assertDontSee('carousel-slides');
     }
 
     public function test_landing_page_handles_fallback_when_service_has_no_images(): void
@@ -124,7 +127,7 @@ class ServiceMultiImageTest extends TestCase
         $response = $this->get('/?branch_id='.$branch->id);
         $response->assertStatus(200);
         $response->assertSee('Layanan Tanpa Foto Khusus');
-        $response->assertSee('Dokumentasi Layanan');
+        $response->assertDontSee('data-carousel-id="'.$fallbackService->id.'"', false);
     }
 
     public function test_branch_filtering_maintains_multi_image_carousel(): void
@@ -164,6 +167,11 @@ class ServiceMultiImageTest extends TestCase
         ];
 
         foreach ($mixedFiles as $order => $filename) {
+            Storage::disk('public')->putFileAs(
+                'services/barbershop/potong-rambut-pria',
+                UploadedFile::fake()->image($filename),
+                $filename,
+            );
             ServiceImage::create([
                 'service_id' => $service->id,
                 'sort_order' => $order,
@@ -185,8 +193,12 @@ class ServiceMultiImageTest extends TestCase
         $response = $this->get('/?branch_id='.$branch->id);
         $response->assertStatus(200);
         $response->assertSee('01.webp');
-        $response->assertSee('02.png');
-        $response->assertSee('03.jpg');
+
+        // Multi-image tambahan tetap dipertahankan pada halaman detail layanan
+        $detailResponse = $this->get(route('customer.layanan.show', $service));
+        $detailResponse->assertStatus(200);
+        $detailResponse->assertSee('02.png');
+        $detailResponse->assertSee('03.jpg');
     }
 
     public function test_service_image_seeder_resolves_actual_files_with_supported_extensions(): void
@@ -200,7 +212,7 @@ class ServiceMultiImageTest extends TestCase
 
         $resolvedPath = $seeder->resolveSlotImagePath('services/barbershop/potong-rambut-pria', '01');
         $this->assertNotNull($resolvedPath);
-        $this->assertFileExists(storage_path('app/public/'.$resolvedPath));
+        Storage::disk('public')->assertExists($resolvedPath);
 
         // Verifikasi tidak ada string .jpg yang di-hardcode di pemetaan direktori seeder
         $reflection = new \ReflectionClass(ServiceImageSeeder::class);
@@ -226,10 +238,7 @@ class ServiceMultiImageTest extends TestCase
             $this->assertCount(3, $service->images, "Layanan {$service->name} harus memiliki tepat 3 gambar.");
             foreach ($service->images as $img) {
                 $totalImages++;
-                $this->assertFileExists(
-                    storage_path('app/public/'.$img->image_path),
-                    "File fisik untuk {$img->image_path} tidak ditemukan."
-                );
+                Storage::disk('public')->assertExists($img->image_path);
                 $this->assertStringStartsWith('/storage/services/', $img->image_url);
             }
         }

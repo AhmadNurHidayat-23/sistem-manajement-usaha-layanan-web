@@ -11,6 +11,7 @@ use App\Models\Service;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use App\Models\User;
+use App\Services\Inventori\InventoriTransaksiService;
 use App\Services\Karyawan\KomisiKaryawanService;
 use App\Services\MembershipPromo\MemberService;
 use App\Services\MembershipPromo\PromoService;
@@ -206,6 +207,7 @@ class TransaksiService
 
                 app(MemberService::class)->awardPointsFromTransaction($transaction);
                 app(KomisiKaryawanService::class)->processTransactionCommission($transaction);
+                app(InventoriTransaksiService::class)->deductStockForTransaction($transaction);
             }
 
             if ($appliedPromo) {

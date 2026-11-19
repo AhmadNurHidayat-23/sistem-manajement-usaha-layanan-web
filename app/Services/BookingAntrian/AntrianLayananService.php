@@ -221,7 +221,6 @@ class AntrianLayananService
 
         $bookingsQuery = Booking::query()
             ->with(['user', 'service', 'branch'])
-            ->whereDate('booking_date', '<', Carbon::today())
             ->where('status', BookingStatus::Completed->value);
 
         if ($employeeId) {
@@ -230,14 +229,13 @@ class AntrianLayananService
 
         $ordersQuery = Order::query()
             ->with(['user', 'service', 'branch'])
-            ->whereDate('created_at', '<', Carbon::today())
             ->whereIn('status', [StatusPesanan::Completed->value, StatusPesanan::Ready->value]);
 
         if ($employeeId) {
             $ordersQuery->where('employee_id', $employeeId);
         }
 
-        $pastBookings = $bookingsQuery->latest('booking_date')->limit($limit)->get()->map(fn ($b) => [
+        $pastBookings = $bookingsQuery->latest('updated_at')->limit($limit)->get()->map(fn ($b) => [
             'id' => $b->id,
             'task_type' => 'Appointment',
             'model_type' => 'booking',

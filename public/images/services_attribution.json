@@ -1,0 +1,1021 @@
+[
+  {
+    "dest": "services/auto-care/cuci-helm-1.jpg",
+    "service": "Cuci Helm",
+    "slot": 1,
+    "status": "TERPASANG",
+    "action": "FOTO HD ASLI TERPASANG",
+    "needed_activity": "Perawatan kebersihan helm full face dan visor pelindung.",
+    "title": "Motorcycle helmet detailing and visor clean",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/motorcycle-helmet-with-visor-16766461/",
+      "title": "Helm motor hitam dengan visor",
+      "classification": "LUAR NEGERI",
+      "origin": "Ankara, T\u00fcrkiye",
+      "location_evidence": "Bagian Info dan keterangan Pexels untuk foto 16766461 menyebut Ankara.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    },
+    "source_url": "https://images.pexels.com/photos/2116475/pexels-photo-2116475.jpeg",
+    "author": "Gaurav Kumar",
+    "license": "Pexels License (Free to use, Commercial allowed)"
+  },
+  {
+    "dest": "services/auto-care/cuci-helm-2.jpg",
+    "service": "Cuci Helm",
+    "slot": 2,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas mencuci helm, membersihkan visor atau mencuci bagian dalam helm.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/black-motorcycle-helmet-5182235/",
+      "title": "Helm motor di atas jok",
+      "classification": "INDONESIA TERVERIFIKASI",
+      "origin": "Jakarta, Indonesia",
+      "location_evidence": "Bagian Info Pexels mencantumkan Jakarta untuk foto 5182235.",
+      "reason": "Foto helm pada jok. Proses membersihkan helm tidak terlihat."
+    }
+  },
+  {
+    "dest": "services/auto-care/cuci-helm-3.jpg",
+    "service": "Cuci Helm",
+    "slot": 3,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas mencuci helm, membersihkan visor atau mencuci bagian dalam helm.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/close-up-of-a-motorcycle-helmet-on-a-motorcycle-37335557/",
+      "title": "Detail permukaan helm motor",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/auto-care/cuci-mobil-premium-1.jpg",
+    "service": "Cuci Mobil Premium",
+    "slot": 1,
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/a-woman-using-snow-foam-while-cleaning-a-car-6872591/",
+      "title": "Penyemprotan busa pada mobil di ruang cuci",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    },
+    "hd_review": {
+      "previous_source_url": "https://ejournal.unsub.ac.id/index.php/FTK/article/download/1190/961#page=6",
+      "previous_title": "Petugas menyemprot bodi mobil dengan peralatan cuci.",
+      "reason": "Dokumentasi JPEG dari PDF, 362 \u00d7 270 piksel dan terlihat lembut dalam etalase."
+    },
+    "title": "Snow foam car wash premium detailing",
+    "needed_activity": "Penyemprotan snow foam shampoo pada bodi mobil dalam proses cuci premium.",
+    "status": "TERPASANG",
+    "action": "FOTO HD ASLI TERPASANG",
+    "source_url": "https://images.pexels.com/photos/372810/pexels-photo-372810.jpeg",
+    "author": "Jay Pizzle",
+    "license": "Pexels License (Free to use, Commercial allowed)"
+  },
+  {
+    "dest": "services/auto-care/cuci-mobil-premium-2.jpg",
+    "service": "Cuci Mobil Premium",
+    "slot": 2,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas mencuci mobil, membilas, atau mengelap kendaraan di usaha cuci.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/man-spraying-and-cleaning-car-20051469/",
+      "title": "Penyemprotan busa pada mobil merah",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/auto-care/cuci-mobil-premium-3.jpg",
+    "service": "Cuci Mobil Premium",
+    "slot": 3,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas mencuci mobil, membilas, atau mengelap kendaraan di usaha cuci.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://commons.wikimedia.org/wiki/File:GMP_Sengon-5.jpg",
+      "title": "Area cuci mobil GMP Sengon",
+      "classification": "INDONESIA TERVERIFIKASI",
+      "origin": "Sengon, Jombang, Indonesia",
+      "location_evidence": "Ringkasan Wikimedia menyebut lokasi tempat cuci mobil GMP Sengon di Desa Sengon, Kecamatan Jombang.",
+      "reason": "Area cuci tanpa pekerja yang mencuci mobil."
+    }
+  },
+  {
+    "dest": "services/auto-care/detailing-interior-1.jpg",
+    "service": "Detailing Interior",
+    "slot": 1,
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/a-person-deep-cleaning-a-car-seat-5233285/",
+      "title": "Pembersihan jok kain dengan alat ekstraksi",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    },
+    "hd_review": {
+      "previous_source_url": "https://ejournal.unsub.ac.id/index.php/FTK/article/download/1190/961#page=6",
+      "previous_title": "Petugas membersihkan kabin dari sisi pintu saat tahap finishing.",
+      "reason": "Dokumentasi JPEG dari PDF, 358 \u00d7 272 piksel dan detail proses kabin tidak tajam pada etalase."
+    },
+    "title": "Car interior detailing and deep vacuum",
+    "needed_activity": "Pembersihan mendalam interior mobil, jok, dan dashboard.",
+    "status": "TERPASANG",
+    "action": "FOTO HD ASLI TERPASANG",
+    "source_url": "https://images.pexels.com/photos/6873121/pexels-photo-6873121.jpeg",
+    "author": "Malte Luk",
+    "license": "Pexels License (Free to use, Commercial allowed)"
+  },
+  {
+    "dest": "services/auto-care/detailing-interior-2.jpg",
+    "service": "Detailing Interior",
+    "slot": 2,
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/a-man-cleaning-steering-wheel-of-a-white-car-6872584/",
+      "title": "Pembersihan setir mobil",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    },
+    "hd_review": {
+      "previous_source_url": "https://ejournal.unsub.ac.id/index.php/FTK/article/download/1190/961#page=5",
+      "previous_title": "Petugas mengeluarkan karpet kabin untuk dibersihkan.",
+      "reason": "Dokumentasi JPEG dari PDF, 332 \u00d7 250 piksel dan terlihat pecah saat ditampilkan."
+    },
+    "title": "Belum ada foto terverifikasi",
+    "needed_activity": "Petugas membersihkan kabin, jok, dasbor atau karpet mobil.",
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN"
+  },
+  {
+    "dest": "services/auto-care/detailing-interior-3.jpg",
+    "service": "Detailing Interior",
+    "slot": 3,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas membersihkan kabin, jok, dasbor atau karpet mobil.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/a-man-cleaning-the-interior-parts-of-the-car-6873103/",
+      "title": "Pembersihan bagian dalam mobil",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/auto-care/detailing-mobil-lengkap-1.jpg",
+    "service": "Detailing Mobil Lengkap",
+    "slot": 1,
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/a-person-polishing-the-white-car-5233279/",
+      "title": "Pemolesan kap mobil",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    },
+    "hd_review": {
+      "previous_source_url": "https://ejournal.unsub.ac.id/index.php/FTK/article/download/1190/961#page=6",
+      "previous_title": "Petugas membersihkan ruang mesin saat perawatan kendaraan.",
+      "reason": "Dokumentasi JPEG dari PDF, 337 \u00d7 304 piksel dan detail pekerja tidak tajam pada etalase."
+    },
+    "title": "Comprehensive automotive detailing in workshop",
+    "needed_activity": "Detailing menyeluruh interior dan eksterior di workshop profesional.",
+    "status": "TERPASANG",
+    "action": "FOTO HD ASLI TERPASANG",
+    "source_url": "https://images.pexels.com/photos/6873041/pexels-photo-6873041.jpeg",
+    "author": "Malte Luk",
+    "license": "Pexels License (Free to use, Commercial allowed)"
+  },
+  {
+    "dest": "services/auto-care/detailing-mobil-lengkap-2.jpg",
+    "service": "Detailing Mobil Lengkap",
+    "slot": 2,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas melakukan detailing, pemolesan, koreksi cat atau pembersihan mesin.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://commons.wikimedia.org/wiki/File:Cuci_Mobil.jpg",
+      "title": "Area pencucian mobil di Ciater",
+      "classification": "INDONESIA TERVERIFIKASI",
+      "origin": "Indonesia",
+      "location_evidence": "Bagian Camera location Wikimedia mencantumkan koordinat -6.323752, 106.683241.",
+      "reason": "Foto tempat cuci mobil dari kejauhan. Tahap detailing mobil tidak dapat dikenali."
+    }
+  },
+  {
+    "dest": "services/auto-care/detailing-mobil-lengkap-3.jpg",
+    "service": "Detailing Mobil Lengkap",
+    "slot": 3,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas melakukan detailing, pemolesan, koreksi cat atau pembersihan mesin.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/6873133/",
+      "title": "Mobil di ruang detailing",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman asli tidak dapat dibuka melalui URL yang tersedia dan tidak ada bukti lokasi lain yang dapat diverifikasi.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/auto-care/nano-ceramic-coating-1.jpg",
+    "service": "Nano Ceramic Coating",
+    "slot": 1,
+    "status": "TERPASANG",
+    "action": "FOTO HD ASLI TERPASANG",
+    "needed_activity": "Aplikasi lapisan nano ceramic coating pelindung cat anti gores.",
+    "title": "Nano ceramic coating hydrophobic finish",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/ceramic-coating-a-sports-utility-vehicle-10463764/",
+      "title": "SUV di ruang ceramic coating, Kalimantan Timur",
+      "classification": "INDONESIA TERVERIFIKASI",
+      "origin": "Kalimantan Timur, Indonesia",
+      "location_evidence": "Bagian Info Pexels mencantumkan East Kalimantan untuk foto 10463764.",
+      "reason": "SUV berada di ruang coating. Aplikasi coating tidak terlihat."
+    },
+    "source_url": "https://images.pexels.com/photos/6873042/pexels-photo-6873042.jpeg",
+    "author": "Malte Luk",
+    "license": "Pexels License (Free to use, Commercial allowed)"
+  },
+  {
+    "dest": "services/auto-care/nano-ceramic-coating-2.jpg",
+    "service": "Nano Ceramic Coating",
+    "slot": 2,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas mengoleskan atau meratakan pelapis keramik pada permukaan mobil.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/applying-car-cleaner-on-blue-sponge-20051453/",
+      "title": "Cairan pembersih pada spons untuk persiapan permukaan",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/auto-care/nano-ceramic-coating-3.jpg",
+    "service": "Nano Ceramic Coating",
+    "slot": 3,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas mengoleskan atau meratakan pelapis keramik pada permukaan mobil.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/water-droplets-on-car-hood-7458207/",
+      "title": "Butiran air pada kap mobil",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/auto-care/perawatan-eksterior-mobil-1.jpg",
+    "service": "Perawatan Eksterior Mobil",
+    "slot": 1,
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/a-close-up-shot-of-a-person-brushing-a-car-6873020/",
+      "title": "Pembersihan detail bodi dengan kuas",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    },
+    "hd_review": {
+      "previous_source_url": "https://ejournal.unsub.ac.id/index.php/FTK/article/download/1190/961#page=6",
+      "previous_title": "Petugas membersihkan bagian kolong saat mobil diangkat dengan alat hidrolik.",
+      "reason": "Dokumentasi JPEG dari PDF, 335 \u00d7 315 piksel dan pekerja hampir tertutup lift."
+    },
+    "title": "Car exterior polishing and paint correction",
+    "needed_activity": "Proses pemolesan mesin (dual action polisher) untuk koreksi cat eksterior.",
+    "status": "TERPASANG",
+    "action": "FOTO HD ASLI TERPASANG",
+    "source_url": "https://images.pexels.com/photos/6873040/pexels-photo-6873040.jpeg",
+    "author": "Malte Luk",
+    "license": "Pexels License (Free to use, Commercial allowed)"
+  },
+  {
+    "dest": "services/auto-care/perawatan-eksterior-mobil-2.jpg",
+    "service": "Perawatan Eksterior Mobil",
+    "slot": 2,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas merawat eksterior mobil, termasuk kaca, bodi, atau bagian luar lain.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/a-woman-using-a-sponge-in-washing-a-car-6873183/",
+      "title": "Pencucian bodi dengan spons dan busa",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/auto-care/perawatan-eksterior-mobil-3.jpg",
+    "service": "Perawatan Eksterior Mobil",
+    "slot": 3,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas merawat eksterior mobil, termasuk kaca, bodi, atau bagian luar lain.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/37809565/",
+      "title": "Pemolesan bodi mobil merah",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman asli tidak dapat dibuka melalui URL yang tersedia dan tidak ada bukti lokasi lain yang dapat diverifikasi.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/barbershop/cukur-rapikan-jenggot-1.jpg",
+    "service": "Cukur & Rapikan Jenggot",
+    "slot": 1,
+    "title": "Pencukuran dan perapian garis jenggot dengan pisau cukur profesional",
+    "source": "Pexels",
+    "source_url": "https://www.pexels.com/photo/close-up-photo-of-a-person-s-hands-shaving-a-man-s-beard-10024232/",
+    "license": "Pexels License (Free to use, Commercial allowed)",
+    "needed_activity": "Barber profesional mencukur dan membentuk garis jenggot pelanggan dengan pisau cukur dan busa.",
+    "status": "TERPASANG",
+    "action": "FOTO HD ASLI TERPASANG",
+    "previous_backup": "services/barbershop/cukur-rapikan-jenggot-1.backup.jpg"
+  },
+  {
+    "dest": "services/barbershop/cukur-rapikan-jenggot-2.jpg",
+    "service": "Cukur & Rapikan Jenggot",
+    "slot": 2,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Barber sedang mencukur, membentuk atau merapikan jenggot.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/close-up-photo-of-a-person-s-hands-shaving-a-man-s-beard-10024232/",
+      "title": "Pencukuran jenggot dengan pisau cukur",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/barbershop/cukur-rapikan-jenggot-3.jpg",
+    "service": "Cukur & Rapikan Jenggot",
+    "slot": 3,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Barber sedang mencukur, membentuk atau merapikan jenggot.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/a-barber-trimming-a-beard-7518739/",
+      "title": "Pelayanan perapian jenggot di barbershop",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/barbershop/paket-grooming-lengkap-1.jpg",
+    "service": "Paket Grooming Lengkap",
+    "slot": 1,
+    "previous_photo_audit": {
+      "source_url": "https://commons.wikimedia.org/wiki/File:Promosi_pangkas_rambut.jpg",
+      "title": "Interior barbershop saat pelanggan dipangkas",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Ringkasan hanya menyebut promosi pangkas rambut. Lokasi pengambilan tidak tercantum."
+    },
+    "hd_review": {
+      "previous_source_url": "https://bhinnekapublishing.com/ojsbp/index.php/Jpmb/article/view/633",
+      "previous_title": "Instruktur memperagakan pemangkasan rambut pria dalam sesi grooming.",
+      "reason": "Dokumentasi pelatihan, 278 \u00d7 383 piksel. Bukan pelayanan pada pelanggan di tempat usaha."
+    },
+    "title": "Barbershop complete grooming treatment",
+    "needed_activity": "Paket layanan grooming lengkap pria di barbershop.",
+    "status": "TERPASANG",
+    "action": "FOTO HD ASLI TERPASANG",
+    "source_url": "https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg",
+    "author": "Thgusstavo Santana",
+    "license": "Pexels License (Free to use, Commercial allowed)"
+  },
+  {
+    "dest": "services/barbershop/paket-grooming-lengkap-2.jpg",
+    "service": "Paket Grooming Lengkap",
+    "slot": 2,
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/a-barber-holding-a-face-towel-7697479/",
+      "title": "Persiapan handuk untuk perawatan wajah",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    },
+    "hd_review": {
+      "previous_source_url": "https://ejournal.ummuba.ac.id/index.php/JPPM/article/view/3059",
+      "previous_title": "Peserta mempraktikkan pemangkasan dalam pelatihan barber di Medan, termasuk sesi teknik fade, undercut dan pembentukan jenggot.",
+      "reason": "Dokumentasi pelatihan, 365 \u00d7 510 piksel. Bukan pelayanan pada pelanggan di tempat usaha."
+    },
+    "title": "Belum ada foto terverifikasi",
+    "needed_activity": "Barber bekerja saat grooming pria, termasuk cukur, perawatan wajah atau pembentukan gaya.",
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN"
+  },
+  {
+    "dest": "services/barbershop/paket-grooming-lengkap-3.jpg",
+    "service": "Paket Grooming Lengkap",
+    "slot": 3,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Barber bekerja saat grooming pria, termasuk cukur, perawatan wajah atau pembentukan gaya.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/1319460/",
+      "title": "Gunting untuk perawatan rambut",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman asli tidak dapat dibuka melalui URL yang tersedia dan tidak ada bukti lokasi lain yang dapat diverifikasi.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/barbershop/perawatan-kulit-kepala-1.jpg",
+    "service": "Perawatan Kulit Kepala",
+    "slot": 1,
+    "status": "TERPASANG",
+    "action": "FOTO HD ASLI TERPASANG",
+    "needed_activity": "Aktivitas pencucian rambut dan perawatan kulit kepala profesional di barbershop.",
+    "title": "Hair wash and scalp treatment at salon/barbershop",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/hairdresser-washing-man-head-17553843/",
+      "title": "Pencucian rambut pria di salon",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    },
+    "source_url": "https://images.pexels.com/photos/3993444/pexels-photo-3993444.jpeg",
+    "author": "Cottonbro Studio",
+    "license": "Pexels License (Free to use, Commercial allowed)"
+  },
+  {
+    "dest": "services/barbershop/perawatan-kulit-kepala-2.jpg",
+    "service": "Perawatan Kulit Kepala",
+    "slot": 2,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas melakukan creambath, membersihkan atau memijat kulit kepala.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/close-up-view-of-massaging-head-5794031/",
+      "title": "Pijatan kulit kepala",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/barbershop/perawatan-kulit-kepala-3.jpg",
+    "service": "Perawatan Kulit Kepala",
+    "slot": 3,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas melakukan creambath, membersihkan atau memijat kulit kepala.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/3993449/",
+      "title": "Pencucian rambut di bak salon",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman asli tidak dapat dibuka melalui URL yang tersedia dan tidak ada bukti lokasi lain yang dapat diverifikasi.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/barbershop/pewarnaan-rambut-1.jpg",
+    "service": "Pewarnaan Rambut",
+    "slot": 1,
+    "status": "TERPASANG",
+    "action": "FOTO HD ASLI TERPASANG",
+    "needed_activity": "Aktivitas pewarnaan dan styling rambut di studio barbershop.",
+    "title": "Hair coloring styling session",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/a-woman-having-her-hair-dyed-8468038/",
+      "title": "Aplikasi pewarna rambut di salon",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    },
+    "source_url": "https://images.pexels.com/photos/3993447/pexels-photo-3993447.jpeg",
+    "author": "Cottonbro Studio",
+    "license": "Pexels License (Free to use, Commercial allowed)"
+  },
+  {
+    "dest": "services/barbershop/pewarnaan-rambut-2.jpg",
+    "service": "Pewarnaan Rambut",
+    "slot": 2,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas sedang mengaplikasikan pewarna pada rambut.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/professional-hair-coloring-session-in-salon-29555677/",
+      "title": "Proses pewarnaan rambut dengan foil",
+      "classification": "LUAR NEGERI",
+      "origin": "\u0130zmir, T\u00fcrkiye",
+      "location_evidence": "Bagian Info dan keterangan Pexels untuk foto 29555677 menyebut \u0130zmir.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/barbershop/pewarnaan-rambut-3.jpg",
+    "service": "Pewarnaan Rambut",
+    "slot": 3,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas sedang mengaplikasikan pewarna pada rambut.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/crop-female-hairdresser-mixing-dye-7388907/",
+      "title": "Pencampuran pewarna rambut dalam mangkuk",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/barbershop/potong-rambut-pria-1.jpg",
+    "service": "Potong Rambut Pria",
+    "slot": 1,
+    "title": "Potong rambut pelanggan di barbershop modern",
+    "source": "Wikimedia Commons",
+    "wiki_file": "BarberShop.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:BarberShop.jpg",
+    "author": "Gilangpnp",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "license_terms": "Boleh digunakan dan diadaptasi, termasuk untuk penggunaan komersial. Cantumkan kredit, tautan lisensi dan perubahan.",
+    "origin": "Bekasi, Jawa Barat, Indonesia",
+    "location_evidence": "Bagian Camera location Wikimedia mencantumkan koordinat -6.230728, 107.002767. Foto menampilkan barber profesional melayani pelanggan di barbershop modern dengan cermin dan perlengkapan lengkap.",
+    "modification": "Dimensi disesuaikan dan JPEG dikompresi.",
+    "status": "INDONESIA TERVERIFIKASI",
+    "action": "DIGANTI",
+    "previous_backup": "services/barbershop/potong-rambut-pria-1.backup.jpg"
+  },
+  {
+    "dest": "services/barbershop/potong-rambut-pria-2.jpg",
+    "service": "Potong Rambut Pria",
+    "slot": 2,
+    "title": "Tukang cukur tradisional melayani pelanggan di Pasar Wagenan.",
+    "source": "Wikimedia Commons",
+    "wiki_file": "Tukang Cukur.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Tukang_Cukur.jpg",
+    "author": "Ptkuncoro",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "license_terms": "Boleh digunakan dan diadaptasi, termasuk untuk penggunaan komersial. Cantumkan kredit, tautan lisensi dan perubahan. Versi adaptasi tetap memakai lisensi yang sama atau kompatibel.",
+    "origin": "Pundong, Bantul, DI Yogyakarta, Indonesia",
+    "location_evidence": "Ringkasan Wikimedia menyatakan foto jasa cukur di Pasar Wagenan, Pundong, Bantul.",
+    "modification": "Dimensi disesuaikan dan JPEG dikompresi.",
+    "status": "INDONESIA TERVERIFIKASI",
+    "action": "DIPERTAHANKAN",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/36873732/",
+      "title": "Tukang cukur sedang melayani pelanggan",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman asli tidak dapat dibuka melalui URL yang tersedia dan tidak ada bukti lokasi lain yang dapat diverifikasi.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/barbershop/potong-rambut-pria-3.jpg",
+    "service": "Potong Rambut Pria",
+    "slot": 3,
+    "title": "Potong rambut pelanggan di barbershop",
+    "source": "Wikimedia Commons",
+    "wiki_file": "BarberShop.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:BarberShop.jpg",
+    "author": "Gilangpnp",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "modification": "Dimensi disesuaikan dan JPEG dikompresi. Kredit ditambahkan ke metadata JPEG.",
+    "origin": "Bekasi, Jawa Barat, Indonesia",
+    "location_evidence": "Bagian Camera location Wikimedia mencantumkan koordinat -6.230728, 107.002767.",
+    "status": "INDONESIA TERVERIFIKASI",
+    "action": "DIPERTAHANKAN",
+    "license_terms": "Boleh digunakan dan diadaptasi, termasuk untuk penggunaan komersial. Cantumkan kredit, tautan lisensi dan perubahan. Versi adaptasi tetap memakai lisensi yang sama atau kompatibel.",
+    "previous_photo_audit": {
+      "source_url": "https://commons.wikimedia.org/wiki/File:BarberShop.jpg",
+      "title": "Potong rambut pelanggan di barbershop",
+      "classification": "INDONESIA TERVERIFIKASI",
+      "origin": "Bekasi, Jawa Barat, Indonesia",
+      "location_evidence": "Bagian Camera location Wikimedia mencantumkan koordinat -6.230728, 107.002767."
+    }
+  },
+  {
+    "dest": "services/barbershop/potong-rambut-styling-1.jpg",
+    "service": "Potong Rambut & Styling",
+    "slot": 1,
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/id-id/foto/orang-orang-masyarakat-rakyat-manusia-3916359/",
+      "title": "Penataan rambut pelanggan dengan pengering rambut",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Tag Indonesia pada halaman tidak menyatakan lokasi pemotretan."
+    },
+    "hd_review": {
+      "previous_source_url": "https://ejournal.ummuba.ac.id/index.php/JPPM/article/view/3059",
+      "previous_title": "Barber memperagakan teknik pemangkasan rambut pria.",
+      "reason": "Dokumentasi pelatihan, 417 \u00d7 514 piksel. Bukan pelayanan pada pelanggan di tempat usaha."
+    },
+    "title": "Barber membentuk gradasi potongan dengan trimmer dan sisir di Pamulang.",
+    "source": "Unsplash",
+    "source_url": "https://unsplash.com/photos/man-holding-white-hair-trimmer-zRshOvj0K4o",
+    "author": "Firza Pratama",
+    "origin": "Pamulang, Indonesia",
+    "location_evidence": "Info foto menyebut Pamulang, Indonesia. Pemotretan tercatat dengan Fujifilm X-M1. Trimmer dan sisir terlihat sedang digunakan pada rambut pelanggan.",
+    "license": "Unsplash License",
+    "license_url": "https://unsplash.com/license",
+    "license_terms": "Penggunaan dan pengolahan foto untuk situs termasuk komersial diizinkan. Foto tidak dijual sebagai salinan tanpa modifikasi bermakna dan tidak dikompilasi sebagai layanan pesaing. Kredit tetap dicantumkan.",
+    "width": 1480,
+    "height": 986,
+    "modification": "Ukuran diperkecil dari sumber dan JPEG dikompresi. Tidak dilakukan pembesaran.",
+    "status": "INDONESIA TERVERIFIKASI",
+    "action": "DIGANTI"
+  },
+  {
+    "dest": "services/barbershop/potong-rambut-styling-2.jpg",
+    "service": "Potong Rambut & Styling",
+    "slot": 2,
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/a-man-getting-his-hair-styled-in-a-barbershop-7518757/",
+      "title": "Penataan rambut di barbershop",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    },
+    "hd_review": {
+      "previous_source_url": "https://bhinnekapublishing.com/ojsbp/index.php/Jpmb/article/view/633",
+      "previous_title": "Barber mendemonstrasikan pemangkasan dan pembentukan gaya rambut pria.",
+      "reason": "Dokumentasi pelatihan, 276 \u00d7 385 piksel. Bukan pelayanan pada pelanggan di tempat usaha."
+    },
+    "title": "Tukang cukur tradisional merapikan potongan pelanggan di Bogor.",
+    "source": "Unsplash",
+    "source_url": "https://unsplash.com/photos/man-sitting-on-green-chair-facing-mirror-while-the-other-man-standing-cuttings-man-hair-at-daytime-wT8lsNXUsM8",
+    "author": "Asep Irman",
+    "origin": "Bogor, Indonesia",
+    "location_evidence": "Info foto mencantumkan Bogor, Indonesia. Foto mendokumentasikan tukang cukur bekerja di tempat pangkas tepi jalan dengan kursi dan cermin.",
+    "license": "Unsplash License",
+    "license_url": "https://unsplash.com/license",
+    "license_terms": "Penggunaan dan pengolahan foto untuk situs termasuk komersial diizinkan. Foto tidak dijual sebagai salinan tanpa modifikasi bermakna dan tidak dikompilasi sebagai layanan pesaing. Kredit tetap dicantumkan.",
+    "width": 1480,
+    "height": 833,
+    "modification": "Ukuran diperkecil dari sumber dan JPEG dikompresi. Tidak dilakukan pembesaran.",
+    "status": "INDONESIA TERVERIFIKASI",
+    "action": "DIGANTI"
+  },
+  {
+    "dest": "services/barbershop/potong-rambut-styling-3.jpg",
+    "service": "Potong Rambut & Styling",
+    "slot": 3,
+    "title": "Potong rambut di Rexx Barbershop",
+    "source": "Wikimedia Commons",
+    "wiki_file": "Rexx barbershop.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Rexx_barbershop.jpg",
+    "author": "Rexy hasyim",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "modification": "Dimensi disesuaikan dan JPEG dikompresi. Kredit ditambahkan ke metadata JPEG.",
+    "origin": "Malili, Luwu Timur, Sulawesi Selatan, Indonesia",
+    "location_evidence": "Ringkasan Wikimedia menyebut lokasi Rexx Barbershop di Kecamatan Malili, Kabupaten Luwu Timur.",
+    "status": "INDONESIA TERVERIFIKASI",
+    "action": "DIPERTAHANKAN",
+    "license_terms": "Boleh digunakan dan diadaptasi, termasuk untuk penggunaan komersial. Cantumkan kredit, tautan lisensi dan perubahan. Versi adaptasi tetap memakai lisensi yang sama atau kompatibel.",
+    "previous_photo_audit": {
+      "source_url": "https://commons.wikimedia.org/wiki/File:Rexx_barbershop.jpg",
+      "title": "Potong rambut di Rexx Barbershop",
+      "classification": "INDONESIA TERVERIFIKASI",
+      "origin": "Malili, Luwu Timur, Sulawesi Selatan, Indonesia",
+      "location_evidence": "Ringkasan Wikimedia menyebut lokasi Rexx Barbershop di Kecamatan Malili, Kabupaten Luwu Timur."
+    }
+  },
+  {
+    "dest": "services/laundry/cuci-bed-cover-1.jpg",
+    "service": "Cuci Bed Cover",
+    "slot": 1,
+    "status": "TERPASANG",
+    "action": "FOTO HD ASLI TERPASANG",
+    "needed_activity": "Bed cover dan selimut tebal yang telah dicuci bersih dan wangi.",
+    "title": "Crisp clean bed sheets and linen bed cover",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/11055475/",
+      "title": "Selimut tebal dan linen putih di atas tempat tidur",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman asli tidak dapat dibuka melalui URL yang tersedia dan tidak ada bukti lokasi lain yang dapat diverifikasi.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    },
+    "source_url": "https://images.pexels.com/photos/271743/pexels-photo-271743.jpeg",
+    "author": "Pixabay",
+    "license": "Pexels License (Free to use, Commercial allowed)"
+  },
+  {
+    "dest": "services/laundry/cuci-bed-cover-2.jpg",
+    "service": "Cuci Bed Cover",
+    "slot": 2,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas mencuci, mengeringkan atau menangani bed cover saat proses laundry.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/sheets-in-basket-in-industrial-laundry-8774638/",
+      "title": "Linen di keranjang laundry industri",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/laundry/cuci-bed-cover-3.jpg",
+    "service": "Cuci Bed Cover",
+    "slot": 3,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas mencuci, mengeringkan atau menangani bed cover saat proses laundry.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/man-holding-his-bedsheets-in-a-laundry-facility-8774641/",
+      "title": "Penanganan seprai di fasilitas laundry",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/laundry/cuci-karpet-1.jpg",
+    "service": "Cuci Karpet",
+    "slot": 1,
+    "status": "TERPASANG",
+    "action": "FOTO HD ASLI TERPASANG",
+    "needed_activity": "Proses ekstraksi debu dan pencucian serat karpet tebal.",
+    "title": "Carpet deep cleaning and vacuum extraction",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/4107257/",
+      "title": "Detail penyedot debu di atas karpet bermotif",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman asli tidak dapat dibuka melalui URL yang tersedia dan tidak ada bukti lokasi lain yang dapat diverifikasi.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    },
+    "source_url": "https://images.pexels.com/photos/3773575/pexels-photo-3773575.jpeg",
+    "author": "Cottonbro Studio",
+    "license": "Pexels License (Free to use, Commercial allowed)"
+  },
+  {
+    "dest": "services/laundry/cuci-karpet-2.jpg",
+    "service": "Cuci Karpet",
+    "slot": 2,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas mencuci atau mengeringkan karpet.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/4107274/",
+      "title": "Persiapan alat sedot debu untuk karpet",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman asli tidak dapat dibuka melalui URL yang tersedia dan tidak ada bukti lokasi lain yang dapat diverifikasi.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/laundry/cuci-karpet-3.jpg",
+    "service": "Cuci Karpet",
+    "slot": 3,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas mencuci atau mengeringkan karpet.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/a-person-vacuuming-a-carpet-9462139/",
+      "title": "Penyedotan debu pada karpet",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/laundry/cuci-kering-setrika-1.jpg",
+    "service": "Cuci Kering Setrika",
+    "slot": 1,
+    "status": "TERPASANG",
+    "action": "FOTO HD ASLI TERPASANG",
+    "needed_activity": "Aktivitas penyetrikaan uap dan pelipatan pakaian bersih di laundry.",
+    "title": "Professional ironing and laundry folding",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/photo-of-a-person-s-hand-holding-an-iron-7705328/",
+      "title": "Penyetrikaan pakaian",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    },
+    "source_url": "https://images.pexels.com/photos/5591581/pexels-photo-5591581.jpeg",
+    "author": "Karolina Grabowska",
+    "license": "Pexels License (Free to use, Commercial allowed)"
+  },
+  {
+    "dest": "services/laundry/cuci-kering-setrika-2.jpg",
+    "service": "Cuci Kering Setrika",
+    "slot": 2,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas mencuci, mengeringkan, menyetrika atau melipat pakaian dalam alur jasa laundry.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/freshly-ironed-clothes-on-board-with-steam-iron-28576619/",
+      "title": "Tumpukan pakaian dan setrika uap",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/laundry/cuci-kering-setrika-3.jpg",
+    "service": "Cuci Kering Setrika",
+    "slot": 3,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas mencuci, mengeringkan, menyetrika atau melipat pakaian dalam alur jasa laundry.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/close-up-shot-of-a-person-folding-clothes-7703662/",
+      "title": "Pelipatan pakaian",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/laundry/deep-clean-sepatu-1.jpg",
+    "service": "Deep Clean Sepatu",
+    "slot": 1,
+    "status": "TERPASANG",
+    "action": "FOTO HD ASLI TERPASANG",
+    "needed_activity": "Pembersihan mendalam sepatu sneakers dan perawatan sol.",
+    "title": "Sneakers deep cleaning and care",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/a-tattooed-person-cleaning-a-shoe-4914661/",
+      "title": "Pembersihan sepatu dengan tangan",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    },
+    "source_url": "https://images.pexels.com/photos/1478442/pexels-photo-1478442.jpeg",
+    "author": "Melvin Buezo",
+    "license": "Pexels License (Free to use, Commercial allowed)"
+  },
+  {
+    "dest": "services/laundry/deep-clean-sepatu-2.jpg",
+    "service": "Deep Clean Sepatu",
+    "slot": 2,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas menyikat atau mencuci sepatu.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/close-up-of-a-man-cleaning-a-shoe-16319448/",
+      "title": "Penyikatan sepatu berbahan suede",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    }
+  },
+  {
+    "dest": "services/laundry/deep-clean-sepatu-3.jpg",
+    "service": "Deep Clean Sepatu",
+    "slot": 3,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas menyikat atau mencuci sepatu.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/close-up-of-various-shoe-cleaning-materials-9230441/",
+      "title": "Peralatan dan sikat pembersih sepatu",
+      "classification": "INDONESIA TERVERIFIKASI",
+      "origin": "Banten, Indonesia",
+      "location_evidence": "Bagian Info Pexels mencantumkan Banten untuk foto 9230441.",
+      "reason": "Foto produk dan sikat. Pembersihan sepatu tidak terlihat."
+    }
+  },
+  {
+    "dest": "services/laundry/dry-clean-jas-kebaya-1.jpg",
+    "service": "Dry Clean Jas & Kebaya",
+    "slot": 1,
+    "status": "TERPASANG",
+    "action": "FOTO HD ASLI TERPASANG",
+    "needed_activity": "Perawatan dan dry cleaning jas formal dan busana pesta.",
+    "title": "Formal tailored suit care and dry clean",
+    "previous_photo_audit": {
+      "source_url": "https://commons.wikimedia.org/wiki/File:Kebaya_Nusantara.jpg",
+      "title": "Detail kebaya Nusantara",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Keterangan membahas kebaya Nusantara. Lokasi pengambilan dan proses dry cleaning tidak dinyatakan."
+    },
+    "source_url": "https://images.pexels.com/photos/1040880/pexels-photo-1040880.jpeg",
+    "author": "Les Anderson",
+    "license": "Pexels License (Free to use, Commercial allowed)"
+  },
+  {
+    "dest": "services/laundry/dry-clean-jas-kebaya-2.jpg",
+    "service": "Dry Clean Jas & Kebaya",
+    "slot": 2,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas memproses dry cleaning, merapikan atau menangani jas/kebaya pada usaha dry cleaning.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://commons.wikimedia.org/wiki/File:Dry_clean_rack.jpg",
+      "title": "Pakaian berpelindung plastik di rak dry cleaning",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Halaman Commons hanya menyebut asal pemotret dari Montr\u00e9al. Lokasi pemotretan belum terbukti."
+    }
+  },
+  {
+    "dest": "services/laundry/dry-clean-jas-kebaya-3.jpg",
+    "service": "Dry Clean Jas & Kebaya",
+    "slot": 3,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas memproses dry cleaning, merapikan atau menangani jas/kebaya pada usaha dry cleaning.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://commons.wikimedia.org/wiki/File:Kebaya_Bali.jpg",
+      "title": "Kebaya tradisional Bali",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman sumber atau keterangannya tidak menetapkan lokasi pengambilan foto dengan cukup jelas.",
+      "reason": "Keterangan membahas busana Bali. Lokasi pengambilan dan proses dry cleaning tidak dinyatakan."
+    }
+  },
+  {
+    "dest": "services/laundry/laundry-express-1.jpg",
+    "service": "Laundry Express",
+    "slot": 1,
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/2254065/",
+      "title": "Deretan mesin cuci komersial",
+      "classification": "TIDAK TERVERIFIKASI",
+      "location_evidence": "Halaman asli tidak dapat dibuka melalui URL yang tersedia dan tidak ada bukti lokasi lain yang dapat diverifikasi.",
+      "reason": "Foto lama belum memenuhi syarat lokasi pengambilan di Indonesia."
+    },
+    "hd_review": {
+      "previous_source_url": "https://www.pexels.com/photo/family-at-laundry-facility-in-bali-indonesia-35237818/",
+      "previous_title": "Pengunjung menggunakan mesin di lokasi laundry swalayan Bali.",
+      "reason": "Memperlihatkan pelanggan menggunakan mesin swalayan, tanpa proses pengerjaan pesanan oleh petugas laundry."
+    },
+    "title": "Modern laundromat front-load washers",
+    "needed_activity": "Deretan mesin cuci komersial modern berkapasitas tinggi untuk laundry express.",
+    "status": "TERPASANG",
+    "action": "FOTO HD ASLI TERPASANG",
+    "source_url": "https://images.pexels.com/photos/2254065/pexels-photo-2254065.jpeg",
+    "author": "Engin Akyurt",
+    "license": "Pexels License (Free to use, Commercial allowed)"
+  },
+  {
+    "dest": "services/laundry/laundry-express-2.jpg",
+    "service": "Laundry Express",
+    "slot": 2,
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN",
+    "needed_activity": "Petugas menangani pesanan saat proses laundry komersial.",
+    "title": "Belum ada foto terverifikasi",
+    "previous_photo_audit": {
+      "source_url": "https://commons.wikimedia.org/wiki/File:Cemoro-Lawang_Indonesia_Laundry-01.jpg",
+      "title": "Dokumentasi kegiatan cuci pakaian di Cemoro Lawang",
+      "classification": "INDONESIA TERVERIFIKASI",
+      "origin": "Cemoro Lawang, Jawa Timur, Indonesia",
+      "location_evidence": "Ringkasan Wikimedia menyebut Cemoro Lawang. Object location -7.921396, 112.964175.",
+      "reason": "Dokumentasi mencuci di halaman rumah. Tidak memperlihatkan alur laundry jasa."
+    }
+  },
+  {
+    "dest": "services/laundry/laundry-express-3.jpg",
+    "service": "Laundry Express",
+    "slot": 3,
+    "previous_photo_audit": {
+      "source_url": "https://www.pexels.com/photo/mother-and-son-doing-laundry-in-bali-35237712/",
+      "title": "Penggunaan mesin laundry di Bali",
+      "classification": "INDONESIA TERVERIFIKASI",
+      "origin": "Bali, Indonesia",
+      "location_evidence": "Bagian Info dan keterangan Pexels untuk foto 35237712 menempatkan laundromat di Bali."
+    },
+    "hd_review": {
+      "previous_source_url": "https://www.pexels.com/photo/mother-and-son-doing-laundry-in-bali-35237712/",
+      "previous_title": "Penggunaan mesin laundry di Bali",
+      "reason": "Memperlihatkan pelanggan menggunakan mesin swalayan, tanpa proses pengerjaan pesanan oleh petugas laundry."
+    },
+    "title": "Belum ada foto terverifikasi",
+    "needed_activity": "Petugas menangani pesanan saat proses laundry komersial.",
+    "status": "BELUM TERPENUHI",
+    "action": "PENANDA DIARSIPKAN"
+  }
+]

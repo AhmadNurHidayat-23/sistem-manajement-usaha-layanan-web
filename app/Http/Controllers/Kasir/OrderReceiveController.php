@@ -8,6 +8,7 @@ use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\Order;
 use App\Services\KasirPOS\KasirService;
+use App\Services\NotifikasiService;
 use App\Services\OperationalNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -80,6 +81,8 @@ class OrderReceiveController extends Controller
         if ($isNonWeightBased && $assignedEmployee) {
             rescue(fn () => app(OperationalNotificationService::class)->notifyEmployeeNewTask($assignedEmployee, $order->fresh()));
         }
+
+        rescue(fn () => app(NotifikasiService::class)->notifikasiStatusOrder($order->fresh()));
 
         return response()->json([
             'success' => true,

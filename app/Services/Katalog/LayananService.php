@@ -2,7 +2,6 @@
 
 namespace App\Services\Katalog;
 
-use App\Models\Branch;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\User;
@@ -99,71 +98,26 @@ class LayananService
     }
 
     /**
-     * Layanan katalog landing page: 9 card untuk Semua Cabang (tepat 3 card per cabang), atau 6 card untuk filter cabang tertentu.
+     * Layanan katalog landing page: 18 layanan untuk Semua Cabang (6 per cabang/kategori), atau 6 untuk filter cabang tertentu.
      *
      * @return Collection<int, Service>
      */
     public function getLandingCatalog(?int $branchId = null): Collection
     {
-        if ($branchId) {
-            return Service::query()
-                ->with(['category', 'branch', 'images'])
-                ->where('branch_id', $branchId)
-                ->where('is_active', true)
-                ->whereHas('category', function (Builder $q) {
-                    $q->where('is_active', true);
-                })
-                ->orderBy('id')
-                ->get();
-        }
-
-        $representativeNames = [
-            // Cabang A (Barbershop)
-            'Potong Rambut Pria',
-            'Cukur & Rapikan Jenggot',
-            'Paket Grooming Lengkap',
-            // Cabang B (Laundry & Shoe Care)
-            'Cuci Kering Setrika',
-            'Deep Clean Sepatu',
-            'Cuci Karpet',
-            // Cabang C (Auto Care & Detailing)
-            'Cuci Mobil Premium',
-            'Detailing Mobil Lengkap',
-            'Nano Ceramic Coating',
-        ];
-
-        $branches = Branch::where('is_active', true)->orderBy('id')->get();
-        $allServices = Service::query()
+        $query = Service::query()
             ->with(['category', 'branch', 'images'])
-            ->whereIn('branch_id', $branches->pluck('id'))
             ->where('is_active', true)
             ->whereHas('category', function (Builder $q) {
                 $q->where('is_active', true);
             })
-            ->orderBy('id')
-            ->get()
-            ->groupBy('branch_id');
+            ->orderBy('branch_id')
+            ->orderBy('id');
 
-        $landingServices = new Collection;
-
-        foreach ($branches as $branch) {
-            $branchServices = $allServices->get($branch->id, collect());
-
-            // Prioritaskan 3 layanan representatif per cabang
-            $picked = $branchServices->filter(fn ($s) => in_array($s->name, $representativeNames))
-                ->sortBy(fn ($s) => array_search($s->name, $representativeNames));
-
-            if ($picked->count() < 3) {
-                $remaining = $branchServices->reject(fn ($s) => $picked->contains('id', $s->id));
-                $picked = $picked->merge($remaining);
-            }
-
-            foreach ($picked->take(3) as $service) {
-                $landingServices->push($service);
-            }
+        if ($branchId) {
+            $query->where('branch_id', $branchId);
         }
 
-        return $landingServices;
+        return $query->get();
     }
 
     /**

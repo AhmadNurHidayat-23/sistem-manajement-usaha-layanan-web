@@ -11,6 +11,7 @@ import { initPesananCreate } from './modules/booking-antrian/pesanan.js';
 import { restoreSidebarState, initSidebarListeners } from './internal/sidebar.js';
 import { initHeaderClock } from './internal/header-clock.js';
 import { initProfileDropdown } from './internal/profile-dropdown.js';
+import { initInternalThemeToggle } from './internal/theme-toggle.js';
 import { initLinkPrefetch } from './internal/link-prefetch.js';
 import { initNavProgress } from './internal/nav-progress.js';
 import './modules/kasir-pos/kasir-shift.js';
@@ -37,7 +38,12 @@ import { initCustomerBookingCreate } from './modules/booking-antrian/customer-bo
 import { initWeightModal } from './modules/kasir-pos/weight-modal.js';
 import { initReceiveModal } from './modules/kasir-pos/receive-modal.js';
 import { initCustomerDelivery } from './modules/booking-antrian/customer-delivery.js';
-import './landing/carousel.js';
+import { initPickupLocation } from './modules/booking-antrian/pickup-location.js';
+import { initNikeCarousels } from './landing/carousel.js';
+import { initTestimonialCarousel } from './landing/testimonial-carousel.js';
+import { initWorkflowTimeline } from './landing/workflow-timeline.js';
+import { initThemeToggle } from './landing/theme-toggle.js';
+import { initLocaleToggle } from './landing/locale-toggle.js';
 
 // Expose fungsi ke window untuk aksesibilitas global dan inline handler
 window.initCustomSelects = initCustomSelects;
@@ -57,6 +63,7 @@ window.initReceiptWaHandlers = initReceiptWaHandlers;
 window.initProfileDropdown = initProfileDropdown;
 window.initNavProgress = initNavProgress;
 window.initShiftModalListeners = initShiftModalListeners;
+window.initTestimonialCarousel = initTestimonialCarousel;
 
 export function initApp(root = document) {
     initNavProgress();
@@ -71,6 +78,7 @@ export function initApp(root = document) {
     initSidebarListeners(root);
     initHeaderClock();
     initProfileDropdown(root);
+    initInternalThemeToggle(root);
     initLinkPrefetch();
     initBookingForm();
     initPesananCreate();
@@ -97,6 +105,12 @@ export function initApp(root = document) {
     initWeightModal();
     initReceiveModal();
     initCustomerDelivery();
+    initPickupLocation();
+    initWorkflowTimeline();
+    initNikeCarousels();
+    initTestimonialCarousel();
+    initThemeToggle();
+    initLocaleToggle(root);
 }
 
 window.initAllPickers = initApp;
@@ -139,7 +153,7 @@ if (typeof document !== 'undefined') {
                                 node.closest?.('.custom-select-container, .custom-date-container, .custom-time-container')) {
                                 continue;
                             }
-                            if (node.tagName === 'SELECT' || node.tagName === 'INPUT' || node.querySelector?.('select, input[type="date"], input[type="time"], input[data-custom-time-picker], [data-modal-open], [data-action="edit-shift"]')) {
+                            if (node.tagName === 'SELECT' || node.tagName === 'INPUT' || node.querySelector?.('select, input[type="date"], input[type="time"], input[data-custom-time-picker], [data-modal-open], [data-action="edit-shift"], [data-action="delete-shift"]')) {
                                 pendingRoots.add(node);
                             }
                         }

@@ -214,7 +214,15 @@ class PaymentGatewayController extends Controller
             return response()->json(['status' => 'not_found'], 404);
         }
 
+        $wasPaidBefore = $payment->isPaid();
         $payment = $this->gatewayService->checkStatus($payment);
+
+        if (! $wasPaidBefore && $payment->isPaid()) {
+            rescue(fn () => $this->notifikasiService->notifikasiStatusPembayaran($payment->fresh()));
+            if ($transaction) {
+                rescue(fn () => $this->notifikasiService->kirimStrukTransaksi($transaction->fresh()));
+            }
+        }
 
         return response()->json([
             'status' => $payment->status->value,
@@ -249,6 +257,7 @@ class PaymentGatewayController extends Controller
         }
 
         rescue(fn () => $this->notifikasiService->notifikasiStatusPembayaran($payment->fresh()));
+        rescue(fn () => $this->notifikasiService->kirimStrukTransaksi($transaction->fresh()));
 
         return redirect()->route('pos.transactions.receipt', $transaction)
             ->with('success', 'Pembayaran [SANDBOX] berhasil disimulasikan.');
@@ -271,6 +280,10 @@ class PaymentGatewayController extends Controller
             if (! $wasAlreadyFinal) {
                 if ($payment->isPaid()) {
                     rescue(fn () => $this->notifikasiService->notifikasiStatusPembayaran($payment->fresh()));
+                    $transaction = $payment->transaction;
+                    if ($transaction) {
+                        rescue(fn () => $this->notifikasiService->kirimStrukTransaksi($transaction->fresh()));
+                    }
                 } elseif ($payment->status === StatusPembayaran::Failed || $payment->status === StatusPembayaran::Expired) {
                     rescue(fn () => $this->notifikasiService->notifikasiStatusPembayaran($payment->fresh()));
                 }

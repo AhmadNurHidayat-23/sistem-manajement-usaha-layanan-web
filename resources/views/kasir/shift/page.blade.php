@@ -92,7 +92,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
                     <div class="p-3.5 rounded-xl border border-[#E4E7EC] bg-[#F5F8FC]">
                         <span class="text-[11px] text-[#667085] font-medium block">Total Transaksi</span>
-                        <span class="text-lg font-bold text-[#101828] mt-1 block tabular-nums">{{ $shiftSummary['total_transactions'] ?? 0 }} Trx</span>
+                        <span class="text-lg font-bold text-[#101828] mt-1 block tabular-nums">{{ $shiftSummary['total_transactions'] ?? 0 }} Transaksi</span>
                     </div>
                     <div class="p-3.5 rounded-xl border border-[#E4E7EC] bg-[#F5F8FC]">
                         <span class="text-[11px] text-[#667085] font-medium block">Total Penjualan</span>
