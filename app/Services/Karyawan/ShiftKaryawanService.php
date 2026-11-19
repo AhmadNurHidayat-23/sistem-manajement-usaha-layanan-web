@@ -39,7 +39,7 @@ class ShiftKaryawanService
             $query->where('employee_id', (int) $filters['employee_id']);
         }
 
-        $today = Carbon::today()->toDateString();
+        $today = Carbon::today('Asia/Jakarta')->toDateString();
         $scope = $filters['scope'] ?? null;
 
         if ($scope === 'today') {
@@ -53,7 +53,22 @@ class ShiftKaryawanService
         }
 
         if (! empty($filters['status'])) {
-            $query->where('status', $filters['status']);
+            if ($filters['status'] === StatusShiftKaryawan::Ended->value) {
+                $now = Carbon::now('Asia/Jakarta');
+                $nowDate = $now->toDateString();
+                $nowTime = $now->toTimeString();
+
+                $query->where('status', StatusShiftKaryawan::Scheduled->value)
+                    ->where(function ($q) use ($nowDate, $nowTime) {
+                        $q->whereDate('shift_date', '<', $nowDate)
+                            ->orWhere(function ($sub) use ($nowDate, $nowTime) {
+                                $sub->whereDate('shift_date', $nowDate)
+                                    ->where('end_time', '<=', $nowTime);
+                            });
+                    });
+            } else {
+                $query->where('status', $filters['status']);
+            }
         }
 
         if ($scope === 'upcoming') {
@@ -90,6 +105,84 @@ class ShiftKaryawanService
     }
 
     /**
+     * Validasi durasi dan bentrok jadwal shift untuk karyawan tertentu.
+     *
+     * @param  string  $shiftDate  Format Y-m-d
+     * @param  string  $startTimeStr  Format H:i atau H:i:s
+     * @param  string  $endTimeStr  Format H:i atau H:i:s
+     * @param  int|null  $excludeShiftId  ID shift yang sedang diedit (jika ada)
+     * @return array{shift_date: string, start_time: string, end_time: string, start_datetime: Carbon, end_datetime: Carbon}
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function validateShiftSchedule(
+        int $employeeId,
+        string $shiftDate,
+        string $startTimeStr,
+        string $endTimeStr,
+        ?int $excludeShiftId = null
+    ): array {
+        $dateFormatted = Carbon::parse($shiftDate, 'Asia/Jakarta')->format('Y-m-d');
+        $startTime = Carbon::parse($startTimeStr)->format('H:i:s');
+        $endTime = Carbon::parse($endTimeStr)->format('H:i:s');
+
+        $startDateTime = Carbon::parse("{$dateFormatted} {$startTime}", 'Asia/Jakarta');
+        $endDateTime = Carbon::parse("{$dateFormatted} {$endTime}", 'Asia/Jakarta');
+
+        // Penanganan shift lintas hari / melewati tengah malam (+1 hari)
+        if ($endDateTime->lte($startDateTime)) {
+            $endDateTime->addDay();
+        }
+
+        $durationMinutes = $startDateTime->diffInMinutes($endDateTime, false);
+        if ($durationMinutes <= 0) {
+            throw new \InvalidArgumentException('Jam selesai tidak boleh sama dengan jam mulai.');
+        }
+        if ($durationMinutes > 480) {
+            throw new \InvalidArgumentException('Durasi satu shift kerja tidak boleh melebihi 8 jam.');
+        }
+
+        // Ambil potensi shift karyawan yang sama dalam rentang -1 hari s/d +1 hari
+        // untuk mendeteksi tumpang tindih waktu lengkap (termasuk lintas tengah malam)
+        $searchStart = $startDateTime->copy()->subDay()->format('Y-m-d');
+        $searchEnd = $endDateTime->copy()->addDay()->format('Y-m-d');
+
+        $existingShifts = EmployeeShift::query()
+            ->where('employee_id', $employeeId)
+            ->when($excludeShiftId, fn ($q) => $q->where('id', '!=', $excludeShiftId))
+            ->whereBetween('shift_date', [$searchStart, $searchEnd])
+            ->get();
+
+        foreach ($existingShifts as $existing) {
+            $exDate = $existing->shift_date instanceof \DateTimeInterface
+                ? $existing->shift_date->format('Y-m-d')
+                : substr((string) $existing->shift_date, 0, 10);
+
+            $exStartTime = substr((string) $existing->start_time, 0, 8);
+            $exEndTime = substr((string) $existing->end_time, 0, 8);
+
+            $exStart = Carbon::parse("{$exDate} {$exStartTime}", 'Asia/Jakarta');
+            $exEnd = Carbon::parse("{$exDate} {$exEndTime}", 'Asia/Jakarta');
+            if ($exEnd->lte($exStart)) {
+                $exEnd->addDay();
+            }
+
+            // Bentrok terjadi HANYA jika rentang waktu [start, end) saling tumpang tindih
+            if ($startDateTime->lt($exEnd) && $endDateTime->gt($exStart)) {
+                throw new \InvalidArgumentException('Jadwal bentrok dengan shift lain karyawan ini pada jam tersebut.');
+            }
+        }
+
+        return [
+            'shift_date' => $dateFormatted,
+            'start_time' => $startTime,
+            'end_time' => $endTime,
+            'start_datetime' => $startDateTime,
+            'end_datetime' => $endDateTime,
+        ];
+    }
+
+    /**
      * Tambah shift karyawan baru.
      *
      * @param  array{employee_id: int, branch_id: int, shift_date: string, start_time: string, end_time: string, status?: ?string}  $data
@@ -100,35 +193,24 @@ class ShiftKaryawanService
     {
         $this->authorizeShiftManagement($user, (int) $data['branch_id']);
 
-        $start = Carbon::parse($data['start_time']);
-        $end = Carbon::parse($data['end_time']);
-        if ($start->diffInMinutes($end, false) > 480) {
-            throw new \InvalidArgumentException('Durasi satu shift kerja tidak boleh melebihi 8 jam.');
-        }
-
         $employee = Employee::findOrFail($data['employee_id']);
 
-        // Cegah bentrok jadwal shift untuk karyawan yang sama
-        $clash = EmployeeShift::where('employee_id', $employee->id)
-            ->whereDate('shift_date', $data['shift_date'])
-            ->where(function ($q) use ($data) {
-                $q->where('start_time', '<', $data['end_time'])
-                    ->where('end_time', '>', $data['start_time']);
-            })
-            ->exists();
+        $validatedSchedule = $this->validateShiftSchedule(
+            $employee->id,
+            $data['shift_date'],
+            $data['start_time'],
+            $data['end_time']
+        );
 
-        if ($clash) {
-            throw new \InvalidArgumentException('Jadwal bentrok dengan shift lain karyawan ini pada jam tersebut.');
+        $status = $data['status'] ?? StatusShiftKaryawan::Scheduled->value;
+        if ($validatedSchedule['start_datetime']->isFuture() && in_array($status, [StatusShiftKaryawan::Present->value, StatusShiftKaryawan::Late->value, StatusShiftKaryawan::Absent->value], true)) {
+            $status = StatusShiftKaryawan::Scheduled->value;
         }
-
-        $shiftDate = Carbon::parse($data['shift_date'])->startOfDay();
-        $isFuture = $shiftDate->isFuture();
-        $status = $isFuture ? StatusShiftKaryawan::Scheduled->value : ($data['status'] ?? StatusShiftKaryawan::Scheduled->value);
 
         return EmployeeShift::create([
             'employee_id' => $employee->id,
             'branch_id' => $data['branch_id'],
-            'shift_date' => $data['shift_date'],
+            'shift_date' => $validatedSchedule['shift_date'],
             'start_time' => $data['start_time'],
             'end_time' => $data['end_time'],
             'status' => $status,
@@ -146,31 +228,24 @@ class ShiftKaryawanService
     {
         $this->authorizeShiftManagement($user, $shift->branch_id);
 
-        $targetDate = $data['shift_date'] ?? $shift->shift_date;
-        $startTime = $data['start_time'] ?? $shift->start_time;
-        $endTime = $data['end_time'] ?? $shift->end_time;
-        $start = Carbon::parse($startTime);
-        $end = Carbon::parse($endTime);
-        if ($start->diffInMinutes($end, false) > 480) {
-            throw new \InvalidArgumentException('Durasi satu shift kerja tidak boleh melebihi 8 jam.');
-        }
+        $targetDateRaw = $data['shift_date'] ?? $shift->shift_date;
+        $targetDate = $targetDateRaw instanceof \DateTimeInterface
+            ? $targetDateRaw->format('Y-m-d')
+            : (string) $targetDateRaw;
 
-        // Cegah bentrok saat perbarui
-        $clash = EmployeeShift::where('employee_id', $shift->employee_id)
-            ->where('id', '!=', $shift->id)
-            ->whereDate('shift_date', $targetDate)
-            ->where(function ($q) use ($startTime, $endTime) {
-                $q->where('start_time', '<', $endTime)
-                    ->where('end_time', '>', $startTime);
-            })
-            ->exists();
+        $startTimeRaw = $data['start_time'] ?? $shift->start_time;
+        $endTimeRaw = $data['end_time'] ?? $shift->end_time;
 
-        if ($clash) {
-            throw new \InvalidArgumentException('Jadwal bentrok dengan shift lain karyawan ini pada jam tersebut.');
-        }
+        $validatedSchedule = $this->validateShiftSchedule(
+            $shift->employee_id,
+            $targetDate,
+            (string) $startTimeRaw,
+            (string) $endTimeRaw,
+            $shift->id
+        );
 
         $shift->update([
-            'shift_date' => $data['shift_date'] ?? $shift->shift_date,
+            'shift_date' => $validatedSchedule['shift_date'],
             'start_time' => $data['start_time'] ?? $shift->start_time,
             'end_time' => $data['end_time'] ?? $shift->end_time,
             'status' => $data['status'] ?? $shift->status,
@@ -188,9 +263,15 @@ class ShiftKaryawanService
     {
         $this->authorizeShiftManagement($user, $shift->branch_id);
 
-        $shiftDate = Carbon::parse($shift->shift_date)->startOfDay();
-        if ($shiftDate->isFuture() && in_array($status, [StatusShiftKaryawan::Present, StatusShiftKaryawan::Late, StatusShiftKaryawan::Absent], true)) {
-            throw new \InvalidArgumentException('Status kehadiran Hadir, Terlambat, atau Absen tidak dapat ditandai sebelum hari pelaksanaan shift.');
+        $now = Carbon::now('Asia/Jakarta');
+        $shiftStart = $shift->start_date_time;
+
+        // Batasi aksi absensi jika waktu shift belum tiba (tanggal atau jam di masa depan)
+        if ($now->lt($shiftStart) && in_array($status, [StatusShiftKaryawan::Present, StatusShiftKaryawan::Late, StatusShiftKaryawan::Absent], true)) {
+            if ($shiftStart->toDateString() > $now->toDateString()) {
+                throw new \InvalidArgumentException('Status kehadiran Hadir, Terlambat, atau Absen tidak dapat ditandai sebelum hari pelaksanaan shift.');
+            }
+            throw new \InvalidArgumentException('Status kehadiran Hadir, Terlambat, atau Absen tidak dapat ditandai sebelum shift dimulai.');
         }
 
         $shift->update(['status' => $status]);

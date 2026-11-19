@@ -51,8 +51,10 @@
                                         'late' => ['label' => 'Terlambat', 'badge' => 'warning'],
                                         'absent' => ['label' => 'Absen', 'badge' => 'danger'],
                                         'off' => ['label' => 'Libur', 'badge' => 'neutral'],
+                                        'ended' => ['label' => 'Berakhir', 'badge' => 'neutral'],
                                     ];
-                                    $sStatus = $shift->status->value ?? 'scheduled';
+                                    $effectiveStatus = $shift->effective_status ?? $shift->status;
+                                    $sStatus = $effectiveStatus instanceof \App\Enums\StatusShiftKaryawan ? $effectiveStatus->value : ($effectiveStatus ?? 'scheduled');
                                     $v = $variants[$sStatus] ?? ['label' => $sStatus, 'badge' => 'neutral'];
                                 @endphp
                                 <x-badges.badge :variant="$v['badge']">{{ $v['label'] }}</x-badges.badge>
@@ -60,37 +62,49 @@
                             @if (in_array(auth()->user()?->role?->name, ['owner', 'manager']))
                                 <td class="px-4 py-2.5 text-right">
                                     <div class="inline-flex items-center gap-1">
-                                        <form method="POST" action="{{ route('employees.shifts.update-status', $shift) }}" class="inline m-0">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="status" value="present">
-                                            <button type="submit" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded text-[10px] font-semibold transition-colors">
-                                                Hadir
-                                            </button>
+                                        @if (! $shift->isUpcoming())
+                                            <form method="POST" action="{{ route('employees.shifts.status', $shift) }}" class="inline m-0">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="status" value="present">
+                                                <button type="submit" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded text-[10px] font-semibold transition-colors">
+                                                    Hadir
+                                                </button>
+                                            </form>
+                                            <form method="POST" action="{{ route('employees.shifts.status', $shift) }}" class="inline m-0">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="status" value="late">
+                                                <button type="submit" class="px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded text-[10px] font-semibold transition-colors">
+                                                    Telat
+                                                </button>
+                                            </form>
+                                            <form method="POST" action="{{ route('employees.shifts.status', $shift) }}" class="inline m-0">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="status" value="absent">
+                                                <button type="submit" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded text-[10px] font-semibold transition-colors">
+                                                    Absen
+                                                </button>
+                                            </form>
+                                        @else
+                                            <span class="px-2 py-0.5 text-[10px] text-[#667085] bg-slate-100 dark:bg-slate-800 rounded border border-[#E4E7EC] dark:border-[#1E2D4A]" title="Absensi baru dapat dilakukan saat waktu shift dimulai">
+                                                Mendatang
+                                            </span>
+                                        @endif
                                         </form>
-                                        <form method="POST" action="{{ route('employees.shifts.update-status', $shift) }}" class="inline m-0">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="status" value="late">
-                                            <button type="submit" class="px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded text-[10px] font-semibold transition-colors">
-                                                Telat
-                                            </button>
-                                        </form>
-                                        <form method="POST" action="{{ route('employees.shifts.update-status', $shift) }}" class="inline m-0">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="status" value="absent">
-                                            <button type="submit" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded text-[10px] font-semibold transition-colors">
-                                                Absen
-                                            </button>
-                                        </form>
-                                        <form method="POST" action="{{ route('employees.shifts.destroy', $shift) }}" class="inline m-0" onsubmit="return confirm('Hapus jadwal shift ini?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="p-1 text-slate-400 hover:text-rose-600 transition-colors" title="Hapus">
-                                                <x-icons.icon name="trash" class="w-3.5 h-3.5" />
-                                            </button>
-                                        </form>
+                                        <button type="button"
+                                                data-action="delete-shift"
+                                                data-id="{{ $shift->id }}"
+                                                data-action-url="{{ route('employees.shifts.destroy', $shift) }}"
+                                                data-employee-name="{{ $shift->employee->name }}"
+                                                data-shift-date="{{ \Carbon\Carbon::parse($shift->shift_date)->translatedFormat('l, d M Y') }}"
+                                                data-shift-time="{{ \Carbon\Carbon::parse($shift->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($shift->end_time)->format('H:i') }}"
+                                                data-branch-name="{{ $shift->branch->display_name }}"
+                                                class="p-1 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer rounded"
+                                                title="Hapus Shift">
+                                            <x-icons.icon name="trash" class="w-3.5 h-3.5" />
+                                        </button>
                                     </div>
                                 </td>
                             @endif

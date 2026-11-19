@@ -59,7 +59,7 @@
                         $rows = [
                             ['Pelanggan', $booking->user?->name ?? '-'],
                             ['Nama Usaha', $booking->branch?->display_name ?? '-'],
-                            ['Jenis Pekerjaan', 'Appointment (Janji Temu)'],
+                            ['Jenis Pekerjaan', 'Janji Temu'],
                             ['Layanan', $booking->service?->name ?? '-'],
                             ['Petugas', $booking->employee?->name ?? 'Belum ditentukan'],
                             ['Tanggal', $booking->booking_date->translatedFormat('d F Y')],

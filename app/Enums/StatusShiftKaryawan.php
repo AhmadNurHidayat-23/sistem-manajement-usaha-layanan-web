@@ -9,6 +9,7 @@ enum StatusShiftKaryawan: string
     case Late = 'late';
     case Absent = 'absent';
     case Off = 'off';
+    case Ended = 'ended';
 
     /**
      * Label status shift staf dalam Bahasa Indonesia.
@@ -21,6 +22,7 @@ enum StatusShiftKaryawan: string
             self::Late => 'Terlambat',
             self::Absent => 'Absen',
             self::Off => 'Libur',
+            self::Ended => 'Berakhir',
         };
     }
 }

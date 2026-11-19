@@ -26,9 +26,23 @@ class KinerjaKaryawanService
             ', [BookingStatus::Completed->value, BookingStatus::Confirmed->value, BookingStatus::InProgress->value])
             ->first();
 
-        $totalBookingsAssigned = (int) ($bookingCounts?->total ?? 0);
-        $completedBookings = (int) ($bookingCounts?->completed ?? 0);
-        $inProgressBookings = (int) ($bookingCounts?->in_progress ?? 0);
+        // Statistik order drop-off (1 query agregasi)
+        $orderCounts = $employee->orders()
+            ->selectRaw('
+                COUNT(*) as total,
+                SUM(CASE WHEN status IN (?, ?) THEN 1 ELSE 0 END) as completed,
+                SUM(CASE WHEN status IN (?, ?) THEN 1 ELSE 0 END) as in_progress
+            ', [
+                StatusPesanan::Completed->value,
+                StatusPesanan::Ready->value,
+                StatusPesanan::Received->value,
+                StatusPesanan::Processing->value,
+            ])
+            ->first();
+
+        $totalBookingsAssigned = (int) ($bookingCounts?->total ?? 0) + (int) ($orderCounts?->total ?? 0);
+        $completedBookings = (int) ($bookingCounts?->completed ?? 0) + (int) ($orderCounts?->completed ?? 0);
+        $inProgressBookings = (int) ($bookingCounts?->in_progress ?? 0) + (int) ($orderCounts?->in_progress ?? 0);
 
         // Statistik shift (1 query terkelompok)
         $shiftCounts = $employee->shifts()
@@ -154,11 +168,11 @@ class KinerjaKaryawanService
             ->limit(5)
             ->get();
 
-        // Tugas hari ini (Appointment + Drop-off yang ditugaskan khusus karyawan ini)
+        // Tugas aktif hari ini (Appointment + Drop-off yang masih perlu ditangani karyawan ini)
         $todayBookings = $employee->bookings()
             ->with(['service.category', 'user', 'branch'])
             ->whereDate('booking_date', Carbon::today())
-            ->whereNotIn('status', [BookingStatus::Cancelled->value])
+            ->whereNotIn('status', [BookingStatus::Completed->value, BookingStatus::Cancelled->value])
             ->orderBy('booking_time')
             ->get()
             ->map(fn ($b) => [
@@ -175,11 +189,11 @@ class KinerjaKaryawanService
 
         $todayOrders = $employee->orders()
             ->with(['service.category', 'user', 'branch'])
-            ->where(function ($q) {
-                $q->whereDate('created_at', Carbon::today())
-                    ->orWhereIn('status', [StatusPesanan::Received, StatusPesanan::Processing]);
-            })
-            ->whereNotIn('status', [StatusPesanan::Cancelled->value])
+            ->whereIn('status', [
+                StatusPesanan::Received->value,
+                StatusPesanan::Processing->value,
+                StatusPesanan::Pending->value,
+            ])
             ->latest()
             ->get()
             ->map(fn ($o) => [
@@ -199,48 +213,60 @@ class KinerjaKaryawanService
 
         $todayTasks = $todayBookings->concat($todayOrders);
 
-        // Riwayat tugas sebelumnya
+        // Riwayat tugas selesai (hari ini maupun hari-hari sebelumnya)
         $pastBookings = $employee->bookings()
             ->with(['service.category', 'user', 'branch'])
-            ->whereDate('booking_date', '<', Carbon::today())
-            ->latest('booking_date')
-            ->limit(5)
+            ->where('status', BookingStatus::Completed->value)
+            ->latest('updated_at')
+            ->limit(15)
             ->get()
-            ->map(fn ($b) => [
-                'id' => $b->id,
-                'type' => 'Appointment',
-                'service_name' => $b->service?->name ?? 'Layanan',
-                'branch_name' => $b->branch?->display_name ?? '-',
-                'customer_name' => $b->user?->name ?? 'Pelanggan',
-                'time' => Carbon::parse($b->booking_time)->format('H:i'),
-                'date' => Carbon::parse($b->booking_date)->translatedFormat('d M Y'),
-                'status' => $b->status,
-                'detail_url' => route('bookings.show', $b),
-            ]);
+            ->map(function ($b) {
+                $completedAt = $b->updated_at ?? Carbon::parse($b->booking_date);
+
+                return [
+                    'id' => $b->id,
+                    'type' => 'Appointment',
+                    'service_name' => $b->service?->name ?? 'Layanan',
+                    'branch_name' => $b->branch?->display_name ?? '-',
+                    'customer_name' => $b->user?->name ?? 'Pelanggan',
+                    'time' => $completedAt->format('H:i'),
+                    'date' => $completedAt->translatedFormat('d M Y'),
+                    'completed_at' => $completedAt,
+                    'status' => $b->status,
+                    'detail_url' => route('bookings.show', $b),
+                ];
+            });
 
         $pastOrders = $employee->orders()
             ->with(['service.category', 'user', 'branch'])
-            ->whereDate('created_at', '<', Carbon::today())
-            ->whereIn('status', [StatusPesanan::Completed, StatusPesanan::Cancelled])
-            ->latest()
-            ->limit(5)
+            ->whereIn('status', [StatusPesanan::Completed->value, StatusPesanan::Ready->value])
+            ->latest('updated_at')
+            ->limit(15)
             ->get()
-            ->map(fn ($o) => [
-                'id' => $o->id,
-                'type' => 'Drop-off',
-                'service_name' => $o->service?->name ?? 'Layanan',
-                'branch_name' => $o->branch?->display_name ?? '-',
-                'customer_name' => $o->user?->name ?? 'Pelanggan',
-                'time' => $o->created_at->format('H:i'),
-                'date' => $o->created_at->translatedFormat('d M Y'),
-                'status' => $o->status,
-                'is_weight_based' => $o->isWeightBased(),
-                'is_weighed' => $o->isWeighed(),
-                'actual_weight' => $o->actual_weight,
-                'detail_url' => route('orders.show', $o),
-            ]);
+            ->map(function ($o) {
+                $completedAt = $o->updated_at ?? $o->created_at;
 
-        $historyTasks = $pastBookings->concat($pastOrders);
+                return [
+                    'id' => $o->id,
+                    'type' => 'Drop-off',
+                    'service_name' => $o->service?->name ?? 'Layanan',
+                    'branch_name' => $o->branch?->display_name ?? '-',
+                    'customer_name' => $o->user?->name ?? 'Pelanggan',
+                    'time' => $completedAt->format('H:i'),
+                    'date' => $completedAt->translatedFormat('d M Y'),
+                    'completed_at' => $completedAt,
+                    'status' => $o->status,
+                    'is_weight_based' => $o->isWeightBased(),
+                    'is_weighed' => $o->isWeighed(),
+                    'actual_weight' => $o->actual_weight,
+                    'detail_url' => route('orders.show', $o),
+                ];
+            });
+
+        $historyTasks = $pastBookings->concat($pastOrders)
+            ->sortByDesc(fn ($item) => $item['completed_at']?->timestamp ?? 0)
+            ->values()
+            ->take(15);
 
         return [
             'employee' => $employee,

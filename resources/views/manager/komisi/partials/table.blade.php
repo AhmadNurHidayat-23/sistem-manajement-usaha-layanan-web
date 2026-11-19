@@ -15,7 +15,7 @@
             $commVariants = [
                 'pending' => ['label' => 'Menunggu (Estimasi)', 'badge' => 'warning'],
                 'approved' => ['label' => 'Disetujui', 'badge' => 'primary'],
-                'paid' => ['label' => 'Telah Cair', 'badge' => 'success'],
+                'paid' => ['label' => 'Sudah Dibayar', 'badge' => 'success'],
                 'cancelled' => ['label' => 'Dibatalkan', 'badge' => 'danger'],
             ];
         @endphp
