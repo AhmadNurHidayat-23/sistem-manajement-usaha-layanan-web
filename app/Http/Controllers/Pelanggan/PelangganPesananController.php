@@ -242,23 +242,6 @@ class PelangganPesananController extends Controller
             );
         }
 
-        if ($request->expectsJson() || $request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'data' => $data,
-                'html' => view('pelanggan.pesanan.partials.modal-konfirmasi-content', compact(
-                    'data',
-                    'service',
-                    'branch',
-                    'estimatedPrice',
-                    'estimatedDuration',
-                    'promoResult',
-                    'isWeightBased',
-                    'quantity'
-                ))->render(),
-            ]);
-        }
-
         $branches = $this->bookingService->getActiveBranches('drop_off');
         $services = $this->bookingService->getActiveServices((int) $data['branch_id']);
         $selectedBranchId = $data['branch_id'];
