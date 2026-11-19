@@ -15,7 +15,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 #[Fillable([
     'uuid', 'user_id', 'branch_id', 'service_id', 'employee_id',
     'estimated_quantity', 'actual_weight', 'total_amount', 'weighed_at', 'weighed_by',
-    'pickup_option', 'delivery_method', 'delivery_selected_at', 'handover_status',
+    'pickup_option', 'pickup_address', 'pickup_latitude', 'pickup_longitude',
+    'different_delivery_location', 'delivery_address', 'delivery_latitude', 'delivery_longitude', 'location_notes',
+    'delivery_method', 'delivery_selected_at', 'handover_status',
     'estimated_finish_at', 'status', 'notes',
 ])]
 class Order extends Model
@@ -30,10 +32,43 @@ class Order extends Model
             'total_amount' => 'decimal:2',
             'weighed_at' => 'datetime',
             'pickup_option' => 'boolean',
+            'pickup_latitude' => 'float',
+            'pickup_longitude' => 'float',
+            'different_delivery_location' => 'boolean',
+            'delivery_latitude' => 'float',
+            'delivery_longitude' => 'float',
             'delivery_selected_at' => 'datetime',
             'estimated_finish_at' => 'datetime',
             'status' => StatusPesanan::class,
         ];
+    }
+
+    public function getGoogleMapsPickupUrlAttribute(): ?string
+    {
+        if ($this->pickup_latitude && $this->pickup_longitude) {
+            return "https://www.google.com/maps/dir/?api=1&destination={$this->pickup_latitude},{$this->pickup_longitude}";
+        }
+        if ($this->pickup_address) {
+            return 'https://www.google.com/maps/search/?api=1&query='.urlencode($this->pickup_address);
+        }
+
+        return null;
+    }
+
+    public function getGoogleMapsDeliveryUrlAttribute(): ?string
+    {
+        $lat = $this->different_delivery_location ? $this->delivery_latitude : $this->pickup_latitude;
+        $lng = $this->different_delivery_location ? $this->delivery_longitude : $this->pickup_longitude;
+        $address = $this->different_delivery_location ? $this->delivery_address : $this->pickup_address;
+
+        if ($lat && $lng) {
+            return "https://www.google.com/maps/dir/?api=1&destination={$lat},{$lng}";
+        }
+        if ($address) {
+            return 'https://www.google.com/maps/search/?api=1&query='.urlencode($address);
+        }
+
+        return null;
     }
 
     public function user(): BelongsTo

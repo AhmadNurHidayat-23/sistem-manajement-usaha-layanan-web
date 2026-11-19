@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Pelanggan\PelangganAktivitasController;
 use App\Http\Controllers\Pelanggan\PelangganBookingController;
 use App\Http\Controllers\Pelanggan\PelangganDashboardController;
 use App\Http\Controllers\Pelanggan\PelangganLayananController;
@@ -36,6 +37,9 @@ Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer
     // Dashboard Pelanggan
     Route::get('/dashboard', [PelangganDashboardController::class, 'index'])->name('dashboard');
 
+    // Aktivitas Pelanggan (Unified Booking & Pesanan)
+    Route::get('/aktivitas', [PelangganAktivitasController::class, 'index'])->name('aktivitas');
+
     // Profil Pelanggan
     Route::get('/profil', [PelangganProfilController::class, 'show'])->name('profile');
     Route::put('/profil', [PelangganProfilController::class, 'update'])->name('profile.update');
@@ -53,7 +57,8 @@ Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer
     Route::get('/pesanan', [PelangganPesananController::class, 'orders'])->name('pesanan.index');
     Route::get('/pesanan/buat', [PelangganPesananController::class, 'createOrder'])->name('pesanan.create');
     Route::get('/pesanan/branch-services', [PelangganPesananController::class, 'branchServices'])->name('pesanan.branch-services');
-    Route::post('/pesanan/konfirmasi', [PelangganPesananController::class, 'confirmOrder'])->name('pesanan.confirm');
+    Route::get('/pesanan/reverse-geocode', [PelangganPesananController::class, 'reverseGeocode'])->name('pesanan.reverse-geocode');
+    Route::match(['get', 'post'], '/pesanan/konfirmasi', [PelangganPesananController::class, 'confirmOrder'])->name('pesanan.confirm');
     Route::post('/pesanan', [PelangganPesananController::class, 'storeOrder'])->name('pesanan.store');
     Route::post('/pesanan/select', [PelangganPesananController::class, 'selectOrder'])->name('pesanan.select');
     Route::get('/pesanan/detail', [PelangganPesananController::class, 'showDetail'])->name('pesanan.detail');

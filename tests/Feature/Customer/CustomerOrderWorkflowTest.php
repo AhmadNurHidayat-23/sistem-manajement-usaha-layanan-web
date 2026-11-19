@@ -202,6 +202,7 @@ class CustomerOrderWorkflowTest extends TestCase
             'service_id' => $this->laundryService->id,
             'estimated_quantity' => 2,
             'pickup_option' => 1,
+            'pickup_address' => 'Jl. RS Fatmawati No. 12',
             'notes' => 'Tolong pisahkan pakaian putih',
         ]);
         $response->assertStatus(200);
@@ -217,6 +218,7 @@ class CustomerOrderWorkflowTest extends TestCase
             'service_id' => $this->laundryService->id,
             'estimated_quantity' => null,
             'pickup_option' => 1,
+            'pickup_address' => 'Jl. RS Fatmawati No. 12',
             'notes' => 'Cucian kemeja kantor',
         ]);
 
@@ -225,6 +227,7 @@ class CustomerOrderWorkflowTest extends TestCase
             'branch_id' => $this->branchSelatan->id,
             'service_id' => $this->laundryService->id,
             'status' => StatusPesanan::Pending->value,
+            'pickup_address' => 'Jl. RS Fatmawati No. 12',
         ]);
 
         $response->assertRedirect(route('customer.pesanan.detail'));

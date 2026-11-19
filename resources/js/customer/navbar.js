@@ -1,4 +1,6 @@
 import { initHeaderScroll } from '../landing/header-scroll.js';
+import { initLocaleToggle } from '../landing/locale-toggle.js';
+import { initThemeToggle } from '../landing/theme-toggle.js';
 
 /**
  * Dropdown profil pelanggan di header.
@@ -48,11 +50,13 @@ export function initCustomerProfileDropdown(root = document) {
 }
 
 /**
- * Kontrol navigasi customer dan mobile toggle panel.
+ * Kontrol navigasi customer, mobile toggle, bahasa, dan tema.
  */
 export function initCustomerNavbar() {
     initHeaderScroll();
     initCustomerProfileDropdown();
+    initLocaleToggle();
+    initThemeToggle();
 }
 
 export function toggleMobileNav() {
@@ -75,5 +79,6 @@ if (typeof window !== 'undefined') {
     window.closeMobileNav = closeMobileNav;
     window.initCustomerNavbar = initCustomerNavbar;
     window.initCustomerProfileDropdown = initCustomerProfileDropdown;
+    window.initLocaleToggle = initLocaleToggle;
+    window.initThemeToggle = initThemeToggle;
 }
-

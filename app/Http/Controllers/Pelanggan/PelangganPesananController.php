@@ -14,6 +14,8 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -109,10 +111,69 @@ class PelangganPesananController extends Controller
     }
 
     /**
+     * Reverse geocoding koordinat GPS ke alamat menggunakan Nominatim OpenStreetMap
+     * dengan identifikasi aplikasi resmi sesuai OSM Usage Policy.
+     */
+    public function reverseGeocode(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'lat' => ['required', 'numeric', 'between:-90,90'],
+            'lng' => ['required', 'numeric', 'between:-180,180'],
+        ]);
+
+        $lat = (float) $validated['lat'];
+        $lng = (float) $validated['lng'];
+
+        $cacheKey = sprintf('reverse_geo_%.5f_%.5f', $lat, $lng);
+
+        $addressData = Cache::remember($cacheKey, now()->addHours(6), function () use ($lat, $lng) {
+            try {
+                $response = Http::withHeaders([
+                    'User-Agent' => config('app.name', 'SIMAUL').'/1.0 (info@simaul.local)',
+                    'Accept' => 'application/json',
+                    'Accept-Language' => 'id,en;q=0.9',
+                ])->timeout(6)->get('https://nominatim.openstreetmap.org/reverse', [
+                    'format' => 'jsonv2',
+                    'lat' => $lat,
+                    'lon' => $lng,
+                    'zoom' => 18,
+                    'addressdetails' => 1,
+                    'accept-language' => 'id',
+                ]);
+
+                if ($response->successful()) {
+                    return $response->json();
+                }
+            } catch (\Throwable $e) {
+                report($e);
+            }
+
+            return null;
+        });
+
+        if (! $addressData) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Layanan geocoding tidak dapat menemukan alamat pada titik koordinat tersebut.',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $addressData,
+        ]);
+    }
+
+    /**
      * Konfirmasi pesanan pelanggan.
      */
-    public function confirmOrder(Request $request): View|RedirectResponse
+    public function confirmOrder(Request $request): View|RedirectResponse|JsonResponse
     {
+        if ($request->isMethod('get') && (! $request->has('branch_id') || ! $request->has('service_id'))) {
+            return redirect()->route('customer.pesanan.create')
+                ->with('info', 'Silakan pilih layanan dan lengkapi data pesanan terlebih dahulu.');
+        }
+
         $data = $request->validate([
             'branch_id' => ['required', 'exists:branches,id'],
             'service_id' => [
@@ -125,14 +186,31 @@ class PelangganPesananController extends Controller
             ],
             'estimated_quantity' => ['nullable', 'numeric', 'min:0.01'],
             'pickup_option' => ['nullable', 'boolean'],
+            'pickup_address' => ['required_if:pickup_option,1', 'nullable', 'string', 'max:1000'],
+            'pickup_latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'pickup_longitude' => ['nullable', 'numeric', 'between:-180,180'],
+            'different_delivery_location' => ['nullable', 'boolean'],
+            'delivery_address' => ['required_if:different_delivery_location,1', 'nullable', 'string', 'max:1000'],
+            'delivery_latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'delivery_longitude' => ['nullable', 'numeric', 'between:-180,180'],
+            'location_notes' => ['nullable', 'string', 'max:1000'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'promo_code' => ['nullable', 'string', 'max:50'],
         ], [
             'service_id.exists' => 'Layanan yang dipilih tidak tersedia pada cabang tersebut.',
+            'pickup_address.required_if' => 'Alamat penjemputan wajib diisi saat layanan antar-jemput aktif.',
+            'delivery_address.required_if' => 'Alamat pengantaran wajib diisi jika lokasi pengantaran berbeda.',
         ]);
 
         $branch = Branch::findOrFail($data['branch_id']);
         if (! in_array($branch->service_mode, ['drop_off', 'both'], true)) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'message' => 'Cabang yang dipilih tidak melayani pesanan drop-off.',
+                    'errors' => ['branch_id' => ['Cabang yang dipilih tidak melayani pesanan drop-off.']],
+                ], 422);
+            }
+
             return back()->withErrors(['branch_id' => 'Cabang yang dipilih tidak melayani pesanan drop-off.'])->withInput();
         }
 
@@ -164,6 +242,29 @@ class PelangganPesananController extends Controller
             );
         }
 
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+                'html' => view('pelanggan.pesanan.partials.modal-konfirmasi-content', compact(
+                    'data',
+                    'service',
+                    'branch',
+                    'estimatedPrice',
+                    'estimatedDuration',
+                    'promoResult',
+                    'isWeightBased',
+                    'quantity'
+                ))->render(),
+            ]);
+        }
+
+        $branches = $this->bookingService->getActiveBranches('drop_off');
+        $services = $this->bookingService->getActiveServices((int) $data['branch_id']);
+        $selectedBranchId = $data['branch_id'];
+        $selectedServiceId = $data['service_id'];
+        $selectedService = $service;
+
         return view('pelanggan.pesanan.confirm', compact(
             'data',
             'service',
@@ -172,7 +273,12 @@ class PelangganPesananController extends Controller
             'estimatedDuration',
             'promoResult',
             'isWeightBased',
-            'quantity'
+            'quantity',
+            'branches',
+            'services',
+            'selectedBranchId',
+            'selectedServiceId',
+            'selectedService'
         ));
     }
 

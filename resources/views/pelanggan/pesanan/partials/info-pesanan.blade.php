@@ -21,14 +21,31 @@
                 ['Kategori', $order->service?->category?->name ?? '-'],
                 ['Kuantitas / Berat', $qtyDisplay],
                 ['Antar-Jemput', $order->pickup_option ? 'Ya (Dijemput)' : 'Tidak (Drop-off di cabang)'],
-                ['Est. Selesai', $order->estimated_finish_at ? $order->estimated_finish_at->format('d M Y, H:i') . ' WIB' : '-'],
-                ['Catatan', $order->notes ?? '-'],
             ];
+
+            if ($order->pickup_option && $order->pickup_address) {
+                $rows[] = ['Alamat Jemput', $order->pickup_address];
+                if ($order->google_maps_pickup_url) {
+                    $rows[] = ['Titik Jemput', '<a href="' . e($order->google_maps_pickup_url) . '" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-semibold text-[#062072] hover:underline">Buka Peta &rarr;</a>'];
+                }
+                if ($order->different_delivery_location && $order->delivery_address) {
+                    $rows[] = ['Alamat Antar', $order->delivery_address];
+                    if ($order->google_maps_delivery_url) {
+                        $rows[] = ['Titik Antar', '<a href="' . e($order->google_maps_delivery_url) . '" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-semibold text-[#062072] hover:underline">Buka Peta &rarr;</a>'];
+                    }
+                }
+                if ($order->location_notes) {
+                    $rows[] = ['Catatan Lokasi', $order->location_notes];
+                }
+            }
+
+            $rows[] = ['Est. Selesai', $order->estimated_finish_at ? $order->estimated_finish_at->format('d M Y, H:i') . ' WIB' : '-'];
+            $rows[] = ['Catatan', $order->notes ?? '-'];
         @endphp
         @foreach($rows as [$label, $value])
         <div class="py-3 flex justify-between gap-4">
             <dt class="text-sm text-[#667085] shrink-0">{{ $label }}</dt>
-            <dd class="text-sm font-medium text-[#101828] text-right">{{ $value }}</dd>
+            <dd class="text-sm font-medium text-[#101828] text-right">{!! $value !!}</dd>
         </div>
         @endforeach
     </dl>

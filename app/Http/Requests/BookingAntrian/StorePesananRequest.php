@@ -16,6 +16,8 @@ class StorePesananRequest extends FormRequest
 
     public function rules(): array
     {
+        $isCustomerRoute = $this->routeIs('customer.pesanan.*') || $this->is('customer/pesanan*');
+
         return [
             'branch_id' => ['required', 'exists:branches,id'],
             'employee_id' => ['nullable', 'exists:employees,id'],
@@ -29,6 +31,14 @@ class StorePesananRequest extends FormRequest
             ],
             'estimated_quantity' => ['nullable', 'numeric', 'min:0.01'],
             'pickup_option' => ['nullable', 'boolean'],
+            'pickup_address' => [$isCustomerRoute ? 'required_if:pickup_option,1' : 'nullable', 'nullable', 'string', 'max:1000'],
+            'pickup_latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'pickup_longitude' => ['nullable', 'numeric', 'between:-180,180'],
+            'different_delivery_location' => ['nullable', 'boolean'],
+            'delivery_address' => ['required_if:different_delivery_location,1', 'nullable', 'string', 'max:1000'],
+            'delivery_latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'delivery_longitude' => ['nullable', 'numeric', 'between:-180,180'],
+            'location_notes' => ['nullable', 'string', 'max:1000'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'extra_service_ids' => ['nullable', 'array'],
             'extra_service_ids.*' => [
@@ -67,6 +77,8 @@ class StorePesananRequest extends FormRequest
     {
         return [
             'service_id.exists' => 'Layanan yang dipilih tidak tersedia pada cabang tersebut.',
+            'pickup_address.required_if' => 'Alamat penjemputan wajib diisi saat layanan antar-jemput aktif.',
+            'delivery_address.required_if' => 'Alamat pengantaran wajib diisi jika lokasi pengantaran berbeda.',
         ];
     }
 
@@ -77,6 +89,8 @@ class StorePesananRequest extends FormRequest
             'service_id' => 'Layanan',
             'estimated_quantity' => 'Estimasi Kuantitas',
             'pickup_option' => 'Opsi Pickup / Antar-Jemput',
+            'pickup_address' => 'Alamat Penjemputan',
+            'delivery_address' => 'Alamat Pengantaran',
             'notes' => 'Catatan',
         ];
     }

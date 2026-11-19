@@ -2,7 +2,47 @@
  * Logika form pesanan mandiri customer:
  * 1. Filter pilihan layanan dinamis via fetch API berdasarkan cabang yang dipilih.
  * 2. Form generik dinamis berdasarkan jenis layanan (fixed-price vs weight-based).
+ * 3. Modal pop-up interaktif untuk Buat Pesanan.
  */
+
+export function openOrderModal(branchId = null, serviceId = null, triggerBtn = null) {
+    const modal = document.getElementById('modal-buat-pesanan');
+    if (!modal) return;
+
+    const branchSelect = document.getElementById('branch_id');
+    const serviceSelect = document.getElementById('service_id');
+
+    if (branchId && branchSelect) {
+        branchSelect.value = String(branchId);
+        branchSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        branchSelect.dispatchEvent(new Event('render-custom-select'));
+        if (typeof window.filterServicesByBranch === 'function') {
+            window.filterServicesByBranch(serviceId);
+        }
+    } else if (serviceId && serviceSelect) {
+        serviceSelect.value = String(serviceId);
+        serviceSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        serviceSelect.dispatchEvent(new Event('render-custom-select'));
+        if (typeof window.updateQuantityLabel === 'function') {
+            window.updateQuantityLabel();
+        }
+    }
+
+    if (typeof window.openModal === 'function') {
+        window.openModal('modal-buat-pesanan', triggerBtn);
+    } else {
+        modal.classList.remove('hidden');
+        modal.classList.add('is-open');
+        document.body.classList.add('overflow-hidden');
+    }
+
+    setTimeout(() => {
+        if (typeof window.invalidatePickupMaps === 'function') {
+            window.invalidatePickupMaps();
+        }
+    }, 180);
+}
+
 export function initPesananCreate() {
     const branchSelect = document.getElementById('branch_id');
     const serviceSelect = document.getElementById('service_id');
@@ -23,7 +63,7 @@ export function initPesananCreate() {
     /**
      * Filter dropdown layanan berdasarkan cabang yang aktif via fetch
      */
-    function filterServicesByBranch() {
+    function filterServicesByBranch(targetServiceId = null) {
         const branchId = branchSelect ? branchSelect.value.trim() : '';
 
         // 1. Kosongkan options & reset pilihan service lama segera
@@ -79,11 +119,17 @@ export function initPesananCreate() {
                     opt.dataset.duration = s.duration;
                     opt.dataset.durationFormatted = s.duration_formatted;
                     opt.textContent = s.label;
+                    if (targetServiceId && String(s.id) === String(targetServiceId)) {
+                        opt.selected = true;
+                    }
                     serviceSelect.appendChild(opt);
                 });
 
-                // Pastikan service lama direset dan custom-select di-update
-                serviceSelect.value = '';
+                if (targetServiceId) {
+                    serviceSelect.value = String(targetServiceId);
+                } else if (!serviceSelect.value) {
+                    serviceSelect.value = '';
+                }
                 serviceSelect.dispatchEvent(new Event('change', { bubbles: true }));
                 serviceSelect.dispatchEvent(new Event('render-custom-select'));
                 updateServiceFields();
@@ -160,7 +206,7 @@ export function initPesananCreate() {
     }
 
     if (branchSelect) {
-        branchSelect.addEventListener('change', filterServicesByBranch);
+        branchSelect.addEventListener('change', () => filterServicesByBranch());
     }
 
     serviceSelect.addEventListener('change', updateServiceFields);
@@ -168,19 +214,99 @@ export function initPesananCreate() {
         qtyInput.addEventListener('input', updateServiceFields);
     }
 
-    const submitOrderBtn = document.getElementById('btn-submit-order');
-    if (submitOrderBtn && submitOrderBtn.form) {
-        submitOrderBtn.form.addEventListener('submit', () => {
-            submitOrderBtn.disabled = true;
+    // Pencegahan double submit pada form Buat Pesanan (#form-order-customer)
+    const orderForm = document.getElementById('form-order-customer');
+    if (orderForm) {
+        orderForm.addEventListener('submit', function () {
+            const submitBtn = document.getElementById('btn-konfirmasi-order');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                const textSpan = submitBtn.querySelector('span');
+                if (textSpan) {
+                    textSpan.textContent = 'Menyiapkan Konfirmasi...';
+                }
+            }
+        });
+    }
+
+    // Auto-open jika modal memiliki atribut data-auto-open="1"
+    const modalEl = document.getElementById('modal-buat-pesanan');
+    if (modalEl && modalEl.dataset.autoOpen === '1') {
+        if (typeof window.openModal === 'function') {
+            window.openModal('modal-buat-pesanan');
+        } else {
+            modalEl.classList.remove('hidden');
+            modalEl.classList.add('is-open');
+            document.body.classList.add('overflow-hidden');
+        }
+        setTimeout(() => {
+            if (typeof window.invalidatePickupMaps === 'function') {
+                window.invalidatePickupMaps();
+            }
+        }, 180);
+    }
+
+    // Standalone modal navigation handler (ketika diakses langsung via URL /customer/pesanan/buat)
+    if (modalEl && modalEl.dataset.standalone === '1') {
+        modalEl.addEventListener('click', (e) => {
+            if (e.target === modalEl) {
+                window.location.href = '/customer/dashboard#pilih-layanan';
+            }
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modalEl.classList.contains('hidden')) {
+                window.location.href = '/customer/dashboard#pilih-layanan';
+            }
+        });
+    }
+
+    // Pencegahan double submit pada form konfirmasi akhir (#form-confirm-order)
+    let isSubmittingConfirmOrder = false;
+    if (typeof document !== 'undefined' && !document.body.dataset.confirmSubmitBound) {
+        document.body.dataset.confirmSubmitBound = '1';
+        document.addEventListener('submit', (e) => {
+            const confirmForm = e.target.closest('#form-confirm-order');
+            if (!confirmForm) return;
+
+            if (isSubmittingConfirmOrder) {
+                e.preventDefault();
+                return false;
+            }
+
+            isSubmittingConfirmOrder = true;
+            const submitBtn = confirmForm.querySelector('#btn-submit-order');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                const textSpan = submitBtn.querySelector('span');
+                if (textSpan) {
+                    textSpan.textContent = 'Memproses Pesanan...';
+                }
+            }
+        });
+    }
+
+    // Global listener untuk tombol buka modal [data-action="open-order-modal"]
+    if (typeof document !== 'undefined' && !document.body.dataset.orderModalBound) {
+        document.body.dataset.orderModalBound = '1';
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-action="open-order-modal"]');
+            if (btn) {
+                e.preventDefault();
+                const branchId = btn.getAttribute('data-branch-id');
+                const serviceId = btn.getAttribute('data-service-id');
+                openOrderModal(branchId, serviceId, btn);
+            }
         });
     }
 
     if (typeof window !== 'undefined') {
         window.updateQuantityLabel = updateServiceFields;
         window.filterServicesByBranch = filterServicesByBranch;
+        window.openOrderModal = openOrderModal;
     }
 
-    // Jalankan update form saat initial load
+    // Jalankan update form saat initial load jika service sudah dipilih
     if (serviceSelect.value) {
         updateServiceFields();
     }
@@ -188,4 +314,5 @@ export function initPesananCreate() {
 
 if (typeof window !== 'undefined') {
     window.initPesananCreate = initPesananCreate;
+    window.openOrderModal = openOrderModal;
 }

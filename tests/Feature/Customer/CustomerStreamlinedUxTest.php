@@ -188,7 +188,7 @@ class CustomerStreamlinedUxTest extends TestCase
         $orderForm = $this->actingAs($this->andi)->get(route('customer.pesanan.create'));
         $orderForm->assertStatus(200);
         $orderForm->assertSee('Kembali');
-        $orderForm->assertSee('Lihat Estimasi & Konfirmasi', false);
+        $orderForm->assertSee('Pesan', false);
         $orderForm->assertDontSee('← Kembali');
     }
 
@@ -236,7 +236,11 @@ class CustomerStreamlinedUxTest extends TestCase
             'status' => StatusPesanan::Completed,
         ]);
 
-        $response = $this->actingAs($this->andi)->get(route('customer.dashboard'));
+        $dashboardResponse = $this->actingAs($this->andi)->get(route('customer.dashboard'));
+        $dashboardResponse->assertStatus(200);
+        $dashboardResponse->assertDontSee('id="aktivitas-saya"', false);
+
+        $response = $this->actingAs($this->andi)->get(route('customer.aktivitas'));
         $response->assertStatus(200);
 
         $response->assertSee(route('customer.booking.show', $andiBooking));
@@ -266,13 +270,97 @@ class CustomerStreamlinedUxTest extends TestCase
             'transaction_date' => now(),
         ]);
 
-        $response = $this->actingAs($this->andi)->get(route('customer.dashboard'));
+        $response = $this->actingAs($this->andi)->get(route('customer.aktivitas'));
         $response->assertStatus(200);
         $response->assertSee('Diproses');
         $response->assertSee('Lunas');
 
+        $this->actingAs($this->andi)->get(route('customer.dashboard'))->assertStatus(200);
         $this->actingAs($this->andi)->get(route('customer.member'))->assertStatus(200);
         $this->actingAs($this->andi)->get(route('customer.promo'))->assertStatus(200);
         $this->actingAs($this->andi)->get(route('customer.ulasan.index'))->assertStatus(200);
+    }
+
+    public function test_pickup_location_is_validated_stored_and_rendered_with_google_maps_url(): void
+    {
+        // 1. Tombol Kembali di form buat pesanan mengarah ke dashboard #pilih-layanan
+        $createPageResponse = $this->actingAs($this->andi)->get(route('customer.pesanan.create'));
+        $createPageResponse->assertStatus(200);
+        $createPageResponse->assertSee(route('customer.dashboard').'#pilih-layanan');
+        $createPageResponse->assertSee('Layanan Antar-Jemput');
+        $createPageResponse->assertSee('Lokasi Penjemputan');
+        $createPageResponse->assertSee('Gunakan Lokasi Saya');
+
+        // 2. Validasi: jika pickup_option aktif, pickup_address wajib diisi
+        $invalidResponse = $this->actingAs($this->andi)->post(route('customer.pesanan.confirm'), [
+            'branch_id' => $this->laundry->id,
+            'service_id' => $this->laundryService->id,
+            'pickup_option' => 1,
+            'pickup_address' => '',
+        ]);
+        $invalidResponse->assertSessionHasErrors('pickup_address');
+
+        // 3. Konfirmasi berhasil jika data lokasi diisi lengkap
+        $confirmResponse = $this->actingAs($this->andi)->post(route('customer.pesanan.confirm'), [
+            'branch_id' => $this->laundry->id,
+            'service_id' => $this->laundryService->id,
+            'pickup_option' => 1,
+            'pickup_address' => 'Jl. RS Fatmawati No. 45, Cilandak',
+            'pickup_latitude' => -6.2912,
+            'pickup_longitude' => 106.7972,
+            'different_delivery_location' => 1,
+            'delivery_address' => 'Jl. TB Simatupang No. 18, Jakarta Selatan',
+            'delivery_latitude' => -6.2985,
+            'delivery_longitude' => 106.8055,
+            'location_notes' => 'Pagar putih, samping minimarket',
+        ]);
+        $confirmResponse->assertStatus(200);
+        $confirmResponse->assertSee('Jl. RS Fatmawati No. 45, Cilandak');
+        $confirmResponse->assertSee('Jl. TB Simatupang No. 18, Jakarta Selatan');
+        $confirmResponse->assertSee('Pagar putih, samping minimarket');
+
+        // 4. Store pesanan berhasil dan menyimpan lokasi ke database
+        $storeResponse = $this->actingAs($this->andi)->post(route('customer.pesanan.store'), [
+            'branch_id' => $this->laundry->id,
+            'service_id' => $this->laundryService->id,
+            'pickup_option' => 1,
+            'pickup_address' => 'Jl. RS Fatmawati No. 45, Cilandak',
+            'pickup_latitude' => -6.2912,
+            'pickup_longitude' => 106.7972,
+            'different_delivery_location' => 1,
+            'delivery_address' => 'Jl. TB Simatupang No. 18, Jakarta Selatan',
+            'delivery_latitude' => -6.2985,
+            'delivery_longitude' => 106.8055,
+            'location_notes' => 'Pagar putih, samping minimarket',
+        ]);
+        $storeResponse->assertRedirect(route('customer.pesanan.detail'));
+
+        $order = Order::where('user_id', $this->andi->id)->latest()->first();
+        $this->assertNotNull($order);
+        $this->assertEquals('Jl. RS Fatmawati No. 45, Cilandak', $order->pickup_address);
+        $this->assertEquals(-6.2912, (float) $order->pickup_latitude);
+        $this->assertEquals(106.7972, (float) $order->pickup_longitude);
+        $this->assertTrue((bool) $order->different_delivery_location);
+        $this->assertEquals('Jl. TB Simatupang No. 18, Jakarta Selatan', $order->delivery_address);
+        $this->assertStringContainsString('google.com/maps', $order->google_maps_pickup_url);
+        $this->assertStringContainsString('-6.2912,106.7972', $order->google_maps_pickup_url);
+        $this->assertStringContainsString('google.com/maps', $order->google_maps_delivery_url);
+        $this->assertStringContainsString('-6.2985,106.8055', $order->google_maps_delivery_url);
+
+        // Alamat user otomatis tersimpan jika sebelumnya kosong
+        $this->andi->refresh();
+        $this->assertEquals('Jl. RS Fatmawati No. 45, Cilandak', $this->andi->address);
+
+        // 5. Tampilan detail pesanan menampilkan alamat dan link peta
+        $selectResponse = $this->actingAs($this->andi)->get(route('customer.pesanan.show', $order));
+        $selectResponse->assertRedirect(route('customer.pesanan.detail'));
+
+        $detailResponse = $this->actingAs($this->andi)
+            ->withSession(['selected_order_id' => $order->id])
+            ->get(route('customer.pesanan.detail'));
+        $detailResponse->assertStatus(200);
+        $detailResponse->assertSee('Jl. RS Fatmawati No. 45, Cilandak');
+        $detailResponse->assertSee('Pagar putih, samping minimarket');
+        $detailResponse->assertSee('Buka Peta');
     }
 }

@@ -11,3 +11,155 @@
 .voucher-coupon-border {
     border-style: dashed;
 }
+
+/* ==========================================================================
+   CUSTOMER AREA DARK MODE (Dashboard, Booking, Pesanan, Member, Ulasan, Profil)
+   ========================================================================== */
+
+/* Background & Body Text */
+html.dark body:has(main) {
+    background-color: #080E1E !important;
+    color: #F8FAFC !important;
+}
+
+html.dark body > main {
+    background-color: #080E1E !important;
+    color: #F8FAFC !important;
+}
+
+/* Surfaces, Cards, and Containers */
+html.dark main .bg-white,
+html.dark main .bg-\[\#FFFFFF\] {
+    background-color: #111C35 !important;
+    border-color: #1E2D4A !important;
+}
+
+html.dark main .bg-\[\#F5F8FC\],
+html.dark main .bg-\[\#F8FAFC\],
+html.dark main .bg-neutral-50,
+html.dark main .bg-gray-50,
+html.dark main .bg-slate-50 {
+    background-color: #0E172E !important;
+}
+
+/* Borders & Dividers */
+html.dark main .border-\[\#E4E7EC\],
+html.dark main .border-\[\#D0D5DD\],
+html.dark main .border-neutral-200,
+html.dark main .border-gray-200,
+html.dark main .border-slate-200 {
+    border-color: #1E2D4A !important;
+}
+
+html.dark main .divide-\[\#E4E7EC\] > :not([hidden]) ~ :not([hidden]),
+html.dark main .divide-\[\#F2F4F7\] > :not([hidden]) ~ :not([hidden]),
+html.dark main .divide-neutral-200 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #1E2D4A !important;
+}
+
+/* Text Colors */
+html.dark main .text-\[\#101828\],
+html.dark main .text-neutral-900,
+html.dark main .text-gray-900 {
+    color: #F8FAFC !important;
+}
+
+html.dark main .text-\[\#344054\],
+html.dark main .text-neutral-700,
+html.dark main .text-gray-700 {
+    color: #CBD5E1 !important;
+}
+
+html.dark main .text-\[\#475467\],
+html.dark main .text-\[\#667085\],
+html.dark main .text-neutral-500,
+html.dark main .text-gray-500 {
+    color: #94A3B8 !important;
+}
+
+html.dark main .text-\[\#062072\] {
+    color: #93C5FD !important;
+}
+
+/* Form Controls: Inputs, Selects, and Textareas */
+html.dark main input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+html.dark main select,
+html.dark main textarea {
+    background-color: #0E172E !important;
+    border-color: #1E2D4A !important;
+    color: #F8FAFC !important;
+}
+
+html.dark main input::placeholder,
+html.dark main textarea::placeholder {
+    color: #64748B !important;
+}
+
+/* Tables */
+html.dark main table {
+    border-color: #1E2D4A !important;
+}
+
+html.dark main th {
+    background-color: #0E172E !important;
+    color: #CBD5E1 !important;
+    border-color: #1E2D4A !important;
+}
+
+html.dark main td {
+    border-color: #1E2D4A !important;
+    color: #F8FAFC !important;
+}
+
+/* Modals */
+html.dark [id*="modal"] > div.bg-white,
+html.dark .fixed > div.bg-white {
+    background-color: #111C35 !important;
+    border-color: #1E2D4A !important;
+    color: #F8FAFC !important;
+}
+
+/* Customer Header / Navbar in Dark Mode when in Customer Area */
+html.dark #floating-header.bg-white {
+    background-color: #080E1E !important;
+    border-color: #1E2D4A !important;
+}
+
+html.dark #floating-header #brand-logo-img {
+    filter: brightness(0) invert(1) !important;
+}
+
+html.dark #floating-header .nav-link-item {
+    color: #CBD5E1 !important;
+}
+
+html.dark #floating-header .nav-link-item:hover {
+    color: #FFFFFF !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark #floating-header #btn-switch-locale {
+    color: #F8FAFC !important;
+    border-color: #1E2D4A !important;
+    background-color: transparent !important;
+}
+
+html.dark #floating-header #btn-switch-locale:hover {
+    background-color: #1E2D4A !important;
+}
+
+html.dark #customer-profile-dropdown {
+    background-color: #111C35 !important;
+    border-color: #1E2D4A !important;
+}
+
+html.dark #customer-profile-dropdown a,
+html.dark #customer-profile-dropdown button {
+    color: #CBD5E1 !important;
+}
+
+html.dark #customer-profile-dropdown a:hover,
+html.dark #customer-profile-dropdown button:hover {
+    background-color: #1E2D4A !important;
+    color: #FFFFFF !important;
+}

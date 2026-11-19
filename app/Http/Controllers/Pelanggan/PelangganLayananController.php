@@ -23,7 +23,8 @@ class PelangganLayananController extends Controller
             abort(404, 'Layanan tidak ditemukan.');
         }
 
-        $service->load(['category', 'branch']);
+        $service->load(['category', 'branch', 'images']);
+        $photoUrl = $service->image_url ?? $service->images->pluck('image_url')->filter()->first();
 
         // Ambil cabang penyedia layanan
         $branches = $service->branch_id
@@ -33,6 +34,6 @@ class PelangganLayananController extends Controller
         // Ambil ulasan layanan
         $reviewStats = $this->ulasanService->getServiceRatingStats($service->id);
 
-        return view('pelanggan.layanan.show', compact('service', 'branches', 'reviewStats'));
+        return view('pelanggan.layanan.show', compact('service', 'branches', 'reviewStats', 'photoUrl'));
     }
 }
